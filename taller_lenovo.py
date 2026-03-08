@@ -3,8 +3,16 @@ import pandas as pd
 from datetime import datetime
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Presupuestador Lenovo", page_icon="🛠️")
-st.title("💰 Presupuestador de Taller")
+st.sidebar.header("⚙️ Configuración del Taller")
+nombre_taller = st.sidebar.text_input("Nombre del Taller", value="MI TALLER MECÁNICO")
+contacto_taller = st.sidebar.text_input("Teléfono / Contacto", value="+54 9 11 ...")
+direccion_taller = st.sidebar.text_input("Dirección", value="Calle Falsa 123")
+
+st.set_page_config(page_title=f"Presupuestador - {nombre_taller}", page_icon="🛠️")
+
+st.title(f"💰 {nombre_taller}")
+st.markdown(f"**📞 Contacto:** {contacto_taller} | **📍 Ubicación:** {direccion_taller}")
+st.markdown("---")
 
 if 'mis_repuestos' not in st.session_state:
     st.session_state.mis_repuestos = []
