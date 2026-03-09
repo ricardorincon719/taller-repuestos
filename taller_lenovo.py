@@ -4,106 +4,146 @@ import sqlite3
 from datetime import datetime
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Manager Taller Elite", layout="wide")
+st.set_page_config(page_title="Taller Pro", layout="wide")
 
-# --- BASE DE DATOS ---
+# --- CONEXIÓN Y BASE DE DATOS ---
 def conectar_db():
-    return sqlite3.connect('taller.db', check_same_thread=False)
+    conn = sqlite3.connect('taller.db', check_same_thread=False)
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS inventario 
+                      (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                       repuesto TEXT UNIQUE, stock INTEGER, precio_venta REAL)''')
+    conn.commit()
+    return conn
 
 conn = conectar_db()
 cursor = conn.cursor()
-cursor.execute('''CREATE TABLE IF NOT EXISTS inventario 
-                  (id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                   repuesto TEXT UNIQUE, stock INTEGER, precio_venta REAL)''')
-conn.commit()
 
-# --- CSS PARA IMPRESIÓN ---
+# --- CSS IMPRESIÓN MEJORADO ---
 st.markdown("""
     <style>
     @media print {
-        header, .stSidebar, .stTabs [data-baseweb="tab-list"], .no-print, button { display: none !important; }
-        .print-body { font-family: Arial; color: black; }
-        .stTable { font-size: 10pt; }
+        /* Oculta Sidebar, Botones, Cabeceras de Streamlit y el expansor de carga */
+        .no-print, button, .stSidebar, header, [data-testid="stHeader"], .st-expanderHeader, .st-expanderContent, [data-testid="stExpander"] { 
+            display: none !important; 
+        }
+        
+        /* Asegura que el cuerpo de la impresión sea limpio */
+        .print-header { 
+            text-align: center; 
+            margin-bottom: 20px; 
+            border-bottom: 2px solid #000; 
+            padding-bottom: 10px; 
+        }
+        .print-body { 
+            font-family: Arial, sans-serif; 
+            color: black; 
+        }
+        
+        /* Ajusta las tablas para que ocupen todo el ancho en el papel */
+        .stTable { 
+            font-size: 11pt; 
+            width: 100% !important; 
+        }
     }
     </style>
 """, unsafe_allow_html=True)
 
-tab_presu, tab_inv = st.tabs(["📄 PRESUPUESTO", "📦 INVENTARIO"])
+# --- SIDEBAR: DATOS DEL TALLER (EDITABLES) ---
+st.sidebar.header("🏢 Datos de Mi Taller")
+nombre_taller = st.sidebar.text_input("Nombre del Negocio", "MI TALLER MECÁNICO")
+direccion_taller = st.sidebar.text_input("Dirección", "Calle Falsa 123")
+telefono_taller = st.sidebar.text_input("Teléfono / WhatsApp", "+54 9...")
+cuit_taller = st.sidebar.text_input("CUIT / Documento", "30-12345678-9")
 
 if 'carrito' not in st.session_state:
     st.session_state.carrito = []
 
-with tab_presu:
-    st.sidebar.header("Configuración")
-    taller = st.sidebar.text_input("Taller", "MI TALLER MECÁNICO")
-    
-    st.markdown(f"### {taller}")
-    st.write(f"Fecha: {datetime.now().strftime('%d/%m/%Y')}")
-    cliente = st.text_input("Cliente / Vehículo")
+tab1, tab2 = st.tabs(["📄 PRESUPUESTO", "📦 INVENTARIO"])
 
-    # AGREGAR ÍTEMS CON CANTIDAD
-    with st.expander("➕ Agregar Ítem al Presupuesto", expanded=True):
-        # Traemos productos del inventario para el buscador
-        res = cursor.execute("SELECT repuesto, precio_venta FROM inventario").fetchall()
-        opciones = {r[0]: r[1] for r in res}
+with tab1:
+    # --- ENCABEZADO DE IMPRESIÓN ---
+    st.markdown(f"""
+        <div class="print-header">
+            <h1 style='margin:0;'>{nombre_taller.upper()}</h1>
+            <p style='margin:0;'>{direccion_taller} | Tel: {telefono_taller}</p>
+            <p style='margin:0;'>{cuit_taller}</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    col_c, col_f = st.columns(2)
+    cliente = col_c.text_input("👤 Cliente / Vehículo", placeholder="Ej: Juan Pérez - Toyota Hilux")
+    col_f.write(f"📅 **Fecha:** {datetime.now().strftime('%d/%m/%Y')}")
+
+    with st.expander("➕ Cargar Ítem al Listado", expanded=True):
+        c1, c2, c3 = st.columns([3, 1, 1])
         
-        col1, col2, col3 = st.columns([3, 1, 1])
-        item_nom = col1.selectbox("Seleccionar Repuesto", options=["---"] + list(opciones.keys()))
-        cant = col2.number_input("Cantidad", min_value=1, value=1)
+        items_db = cursor.execute("SELECT repuesto, precio_venta FROM inventario").fetchall()
+        opciones = {r[0]: r[1] for r in items_db}
         
-        # Si es un servicio manual (que no está en stock)
-        item_manual = col1.text_input("O escribir ítem/servicio manualmente")
-        precio_manual = col3.number_input("Precio unitario $", min_value=0.0)
+        seleccion = c1.selectbox("Elegir del Inventario", ["---"] + list(opciones.keys()))
+        desc_manual = c1.text_input("O escribir Servicio/Mano de Obra")
+        
+        cant = c2.number_input("Cantidad", min_value=1, value=1)
+        
+        precio_sug = opciones[seleccion] if seleccion != "---" else 0.0
+        precio_u = c3.number_input("Precio Unitario $", min_value=0.0, value=float(precio_sug))
 
         if st.button("Añadir"):
-            nombre_final = item_nom if item_nom != "---" else item_manual
-            precio_final = opciones[item_nom] if item_nom != "---" else precio_manual
+            nombre_final = seleccion if seleccion != "---" else desc_manual
             if nombre_final:
                 st.session_state.carrito.append({
-                    "desc": nombre_final, 
-                    "cant": cant, 
-                    "precio": precio_final,
-                    "es_repuesto": item_nom != "---"
+                    "item": nombre_final,
+                    "cantidad": cant,
+                    "precio_u": precio_u,
+                    "subtotal": cant * precio_u,
+                    "es_stock": seleccion != "---"
                 })
                 st.rerun()
 
-    # MOSTRAR TABLA DE DETALLE
     if st.session_state.carrito:
+        st.markdown("### 🛠️ Detalle del Presupuesto")
         df_presu = pd.DataFrame(st.session_state.carrito)
-        df_presu['Subtotal'] = df_presu['cant'] * df_presu['precio']
-        st.table(df_presu[['desc', 'cant', 'precio', 'Subtotal']])
+        st.table(df_presu[["item", "cantidad", "precio_u", "subtotal"]])
         
-        total_final = df_presu['Subtotal'].sum()
-        st.subheader(f"TOTAL: ${total_final:,.2f}")
+        total = df_presu["subtotal"].sum()
+        st.markdown(f"<h2 style='text-align: right;'>TOTAL: ${total:,.2f}</h2>", unsafe_allow_html=True)
 
-    # BOTONES DE ACCIÓN
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        if st.button("🖨️ IMPRIMIR"):
-            components.html("<script>window.parent.print();</script>", height=0)
-    with c2:
-        if st.button("🚀 GUARDAR Y DESCONTAR STOCK", type="primary"):
-            for it in st.session_state.carrito:
-                if it['es_repuesto']:
-                    cursor.execute("UPDATE inventario SET stock = stock - ? WHERE repuesto = ?", (it['cant'], it['desc']))
+        ba, bb, bc = st.columns(3)
+        with ba:
+            if st.button("🖨️ IMPRIMIR"):
+                components.html("<script>window.parent.print();</script>", height=0)
+        with bb:
+            if st.button("🚀 FINALIZAR Y DESCONTAR", type="primary"):
+                for row in st.session_state.carrito:
+                    if row["es_stock"]:
+                        cursor.execute("UPDATE inventario SET stock = stock - ? WHERE repuesto = ?", 
+                                     (row["cantidad"], row["item"]))
+                conn.commit()
+                st.success("✅ Venta registrada y Stock actualizado.")
+                st.session_state.carrito = []
+                st.rerun()
+        with bc:
+            if st.button("🗑️ VACIAR"):
+                st.session_state.carrito = []
+                st.rerun()
+
+with tab2:
+    st.title("📦 Control de Almacén")
+    with st.form("stock_form"):
+        f1, f2, f3 = st.columns(3)
+        n = f1.text_input("Nombre Repuesto")
+        s = f2.number_input("Stock Inicial", min_value=0)
+        p = f3.number_input("Precio Venta", min_value=0.0)
+        if st.form_submit_button("Guardar"):
+            cursor.execute("INSERT OR REPLACE INTO inventario (repuesto, stock, precio_venta) VALUES (?, ?, ?)", (n, s, p))
             conn.commit()
-            st.success("Stock actualizado correctamente.")
-            st.session_state.carrito = [] # Limpiar después de vender
-    with c3:
-        if st.button("🧹 VACIAR"):
-            st.session_state.carrito = []
             st.rerun()
 
-with tab_inv:
-    st.header("Gestión de Stock")
-    with st.form("nuevo_item"):
-        n, s, p = st.columns(3)
-        nom = n.text_input("Repuesto")
-        sto = s.number_input("Stock", min_value=0)
-        pre = p.number_input("Precio Venta", min_value=0.0)
-        if st.form_submit_button("Guardar en Inventario"):
-            cursor.execute("INSERT OR REPLACE INTO inventario (repuesto, stock, precio_venta) VALUES (?, ?, ?)", (nom, sto, pre))
-            conn.commit()
+    st.markdown("---")
+    inventario_df = pd.read_sql_query("SELECT repuesto as 'Repuesto', stock as 'Stock', precio_venta as 'Precio' FROM inventario", conn)
+    st.dataframe(inventario_df, use_container_width=True, hide_index=True)
+
             st.rerun()
 
     df_stock = pd.read_sql_query("SELECT repuesto, stock, precio_venta FROM inventario", conn)
