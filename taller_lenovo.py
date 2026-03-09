@@ -74,7 +74,7 @@ with tab_presu:
         
         st.markdown("### DETALLE DE TRABAJO")
         
-        if 'items' not in st.session_state: st.session_state.items = []
+        if 'lista_trabajo' not in st.session_state: st.session_state.lista_trabajo = []
 
         # Agregar items (esto no se ve en la impresión final)
         with st.expander("➕ Cargar Repuesto/Servicio"):
@@ -82,12 +82,13 @@ with tab_presu:
             desc = c1.text_input("Descripción")
             precio = c2.number_input("Precio ($)", min_value=0.0)
             if st.button("Añadir"):
-                if desc: st.session_state.items.append({"desc": desc, "precio": precio})
+                if desc: st.session_state.lista_trabajo.append({"desc": desc, "precio": precio})
 
         # Tabla de items
         total = 0
         if st.session_state.items:
-            for i, it in enumerate(st.session_state.items):
+            for i, it in enumerate(st.session_state.lista_trabajo):
+                
                 ca, cb, cc = st.columns([4, 2, 1])
                 ca.write(f"• {it['desc']}")
                 cb.write(f"${it['precio']:.2f}")
