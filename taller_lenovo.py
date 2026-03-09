@@ -12,8 +12,8 @@ def generar_hash(password):
     return hashlib.sha256(str.encode(password)).hexdigest()
 
 def conectar_db():
-    # Cambiamos el nombre para asegurar que la estructura sea la nueva
-    conn = sqlite3.connect('taller_saas_v2.db', check_same_thread=False)
+    # Nueva versión de DB para limpiar errores previos
+    conn = sqlite3.connect('taller_saas_v3.db', check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute('CREATE TABLE IF NOT EXISTS usuarios (user TEXT PRIMARY KEY, password TEXT, taller TEXT, direccion TEXT, tel TEXT, cuit TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS inventario (id INTEGER PRIMARY KEY AUTOINCREMENT, usuario TEXT, repuesto TEXT, stock INTEGER, precio REAL)')
@@ -23,7 +23,7 @@ def conectar_db():
 conn = conectar_db()
 cursor = conn.cursor()
 
-# --- INICIALIZACIÓN SEGURA DEL ESTADO ---
+# --- INICIALIZACIÓN DEL ESTADO ---
 if 'autenticado' not in st.session_state:
     st.session_state.autenticado = False
 if 'user' not in st.session_state:
@@ -58,23 +58,29 @@ if not st.session_state.autenticado:
         p_l = st.text_input("Contraseña", type="password")
         if st.button("Entrar"):
             res = cursor.execute("SELECT password, taller, direccion, tel, cuit FROM usuarios WHERE user=?", (u_l,)).fetchone()
+            # res[0] es la password, res[1] es taller, res[2] direccion, etc.
             if res and res[0] == generar_hash(p_l):
                 st.session_state.autenticado = True
                 st.session_state.user = u_l
-                st.session_state.datos = {"taller": res[1], "dir": res[2], "tel": res[3], "cuit": res[4]}
+                st.session_state.datos = {
+                    "taller": res[1], 
+                    "dir": res[2], 
+                    "tel": res[3], 
+                    "cuit": res[4]
+                }
                 st.rerun()
             else: st.error("Error de acceso")
     st.stop()
 
 # --- INTERFAZ POST-LOGIN ---
-# Solo llegamos acá si st.session_state.autenticado es True
 user_actual = st.session_state.user
 info = st.session_state.datos
 
 st.sidebar.title(f"👨‍🔧 {info['taller']}")
 st.sidebar.write(f"📍 {info['dir']}")
 if st.sidebar.button("Cerrar Sesión"):
-    st.session_state.autenticado = False
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
     st.rerun()
 
 # CSS IMPRESIÓN
@@ -87,7 +93,7 @@ with tab1:
     cli = st.text_input("👤 Cliente / Vehículo")
     st.write(f"📅 Fecha: {datetime.now().strftime('%d/%m/%Y')}")
 
-    with st.expander("➕ Cargar Ítem", expanded=True):
+    with st.expander("➕ Agregar Ítem", expanded=True):
         c1, c2, c3 = st.columns(3)
         items_db = cursor.execute("SELECT repuesto, precio FROM inventario WHERE usuario=?", (user_actual,)).fetchall()
         opc = {r[0]: r[1] for r in items_db}
@@ -135,5 +141,5 @@ with tab2:
             conn.commit()
             st.rerun()
     
-    df_i = pd.read_sql_query("SELECT repuesto, stock, precio FROM inventario WHERE usuario=?", conn, params=(user_actual,))
+    df_i = pd.read_sql_query("SELECT repuesto as 'Repuesto', stock as 'Stock', precio as 'Precio' FROM inventario WHERE usuario=?", conn, params=(user_actual,))
     st.dataframe(df_i, use_container_width=True, hide_index=True)
