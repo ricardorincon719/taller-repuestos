@@ -139,7 +139,6 @@ with tab2:
             cursor.execute("INSERT OR REPLACE INTO inventario (repuesto, stock, precio_venta) VALUES (?, ?, ?)", (n, s, p))
             conn.commit()
             st.rerun()
-
     st.markdown("---")
     inventario_df = pd.read_sql_query("SELECT repuesto as 'Repuesto', stock as 'Stock', precio_venta as 'Precio' FROM inventario", conn)
     st.dataframe(inventario_df, use_container_width=True, hide_index=True)
