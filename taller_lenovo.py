@@ -16,34 +16,40 @@ def conectar_db():
 
 # --- CONFIGURACIÓN DEL TALLER (SIDEBAR) ---
 st.sidebar.header("⚙️ Configuración del Taller")
-nombre_taller = st.sidebar.text_input("Nombre del Taller", value="MI TALLER")
-contacto_taller = st.sidebar.text_input("Contacto", value="+54 9...")
+nombre_taller = st.sidebar.text_input("Nombre del Taller", value="MI TALLER MECÁNICO")
+contacto_taller = st.sidebar.text_input("Teléfono / WhatsApp", value="+54 9...")
+direccion_taller = st.sidebar.text_input("Dirección / Ubicación", value="Calle Falsa 123")
 
-# --- INTERFAZ PRINCIPAL ---
-st.title(f"💰 {nombre_taller}")
-cliente = st.text_input("👤 Nombre del Cliente", placeholder="Ej: Juan Pérez")
+# --- ENCABEZADO DEL PRESUPUESTO (Lo que ve el cliente) ---
+st.title(f"🛠️ {nombre_taller}")
+st.markdown(f"**📞 Contacto:** {contacto_taller} | **📍 Ubicación:** {direccion_taller}")
+st.markdown(f"*Fecha: {datetime.now().strftime('%d/%m/%Y')}*")
+st.markdown("---")
+
+# --- DATOS DEL CLIENTE ---
+cliente = st.text_input("👤 Nombre del Cliente", placeholder="Ej: Juan Pérez - Ford Fiesta")
 
 if 'mis_repuestos' not in st.session_state:
     st.session_state.mis_repuestos = []
 
-mano_obra = st.number_input("🛠️ Mano de obra ($)", min_value=0.0, step=10.0)
+mano_obra = st.number_input("🔧 Mano de obra ($)", min_value=0.0, step=10.0)
 
-with st.expander("➕ AGREGAR REPUESTOS"):
-    n_item = st.text_input("Nombre del repuesto")
-    p_item = st.number_input("Precio ($)", min_value=0.0)
-    if st.button("Añadir"):
+with st.expander("➕ AGREGAR REPUESTOS / MATERIALES"):
+    n_item = st.text_input("Descripción del repuesto")
+    p_item = st.number_input("Precio unitario ($)", min_value=0.0)
+    if st.button("Añadir a la lista"):
         if n_item and p_item > 0:
             st.session_state.mis_repuestos.append({"nombre": n_item, "precio": p_item})
             st.rerun()
 
-# --- CÁLCULOS Y VISTA ---
+# --- TABLA DE DETALLE ---
 total_repuestos = sum(it['precio'] for it in st.session_state.mis_repuestos)
 total_general = total_repuestos + mano_obra
 
 if st.session_state.mis_repuestos:
-    st.subheader("📋 Detalle")
+    st.subheader("📋 Detalle de Reparación")
     for i, item in enumerate(st.session_state.mis_repuestos):
-        c_a, c_b, c_c = st.columns([3,2,1])
+        c_a, c_b, c_c = st.columns([3, 1, 1])
         c_a.write(f"• {item['nombre']}")
         c_b.write(f"${item['precio']:.2f}")
         if c_c.button("❌", key=f"del_{i}"):
@@ -51,16 +57,17 @@ if st.session_state.mis_repuestos:
             st.rerun()
 
 st.markdown("---")
-st.header(f"TOTAL: ${total_general:.2f}")
+st.subheader(f"Suma Repuestos: ${total_repuestos:.2f}")
+st.header(f"TOTAL A PAGAR: ${total_general:.2f}")
 
-# --- BOTONES DE ACCIÓN ---
+# --- BOTONES DE PODER ---
 c1, c2, c3 = st.columns(3)
 with c1:
     if st.button("🖨️ IMPRIMIR / PDF"):
         components.html("<script>window.parent.print();</script>", height=0)
 
 with c2:
-    if st.button("🚀 FINALIZAR Y GUARDAR", type="primary"):
+    if st.button("🚀 GUARDAR VENTA", type="primary"):
         if cliente:
             conn = conectar_db()
             cursor = conn.cursor()
@@ -70,25 +77,25 @@ with c2:
             conn.commit()
             conn.close()
             st.balloons()
-            st.success("¡Guardado en el historial!")
+            st.success(f"Presupuesto de {cliente} guardado.")
         else:
-            st.error("Por favor, poné el nombre del cliente.")
+            st.warning("⚠️ Ingresá el nombre del cliente para guardar.")
 
 with c3:
     if st.button("🗑️ NUEVO"):
         st.session_state.mis_repuestos = []
         st.rerun()
 
-# --- MÓDULO DE HISTORIAL (EL VALOR AGREGADO) ---
+# --- EL ARCHIVO DE ÉXITO (HISTORIAL) ---
 st.markdown("---")
-with st.expander("📂 VER HISTORIAL DE VENTAS"):
+with st.expander("📂 HISTORIAL DE TRABAJOS REALIZADOS"):
     conn = conectar_db()
-    df_historial = pd.read_sql_query("SELECT fecha, cliente, total FROM presupuestos ORDER BY id DESC", conn)
+    try:
+        df_historial = pd.read_sql_query("SELECT fecha, cliente, total FROM presupuestos ORDER BY id DESC", conn)
+        if not df_historial.empty:
+            st.table(df_historial) # Usamos tabla fija para que se vea mejor al imprimir reportes
+        else:
+            st.info("No hay registros en la base de datos.")
+    except:
+        st.write("Esperando primer registro...")
     conn.close()
-    if not df_historial.empty:
-        st.dataframe(df_historial, use_container_width=True)
-        st.download_button("Descargar Reporte Excel (CSV)", 
-                           df_historial.to_csv(index=False), 
-                           "reporte_ventas.csv")
-    else:
-        st.write("No hay ventas registradas aún.")
