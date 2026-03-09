@@ -12,7 +12,7 @@ def generar_hash(password):
     return hashlib.sha256(str.encode(password)).hexdigest()
 
 def conectar_db():
-    conn = sqlite3.connect('taller_saas.db', check_same_thread=False)
+    conn = sqlite3.connect('taller_elite_v1.db', check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute('CREATE TABLE IF NOT EXISTS usuarios (user TEXT PRIMARY KEY, password TEXT, taller TEXT, direccion TEXT, tel TEXT, cuit TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS inventario (id INTEGER PRIMARY KEY AUTOINCREMENT, usuario TEXT, repuesto TEXT, stock INTEGER, precio REAL)')
