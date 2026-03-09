@@ -62,11 +62,35 @@ if st.sidebar.button("Cerrar Sesión"):
 st.markdown("""
     <style>
     @media print {
-        .no-print, button, .stSidebar, header, [data-testid="stHeader"], [data-testid="stExpander"], .stForm, .stTabs { 
+        /* Ocultamos elementos de navegación y UI de Streamlit */
+        .no-print, button, .stSidebar, header, [data-testid="stHeader"], .stTabs [data-baseweb="tab-list"] { 
             display: none !important; 
         }
-        .print-header { text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; }
-        .stTable { width: 100% !important; font-size: 12pt; }
+        
+        /* Ocultamos específicamente el formulario de carga y el expansor */
+        [data-testid="stExpander"], .stForm { 
+            display: none !important; 
+        }
+
+        /* Forzamos que el contenedor principal sea visible y blanco */
+        .main .block-container {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .print-header { 
+            text-align: center; 
+            border-bottom: 2px solid black; 
+            padding-bottom: 10px; 
+            margin-bottom: 20px; 
+            display: block !important;
+        }
+
+        /* Aseguramos que las tablas de datos se vean */
+        .stTable { 
+            width: 100% !important; 
+            display: table !important;
+        }
     }
     </style>
 """, unsafe_allow_html=True)
