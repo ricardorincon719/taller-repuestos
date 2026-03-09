@@ -12,8 +12,8 @@ def generar_hash(password):
     return hashlib.sha256(str.encode(password)).hexdigest()
 
 def conectar_db():
-    # Nueva versión de DB para limpiar errores previos
-    conn = sqlite3.connect('taller_saas_v3.db', check_same_thread=False)
+    # Nueva versión de DB para limpiar residuos
+    conn = sqlite3.connect('taller_saas_v4.db', check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute('CREATE TABLE IF NOT EXISTS usuarios (user TEXT PRIMARY KEY, password TEXT, taller TEXT, direccion TEXT, tel TEXT, cuit TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS inventario (id INTEGER PRIMARY KEY AUTOINCREMENT, usuario TEXT, repuesto TEXT, stock INTEGER, precio REAL)')
@@ -58,7 +58,6 @@ if not st.session_state.autenticado:
         p_l = st.text_input("Contraseña", type="password")
         if st.button("Entrar"):
             res = cursor.execute("SELECT password, taller, direccion, tel, cuit FROM usuarios WHERE user=?", (u_l,)).fetchone()
-            # res[0] es la password, res[1] es taller, res[2] direccion, etc.
             if res and res[0] == generar_hash(p_l):
                 st.session_state.autenticado = True
                 st.session_state.user = u_l
@@ -72,15 +71,21 @@ if not st.session_state.autenticado:
             else: st.error("Error de acceso")
     st.stop()
 
-# --- INTERFAZ POST-LOGIN ---
+# --- INTERFAZ POST-LOGIN (BLINDADA) ---
 user_actual = st.session_state.user
 info = st.session_state.datos
 
-st.sidebar.title(f"👨‍🔧 {info['taller']}")
-st.sidebar.write(f"📍 {info['dir']}")
+# Usamos .get() para evitar el KeyError
+nombre_muestrate = info.get('taller', 'Mi Taller')
+direccion_muestrate = info.get('dir', 'S/D')
+
+st.sidebar.title(f"👨‍🔧 {nombre_muestrate}")
+st.sidebar.write(f"📍 {direccion_muestrate}")
+
 if st.sidebar.button("Cerrar Sesión"):
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
+    st.session_state.autenticado = False
+    st.session_state.user = ''
+    st.session_state.datos = {}
     st.rerun()
 
 # CSS IMPRESIÓN
@@ -89,24 +94,25 @@ st.markdown("<style>@media print { .no-print, button, .stSidebar, header, [data-
 tab1, tab2 = st.tabs(["📄 PRESUPUESTO", "📦 INVENTARIO"])
 
 with tab1:
-    st.markdown(f"<div class='print-header'><h1>{info['taller'].upper()}</h1><p>{info['dir']} | Tel: {info['tel']} | {info['cuit']}</p></div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='print-header'><h1>{nombre_muestrate.upper()}</h1><p>{direccion_muestrate} | Tel: {info.get('tel','')} | {info.get('cuit','')}</p></div>", unsafe_allow_html=True)
     cli = st.text_input("👤 Cliente / Vehículo")
     st.write(f"📅 Fecha: {datetime.now().strftime('%d/%m/%Y')}")
 
     with st.expander("➕ Agregar Ítem", expanded=True):
         c1, c2, c3 = st.columns(3)
         items_db = cursor.execute("SELECT repuesto, precio FROM inventario WHERE usuario=?", (user_actual,)).fetchall()
-        opc = {r[0]: r[1] for r in items_db}
-        sel = c1.selectbox("Elegir de mi Stock", ["---"] + list(opc.keys()))
+        opciones_dict = {r[0]: r[1] for r in items_db}
+        
+        sel = c1.selectbox("Elegir de mi Stock", ["---"] + list(opciones_dict.keys()))
         man = c1.text_input("O Servicio Manual")
         can = c2.number_input("Cantidad", min_value=1, value=1)
-        pre_s = opc[sel] if sel != "---" else 0.0
-        pre_u = c3.number_input("Precio Unitario $", min_value=0.0, value=float(pre_s))
+        
+        precio_u = c3.number_input("Precio Unitario $", min_value=0.0, value=float(opciones_dict.get(sel, 0.0)))
         
         if st.button("Añadir al presupuesto"):
             nom_f = sel if sel != "---" else man
             if nom_f:
-                st.session_state.carrito.append({"item": nom_f, "cant": can, "pre": pre_u, "sub": can * pre_u, "es_s": sel != "---"})
+                st.session_state.carrito.append({"item": nom_f, "cant": can, "pre": precio_u, "sub": can * precio_u, "es_s": sel != "---"})
                 st.rerun()
 
     if st.session_state.carrito:
