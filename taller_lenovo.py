@@ -4,13 +4,14 @@ import sqlite3
 from datetime import datetime
 import streamlit.components.v1 as components
 
-# --- CONFIGURACIÓN DE BASE DE DATOS ---
+# --- CONFIGURACIÓN DE BASE DE DATOS (Actualizada con Observaciones) ---
 def conectar_db():
     conn = sqlite3.connect('taller.db')
     cursor = conn.cursor()
+    # Agregamos la columna 'notas' por si no existe
     cursor.execute('''CREATE TABLE IF NOT EXISTS presupuestos 
                       (id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                       fecha TEXT, cliente TEXT, total REAL, detalle TEXT)''')
+                       fecha TEXT, cliente TEXT, total REAL, detalle TEXT, notas TEXT)''')
     conn.commit()
     return conn
 
@@ -20,14 +21,18 @@ nombre_taller = st.sidebar.text_input("Nombre del Taller", value="MI TALLER MEC�
 contacto_taller = st.sidebar.text_input("Teléfono / WhatsApp", value="+54 9...")
 direccion_taller = st.sidebar.text_input("Dirección / Ubicación", value="Calle Falsa 123")
 
-# --- ENCABEZADO DEL PRESUPUESTO (Lo que ve el cliente) ---
+# --- ENCABEZADO DEL PRESUPUESTO ---
 st.title(f"🛠️ {nombre_taller}")
 st.markdown(f"**📞 Contacto:** {contacto_taller} | **📍 Ubicación:** {direccion_taller}")
 st.markdown(f"*Fecha: {datetime.now().strftime('%d/%m/%Y')}*")
 st.markdown("---")
 
-# --- DATOS DEL CLIENTE ---
-cliente = st.text_input("👤 Nombre del Cliente", placeholder="Ej: Juan Pérez - Ford Fiesta")
+# --- DATOS DEL CLIENTE Y NOTAS ---
+col_cli, col_not = st.columns([2, 1])
+with col_cli:
+    cliente = st.text_input("👤 Nombre del Cliente / Vehículo", placeholder="Ej: Juan Pérez - Ford Fiesta")
+with col_not:
+    notas = st.text_area("📝 Observaciones / Garantía", value="Garantía de 3 meses. Válido por 7 días.", height=68)
 
 if 'mis_repuestos' not in st.session_state:
     st.session_state.mis_repuestos = []
@@ -49,7 +54,7 @@ total_general = total_repuestos + mano_obra
 if st.session_state.mis_repuestos:
     st.subheader("📋 Detalle de Reparación")
     for i, item in enumerate(st.session_state.mis_repuestos):
-        c_a, c_b, c_c = st.columns([3, 1, 1])
+        c_a, c_b, c_c = st.columns([3, 2, 1])
         c_a.write(f"• {item['nombre']}")
         c_b.write(f"${item['precio']:.2f}")
         if c_c.button("❌", key=f"del_{i}"):
@@ -59,8 +64,10 @@ if st.session_state.mis_repuestos:
 st.markdown("---")
 st.subheader(f"Suma Repuestos: ${total_repuestos:.2f}")
 st.header(f"TOTAL A PAGAR: ${total_general:.2f}")
+if notas:
+    st.info(f"**Nota:** {notas}")
 
-# --- BOTONES DE PODER ---
+# --- BOTONES DE ACCIÓN ---
 c1, c2, c3 = st.columns(3)
 with c1:
     if st.button("🖨️ IMPRIMIR / PDF"):
@@ -72,8 +79,8 @@ with c2:
             conn = conectar_db()
             cursor = conn.cursor()
             detalle_str = str(st.session_state.mis_repuestos)
-            cursor.execute("INSERT INTO presupuestos (fecha, cliente, total, detalle) VALUES (?, ?, ?, ?)",
-                           (datetime.now().strftime("%Y-%m-%d %H:%M"), cliente, total_general, detalle_str))
+            cursor.execute("INSERT INTO presupuestos (fecha, cliente, total, detalle, notas) VALUES (?, ?, ?, ?, ?)",
+                           (datetime.now().strftime("%Y-%m-%d %H:%M"), cliente, total_general, detalle_str, notas))
             conn.commit()
             conn.close()
             st.balloons()
@@ -86,16 +93,16 @@ with c3:
         st.session_state.mis_repuestos = []
         st.rerun()
 
-# --- EL ARCHIVO DE ÉXITO (HISTORIAL) ---
+# --- HISTORIAL ---
 st.markdown("---")
 with st.expander("📂 HISTORIAL DE TRABAJOS REALIZADOS"):
     conn = conectar_db()
     try:
-        df_historial = pd.read_sql_query("SELECT fecha, cliente, total FROM presupuestos ORDER BY id DESC", conn)
+        df_historial = pd.read_sql_query("SELECT fecha, cliente, total, notas FROM presupuestos ORDER BY id DESC", conn)
         if not df_historial.empty:
-            st.table(df_historial) # Usamos tabla fija para que se vea mejor al imprimir reportes
+            st.dataframe(df_historial, use_container_width=True)
         else:
-            st.info("No hay registros en la base de datos.")
+            st.info("No hay registros aún.")
     except:
-        st.write("Esperando primer registro...")
+        st.write("Iniciando sistema...")
     conn.close()
