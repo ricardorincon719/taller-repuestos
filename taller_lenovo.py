@@ -5,131 +5,113 @@ from datetime import datetime
 import hashlib
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Taller SaaS Pro", layout="wide")
+st.set_page_config(page_title="Taller SaaS Elite", layout="wide")
 
 # --- DB & SEGURIDAD ---
-def generar_hash(password):
-    return hashlib.sha256(str.encode(password)).hexdigest()
-
 def conectar_db():
-    conn = sqlite3.connect('taller_saas_v5.db', check_same_thread=False)
+    conn = sqlite3.connect('taller_saas_v6.db', check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute('CREATE TABLE IF NOT EXISTS usuarios (user TEXT PRIMARY KEY, password TEXT, taller TEXT, direccion TEXT, tel TEXT, cuit TEXT)')
-    cursor.execute('CREATE TABLE IF NOT EXISTS inventario (id INTEGER PRIMARY KEY AUTOINCREMENT, usuario TEXT, repuesto TEXT, stock INTEGER, precio REAL)')
+    # Agregamos la columna SKU
+    cursor.execute('CREATE TABLE IF NOT EXISTS inventario (id INTEGER PRIMARY KEY AUTOINCREMENT, usuario TEXT, sku TEXT, repuesto TEXT, stock INTEGER, precio REAL)')
     conn.commit()
     return conn
 
 conn = conectar_db()
 cursor = conn.cursor()
 
-# --- INICIALIZACIÓN DEL ESTADO ---
-for key in ['autenticado', 'user', 'datos', 'carrito']:
-    if key not in st.session_state:
-        st.session_state[key] = False if key == 'autenticado' else ('' if key == 'user' else ({} if key == 'datos' else []))
+# --- SESIÓN ---
+for k in ['autenticado', 'user', 'datos', 'carrito']:
+    if k not in st.session_state: st.session_state[k] = False if k=='autenticado' else ('' if k=='user' else ({} if k=='datos' else []))
 
-# --- LOGIN / REGISTRO ---
+# --- LOGIN (Simplificado) ---
 if not st.session_state.autenticado:
-    st.title("🛠️ SaaS Gestión de Talleres")
-    t_log, t_reg = st.tabs(["Ingresar", "Registrar Nuevo Taller"])
-    
-    with t_reg:
-        with st.form("reg"):
-            u = st.text_input("Email / Usuario")
-            p = st.text_input("Contraseña", type="password")
-            nom = st.text_input("Nombre del Taller")
-            dir_t = st.text_input("Dirección")
-            tel_t = st.text_input("Teléfono")
-            cuit_t = st.text_input("CUIT / RUT")
-            if st.form_submit_button("Crear mi cuenta SaaS"):
+    st.title("🚀 SaaS Taller - Acceso")
+    t1, t2 = st.tabs(["Ingresar", "Registrar"])
+    with t2:
+        with st.form("r"):
+            u, p = st.text_input("Email"), st.text_input("Pass", type="password")
+            nom, dir_t, tel, cui = st.text_input("Taller"), st.text_input("Dir"), st.text_input("Tel"), st.text_input("CUIT")
+            if st.form_submit_button("Crear"):
                 try:
-                    cursor.execute("INSERT INTO usuarios VALUES (?,?,?,?,?,?)", (u, generar_hash(p), nom, dir_t, tel_t, cuit_t))
-                    conn.commit()
-                    st.success("¡Registrado! Ya podés iniciar sesión.")
-                except: st.error("El usuario ya existe.")
-
-    with t_log:
-        u_l = st.text_input("Usuario")
-        p_l = st.text_input("Contraseña", type="password")
+                    cursor.execute("INSERT INTO usuarios VALUES (?,?,?,?,?,?)", (u, hashlib.sha256(p.encode()).hexdigest(), nom, dir_t, tel, cui))
+                    conn.commit(); st.success("OK")
+                except: st.error("Error")
+    with t1:
+        u_l, p_l = st.text_input("User"), st.text_input("Pass", type="password", key="l_p")
         if st.button("Entrar"):
-            res = cursor.execute("SELECT password, taller, direccion, tel, cuit FROM usuarios WHERE user=?", (u_l,)).fetchone()
-            if res and res[0] == generar_hash(p_l):
-                st.session_state.autenticado = True
-                st.session_state.user = u_l
-                st.session_state.datos = {"taller": res[1], "dir": res[2], "tel": res[3], "cuit": res[4]}
+            r = cursor.execute("SELECT password, taller, direccion, tel, cuit FROM usuarios WHERE user=?", (u_l,)).fetchone()
+            if r and r[0] == hashlib.sha256(p_l.encode()).hexdigest():
+                st.session_state.update({'autenticado':True, 'user':u_l, 'datos':{"taller":r[1],"dir":r[2],"tel":r[3],"cuit":r[4]}})
                 st.rerun()
-            else: st.error("Error de acceso")
     st.stop()
 
-# --- INTERFAZ POST-LOGIN ---
+# --- APP ---
 user_act = st.session_state.user
 info = st.session_state.datos
+st.sidebar.title(f"🛠️ {info.get('taller')}")
+if st.sidebar.button("Salir"): st.session_state.autenticado=False; st.rerun()
 
-st.sidebar.title(f"👨‍🔧 {info.get('taller', 'Mi Taller')}")
-st.sidebar.write(f"📍 {info.get('dir', 'S/D')}")
-if st.sidebar.button("Cerrar Sesión"):
-    st.session_state.autenticado = False
-    st.rerun()
+tab_p, tab_i = st.tabs(["📄 PRESUPUESTO", "📦 INVENTARIO SKU"])
 
-st.markdown("<style>@media print { .no-print, button, .stSidebar, header, [data-testid='stHeader'], [data-testid='stExpander'] { display: none !important; } .print-header { text-align: center; border-bottom: 2px solid black; } }</style>", unsafe_allow_html=True)
-
-tab1, tab2 = st.tabs(["📄 PRESUPUESTO", "📦 INVENTARIO"])
-
-with tab1:
-    st.markdown(f"<div class='print-header'><h1>{info.get('taller','').upper()}</h1><p>{info.get('dir','')} | Tel: {info.get('tel','')} | {info.get('cuit','')}</p></div>", unsafe_allow_html=True)
-    cli = st.text_input("👤 Cliente / Vehículo")
-    
-    with st.expander("➕ Cargar Ítem", expanded=True):
-        c1, c2, c3 = st.columns(3)
-        items_db = cursor.execute("SELECT repuesto, precio FROM inventario WHERE usuario=?", (user_act,)).fetchall()
-        opc_dict = {r[0]: r[1] for r in items_db}
-        sel = c1.selectbox("Elegir de mi Stock", ["---"] + list(opc_dict.keys()))
-        man = c1.text_input("O Servicio Manual")
-        can = c2.number_input("Cantidad", min_value=1, value=1)
-        pre_u = c3.number_input("Precio Unitario $", min_value=0.0, value=float(opc_dict.get(sel, 0.0)))
-        
-        if st.button("Añadir"):
-            nom_f = sel if sel != "---" else man
-            if nom_f:
-                st.session_state.carrito.append({"item": nom_f, "cant": can, "pre": pre_u, "sub": can * pre_u, "es_s": sel != "---"})
+with tab_p:
+    st.markdown(f"<div style='text-align:center; border-bottom:2px solid black;'><h1>{info.get('taller','').upper()}</h1><p>{info.get('dir','')} | {info.get('tel','')}</p></div>", unsafe_allow_html=True)
+    with st.expander("➕ Cargar al Presupuesto", expanded=True):
+        items = cursor.execute("SELECT sku, repuesto, precio FROM inventario WHERE usuario=?", (user_act,)).fetchall()
+        # El buscador ahora muestra SKU + Nombre
+        opc_dict = {f"{r[0]} | {r[1]}": r[2] for r in items}
+        sel = st.selectbox("Buscar por SKU o Nombre", ["---"] + list(opc_dict.keys()))
+        c1, c2 = st.columns(2)
+        can = c1.number_input("Cant.", min_value=1)
+        pre = c2.number_input("Precio $", value=float(opc_dict.get(sel, 0.0)))
+        if st.button("Agregar"):
+            if sel != "---":
+                st.session_state.carrito.append({"item": sel, "cant": can, "pre": pre, "sub": can*pre, "es_s": True})
                 st.rerun()
 
     if st.session_state.carrito:
         df_p = pd.DataFrame(st.session_state.carrito)
         st.table(df_p[["item", "cant", "pre", "sub"]])
         st.header(f"TOTAL: ${df_p['sub'].sum():,.2f}")
-        b1, b2, b3 = st.columns(3)
-        if b1.button("🖨️ IMPRIMIR"): components.html("<script>window.parent.print();</script>", height=0)
-        if b2.button("🚀 FINALIZAR Y DESCONTAR", type="primary"):
+        if st.button("🖨️ IMPRIMIR"): components.html("<script>window.parent.print();</script>", height=0)
+        if st.button("🚀 FINALIZAR VENTA"):
             for r in st.session_state.carrito:
-                if r["es_s"]: cursor.execute("UPDATE inventario SET stock = stock - ? WHERE repuesto = ? AND usuario = ?", (r["cant"], r["item"], user_act))
-            conn.commit()
-            st.session_state.carrito = []
-            st.success("Venta guardada.")
-            st.rerun()
-        if b3.button("🗑️ VACIAR"):
-            st.session_state.carrito = []
-            st.rerun()
+                sku_v = r["item"].split(" | ")[0]
+                cursor.execute("UPDATE inventario SET stock = stock - ? WHERE sku = ? AND usuario = ?", (r["cant"], sku_v, user_act))
+            conn.commit(); st.session_state.carrito = []; st.rerun()
 
-with tab2:
-    st.header("📦 Gestión Inteligente de Stock")
-    with st.form("f_inv"):
-        i1, i2, i3 = st.columns(3)
-        nom_i = i1.text_input("Nombre del Repuesto (Exacto para sumar)")
-        sto_i = i2.number_input("Cantidad a sumar/cargar", min_value=1)
-        pre_i = i3.number_input("Precio de Venta Actual", min_value=0.0)
-        if st.form_submit_button("Actualizar Stock"):
-            # LÓGICA DE SUMA: Buscamos si el repuesto ya existe para este usuario
-            existe = cursor.execute("SELECT stock FROM inventario WHERE usuario=? AND repuesto=?", (user_act, nom_i)).fetchone()
-            if existe:
-                nuevo_stock = existe[0] + sto_i
-                cursor.execute("UPDATE inventario SET stock=?, precio=? WHERE usuario=? AND repuesto=?", (nuevo_stock, pre_i, user_act, nom_i))
-                st.info(f"Se sumaron {sto_i} unidades al stock existente.")
-            else:
-                cursor.execute("INSERT INTO inventario (usuario, repuesto, stock, precio) VALUES (?,?,?,?)", (user_act, nom_i, sto_i, pre_i))
-                st.success("Nuevo repuesto registrado.")
-            conn.commit()
-            st.rerun()
+with tab_i:
+    st.header("📦 Gestión de Almacén (SKU)")
     
+    with st.form("ingreso"):
+        st.subheader("Ingresar Nuevo Producto")
+        c1, c2, c3, c4 = st.columns([2,3,1,1])
+        f_sku = c1.text_input("SKU / Código")
+        f_nom = c2.text_input("Nombre del Repuesto")
+        f_sto = c3.number_input("Stock Inicial", min_value=1)
+        f_pre = c4.number_input("Precio Venta", min_value=0.0)
+        
+        btn_nuevo = st.form_submit_button("🆕 REGISTRAR NUEVO")
+        btn_sumar = st.form_submit_button("➕ SUMAR STOCK A EXISTENTE")
+
+        if btn_nuevo:
+            if f_sku and f_nom:
+                try:
+                    cursor.execute("INSERT INTO inventario (usuario, sku, repuesto, stock, precio) VALUES (?,?,?,?,?)", (user_act, f_sku, f_nom, f_sto, f_pre))
+                    conn.commit(); st.success("Registrado")
+                except: st.error("El SKU ya existe")
+            else: st.warning("Completa SKU y Nombre")
+
+        if btn_sumar:
+            if f_sku:
+                ex = cursor.execute("SELECT stock FROM inventario WHERE usuario=? AND sku=?", (user_act, f_sku)).fetchone()
+                if ex:
+                    cursor.execute("UPDATE inventario SET stock=stock+?, precio=? WHERE usuario=? AND sku=?", (f_sto, f_pre, user_act, f_sku))
+                    conn.commit(); st.success(f"Sumado al SKU {f_sku}")
+                else: st.error("Ese SKU no existe. Usa 'Registrar Nuevo'.")
+            else: st.warning("Ingresa el SKU para sumar stock")
+
     st.markdown("---")
-    df_i = pd.read_sql_query("SELECT repuesto as 'Repuesto', stock as 'Stock Total', precio as 'Precio Unit.' FROM inventario WHERE usuario=?", conn, params=(user_act,))
-    st.dataframe(df_i, use_container_width=True, hide_index=True)
+    # Tabla con búsqueda rápida
+    df_inv = pd.read_sql_query("SELECT sku as 'SKU', repuesto as 'Repuesto', stock as 'Cant', precio as 'Precio' FROM inventario WHERE usuario=?", conn, params=(user_act,))
+    st.dataframe(df_inv, use_container_width=True, hide_index=True)
