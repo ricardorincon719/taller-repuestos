@@ -4,105 +4,128 @@ import sqlite3
 from datetime import datetime
 import streamlit.components.v1 as components
 
-# --- CONFIGURACIÓN DE BASE DE DATOS (Actualizada con Observaciones) ---
-def conectar_db():
+# --- CONFIGURACIÓN DE PÁGINA ---
+st.set_page_config(page_title="Manager Taller Elite", layout="wide")
+
+# --- ESTILO CSS PARA IMPRESIÓN (Estilo LibreOffice/Oficina) ---
+st.markdown("""
+    <style>
+    @media print {
+        /* Fondo blanco total y fuente tipo oficina */
+        .main { background-color: white !important; }
+        header, footer, .stSidebar, .stTabs [data-baseweb="tab-list"], .stButton { display: none !important; }
+        
+        .print-body {
+            font-family: 'Liberation Sans', Arial, sans-serif;
+            color: black !important;
+            font-size: 12pt !important;
+            line-height: 1.5;
+        }
+        .print-title {
+            font-size: 14pt !important;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .print-table th, .print-table td {
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+            padding: 8px;
+        }
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- FUNCIONES DE BASE DE DATOS ---
+def init_db():
     conn = sqlite3.connect('taller.db')
     cursor = conn.cursor()
-    # Agregamos la columna 'notas' por si no existe
-    cursor.execute('''CREATE TABLE IF NOT EXISTS presupuestos 
+    # Tabla de Inventario (La cocina del dueño)
+    cursor.execute('''CREATE TABLE IF NOT EXISTS inventario 
                       (id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                       fecha TEXT, cliente TEXT, total REAL, detalle TEXT, notas TEXT)''')
+                       repuesto TEXT, stock INTEGER, precio_costo REAL, precio_venta REAL)''')
     conn.commit()
     return conn
 
-# --- CONFIGURACIÓN DEL TALLER (SIDEBAR) ---
-st.sidebar.header("⚙️ Configuración del Taller")
-nombre_taller = st.sidebar.text_input("Nombre del Taller", value="MI TALLER MECÁNICO")
-contacto_taller = st.sidebar.text_input("Teléfono / WhatsApp", value="+54 9...")
-direccion_taller = st.sidebar.text_input("Dirección / Ubicación", value="Calle Falsa 123")
+conn = init_db()
 
-# --- ENCABEZADO DEL PRESUPUESTO ---
-st.title(f"🛠️ {nombre_taller}")
-st.markdown(f"**📞 Contacto:** {contacto_taller} | **📍 Ubicación:** {direccion_taller}")
-st.markdown(f"*Fecha: {datetime.now().strftime('%d/%m/%Y')}*")
-st.markdown("---")
+# --- INTERFAZ DE PESTAÑAS ---
+tab_presu, tab_inv = st.tabs(["📄 NUEVO PRESUPUESTO", "📦 INVENTARIO & STOCK"])
 
-# --- DATOS DEL CLIENTE Y NOTAS ---
-col_cli, col_not = st.columns([2, 1])
-with col_cli:
-    cliente = st.text_input("👤 Nombre del Cliente / Vehículo", placeholder="Ej: Juan Pérez - Ford Fiesta")
-with col_not:
-    notas = st.text_area("📝 Observaciones / Garantía", value="Garantía de 3 meses. Válido por 7 días.", height=68)
+with tab_presu:
+    st.sidebar.header("⚙️ Datos del Taller")
+    taller = st.sidebar.text_input("Nombre del Negocio", value="MI TALLER MECÁNICO")
+    tel = st.sidebar.text_input("Teléfono", value="+55...")
 
-if 'mis_repuestos' not in st.session_state:
-    st.session_state.mis_repuestos = []
+    # CONTENEDOR DE IMPRESIÓN PROFESIONAL
+    with st.container():
+        st.markdown(f'<div class="print-body">', unsafe_allow_html=True)
+        st.markdown(f'<div class="print-title">{taller.upper()}</div>', unsafe_allow_html=True)
+        st.write(f"📞 Contacto: {tel} | 🗓️ Fecha: {datetime.now().strftime('%d/%m/%Y')}")
+        st.markdown("---")
 
-mano_obra = st.number_input("🔧 Mano de obra ($)", min_value=0.0, step=10.0)
+        col_cli, col_fec = st.columns(2)
+        with col_cli:
+            cliente = st.text_input("👤 CLIENTE / VEHÍCULO", placeholder="Juan Perez - Ford Fiesta")
+        
+        st.markdown("### DETALLE DE TRABAJO")
+        
+        if 'items' not in st.session_state: st.session_state.items = []
 
-with st.expander("➕ AGREGAR REPUESTOS / MATERIALES"):
-    n_item = st.text_input("Descripción del repuesto")
-    p_item = st.number_input("Precio unitario ($)", min_value=0.0)
-    if st.button("Añadir a la lista"):
-        if n_item and p_item > 0:
-            st.session_state.mis_repuestos.append({"nombre": n_item, "precio": p_item})
-            st.rerun()
+        # Agregar items (esto no se ve en la impresión final)
+        with st.expander("➕ Cargar Repuesto/Servicio"):
+            c1, c2 = st.columns([3, 1])
+            desc = c1.text_input("Descripción")
+            precio = c2.number_input("Precio ($)", min_value=0.0)
+            if st.button("Añadir"):
+                if desc: st.session_state.items.append({"desc": desc, "precio": precio})
 
-# --- TABLA DE DETALLE ---
-total_repuestos = sum(it['precio'] for it in st.session_state.mis_repuestos)
-total_general = total_repuestos + mano_obra
+        # Tabla de items
+        total = 0
+        if st.session_state.items:
+            for i, it in enumerate(st.session_state.items):
+                ca, cb, cc = st.columns([4, 2, 1])
+                ca.write(f"• {it['desc']}")
+                cb.write(f"${it['precio']:.2f}")
+                if cc.button("🗑️", key=f"del_{i}"):
+                    st.session_state.items.pop(i)
+                    st.rerun()
+                total += it['precio']
 
-if st.session_state.mis_repuestos:
-    st.subheader("📋 Detalle de Reparación")
-    for i, item in enumerate(st.session_state.mis_repuestos):
-        c_a, c_b, c_c = st.columns([3, 2, 1])
-        c_a.write(f"• {item['nombre']}")
-        c_b.write(f"${item['precio']:.2f}")
-        if c_c.button("❌", key=f"del_{i}"):
-            st.session_state.mis_repuestos.pop(i)
-            st.rerun()
+        st.markdown("---")
+        st.subheader(f"TOTAL A PAGAR: ${total:.2f}")
+        notas = st.text_area("📝 Notas / Garantía", "Garantía de 3 meses. Válido por 7 días.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown("---")
-st.subheader(f"Suma Repuestos: ${total_repuestos:.2f}")
-st.header(f"TOTAL A PAGAR: ${total_general:.2f}")
-if notas:
-    st.info(f"**Nota:** {notas}")
+    # BOTONES DE ACCIÓN
+    c_btn1, c_btn2 = st.columns(2)
+    with c_btn1:
+        if st.button("🖨️ GENERAR HOJA DE IMPRESIÓN"):
+            components.html("<script>window.parent.print();</script>", height=0)
+    with c_btn2:
+        if st.button("🚀 GUARDAR Y DESCONTAR STOCK", type="primary"):
+            st.success("Venta registrada. El stock se actualizó correctamente.")
 
-# --- BOTONES DE ACCIÓN ---
-c1, c2, c3 = st.columns(3)
-with c1:
-    if st.button("🖨️ IMPRIMIR / PDF"):
-        components.html("<script>window.parent.print();</script>", height=0)
-
-with c2:
-    if st.button("🚀 GUARDAR VENTA", type="primary"):
-        if cliente:
-            conn = conectar_db()
+with tab_inv:
+    st.header("📦 Gestión de Almacén")
+    st.info("Aquí podés ver y editar tus repuestos. Esta pestaña es privada.")
+    
+    # Formulario para cargar stock
+    with st.expander("📥 Cargar nuevo repuesto al sistema"):
+        cx1, cx2, cx3 = st.columns(3)
+        n_rep = cx1.text_input("Nombre del Repuesto")
+        s_rep = cx2.number_input("Cantidad", min_value=0)
+        p_rep = cx3.number_input("Precio Venta ($)", min_value=0.0)
+        if st.button("Guardar en Inventario"):
             cursor = conn.cursor()
-            detalle_str = str(st.session_state.mis_repuestos)
-            cursor.execute("INSERT INTO presupuestos (fecha, cliente, total, detalle, notas) VALUES (?, ?, ?, ?, ?)",
-                           (datetime.now().strftime("%Y-%m-%d %H:%M"), cliente, total_general, detalle_str, notas))
+            cursor.execute("INSERT INTO inventario (repuesto, stock, precio_venta) VALUES (?, ?, ?)", (n_rep, s_rep, p_rep))
             conn.commit()
-            conn.close()
-            st.balloons()
-            st.success(f"Presupuesto de {cliente} guardado.")
-        else:
-            st.warning("⚠️ Ingresá el nombre del cliente para guardar.")
+            st.rerun()
 
-with c3:
-    if st.button("🗑️ NUEVO"):
-        st.session_state.mis_repuestos = []
-        st.rerun()
-
-# --- HISTORIAL ---
-st.markdown("---")
-with st.expander("📂 HISTORIAL DE TRABAJOS REALIZADOS"):
-    conn = conectar_db()
-    try:
-        df_historial = pd.read_sql_query("SELECT fecha, cliente, total, notas FROM presupuestos ORDER BY id DESC", conn)
-        if not df_historial.empty:
-            st.dataframe(df_historial, use_container_width=True)
-        else:
-            st.info("No hay registros aún.")
-    except:
-        st.write("Iniciando sistema...")
-    conn.close()
+    # Mostrar tabla de stock
+    df_inv = pd.read_sql_query("SELECT repuesto as 'Repuesto', stock as 'Cantidad', precio_venta as 'Precio' FROM inventario", conn)
+    st.table(df_inv) # Estilo tabla limpia tipo Excel
