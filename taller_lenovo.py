@@ -87,7 +87,7 @@ with tab_presu:
             # Lógica para descontar stock
             for it in st.session_state.lista_trabajo:
                 cursor.execute("UPDATE inventario SET stock = stock - 1 WHERE repuesto = ?", (it['desc'],))
-                cursor.execute("UPDATE inventario SET stock = stock - 1 WHERE repuesto = ?", (it['desc'],))
+                
             conn.commit()
             st.success("¡Venta registrada y stock actualizado!")
     with col_b3:
