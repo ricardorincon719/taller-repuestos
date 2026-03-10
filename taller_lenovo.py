@@ -18,7 +18,7 @@ DB_PORT = "6543" # Puerto especial para evitar el error de "Cannot assign addres
 @st.cache_resource
 def conectar_db():
     try:
-        # Forzamos los parámetros para que no busque el 'socket' local
+        # Añadimos prepare_threshold=0 para que el Pooler no se quede cargando
         conn = psycopg2.connect(
             host=DB_HOST,
             database=DB_NAME,
@@ -26,10 +26,12 @@ def conectar_db():
             password=DB_PASS,
             port=DB_PORT,
             sslmode='require',
-            connect_timeout=20
+            connect_timeout=30,
+            options="-c title=taller -c statement_timeout=30000 -c idle_in_transaction_session_timeout=30000"
         )
         return conn
     except Exception as e:
+        # Si falla, mostramos el error para saber qué pasó
         st.error(f"Error de Red: {e}")
         return None
 
