@@ -11,8 +11,8 @@ st.set_page_config(page_title="Taller SaaS Pro", layout="wide")
 # --- CONEXIÓN PROFESIONAL A LA NUBE (SUPABASE) ---
 def conectar_db():
     try:
-        # Extraemos los datos de los Secrets
         p = st.secrets["postgres"]
+        # Conexión optimizada para Supabase Pooler
         conn = psycopg2.connect(
             host=p["host"],
             database=p["database"],
@@ -20,13 +20,14 @@ def conectar_db():
             password=p["password"],
             port=int(p["port"]),
             sslmode='require',
-            connect_timeout=20  # Aumentamos el tiempo de espera
+            connect_timeout=10,
+            options="-c anon.auth_role=anon" # Ayuda a la identificación en la nube
         )
         return conn
     except Exception as e:
-        # Si falla el 5432, intentamos avisar qué pasó
-        st.error(f"Error crítico de conexión: {e}")
+        st.error(f"Error de conexión: {e}")
         return None
+        
 conn = conectar_db()
 if conn:
     cursor = conn.cursor()
