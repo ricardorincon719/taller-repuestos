@@ -7,24 +7,20 @@ import streamlit.components.v1 as components
 
 st.set_page_config(page_title="Taller SaaS Pro", layout="wide")
 
-# --- CONEXIÓN POR URI (MÁXIMA ESTABILIDAD) ---
+# --- CONEXIÓN DIRECTA (PRUEBA DE FALLOS) ---
 def conectar_db():
     try:
-        # Verificamos si existe la sección postgres y la uri en los secrets
-        if "postgres" in st.secrets and "uri" in st.secrets["postgres"]:
-            uri_cloud = st.secrets["postgres"]["uri"]
-            return psycopg2.connect(uri_cloud, connect_timeout=15)
-        else:
-            st.error("Faltan los Secrets de Postgres en Streamlit. Revisa la configuración.")
-            return None
+        # Ponemos la URI directamente aquí para saltar el error de Secrets
+        uri_directa = "postgresql://postgres.hetlgiunrfkkjuxbimzk:44YdZuhW4_Wnac@://aws-0-sa-east-1.pooler.supabase.com"
+        return psycopg2.connect(uri_directa, connect_timeout=20)
     except Exception as e:
-        st.error(f"Error de conexión: {e}")
+        st.error(f"Error crítico de red: {e}")
         return None
 
 conn = conectar_db()
 if conn:
     cursor = conn.cursor()
-    # Tablas con sintaxis Postgres
+    # Tablas
     cursor.execute('CREATE TABLE IF NOT EXISTS usuarios (user_id TEXT PRIMARY KEY, password TEXT, taller TEXT, direccion TEXT, tel TEXT, cuit TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS inventario (id SERIAL PRIMARY KEY, usuario TEXT, sku TEXT, repuesto TEXT, stock INTEGER, precio REAL)')
     cursor.execute('CREATE TABLE IF NOT EXISTS movimientos (id SERIAL PRIMARY KEY, usuario TEXT, tipo TEXT, categoria TEXT, descripcion TEXT, monto REAL, fecha DATE)')
