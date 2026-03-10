@@ -5,33 +5,22 @@ from datetime import datetime
 import hashlib
 import streamlit.components.v1 as components
 
-# --- CONFIGURACIÓN DE PÁGINA ---
+# --- CONFIGURACIÓN ---
 st.set_page_config(page_title="Taller SaaS Pro", layout="wide")
 
-# --- CONEXIÓN PROFESIONAL A LA NUBE (SUPABASE) ---
+# --- CONEXIÓN A LA NUBE (SUPABASE POOLER) ---
 def conectar_db():
     try:
-        p = st.secrets["postgres"]
-        # Conexión optimizada para Supabase Pooler
-        conn = psycopg2.connect(
-            host=p["host"],
-            database=p["database"],
-            user=p["user"],
-            password=p["password"],
-            port=int(p["port"]),
-            sslmode='require',
-            connect_timeout=10,
-            options="-c anon.auth_role=anon" # Ayuda a la identificación en la nube
-        )
-        return conn
+        # Conecta usando los datos del puerto 6543 configurados en Secrets
+        return psycopg2.connect(**st.secrets["postgres"], connect_timeout=10)
     except Exception as e:
-        st.error(f"Error de conexión: {e}")
+        st.error(f"Error de conexión a la nube: {e}")
         return None
-        
+
 conn = conectar_db()
 if conn:
     cursor = conn.cursor()
-    # Crear tablas con sintaxis Postgres (SERIAL para IDs autonuméricos)
+    # Tablas profesionales en Postgres
     cursor.execute('CREATE TABLE IF NOT EXISTS usuarios (user_id TEXT PRIMARY KEY, password TEXT, taller TEXT, direccion TEXT, tel TEXT, cuit TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS inventario (id SERIAL PRIMARY KEY, usuario TEXT, sku TEXT, repuesto TEXT, stock INTEGER, precio REAL)')
     cursor.execute('CREATE TABLE IF NOT EXISTS movimientos (id SERIAL PRIMARY KEY, usuario TEXT, tipo TEXT, categoria TEXT, descripcion TEXT, monto REAL, fecha DATE)')
@@ -39,38 +28,38 @@ if conn:
 else:
     st.stop()
 
-# --- FUNCIONES DE SEGURIDAD ---
+# --- SEGURIDAD ---
 def generar_hash(p): 
     return hashlib.sha256(p.encode()).hexdigest()
 
-# --- ESTADO DE LA SESIÓN ---
+# --- ESTADO DE SESIÓN ---
 if 'autenticado' not in st.session_state:
     st.session_state.update({'autenticado': False, 'user': '', 'datos': {}, 'carrito': []})
 
-# --- PANTALLA DE ACCESO (LOGIN / REGISTRO) ---
+# --- PANTALLA DE ACCESO ---
 if not st.session_state.autenticado:
     st.title("🛠️ SaaS Gestión de Talleres - Cloud")
     t1, t2 = st.tabs(["🔐 Ingresar", "📝 Registrar Nuevo Taller"])
     
     with t2:
-        with st.form("registro_saas"):
-            u = st.text_input("Email (Será tu usuario)")
+        with st.form("reg_form"):
+            u = st.text_input("Email (Usuario)")
             p = st.text_input("Contraseña", type="password")
             nom = st.text_input("Nombre del Taller")
             dir_t = st.text_input("Dirección")
-            tel = st.text_input("Teléfono / WhatsApp")
-            cui = st.text_input("CUIT / RUT / Documento")
-            if st.form_submit_button("Crear mi Cuenta en la Nube"):
+            tel = st.text_input("Teléfono")
+            cui = st.text_input("CUIT / RUT")
+            if st.form_submit_button("Crear mi Cuenta SaaS"):
                 try:
                     cursor.execute("INSERT INTO usuarios VALUES (%s,%s,%s,%s,%s,%s)", (u, generar_hash(p), nom, dir_t, tel, cui))
                     conn.commit()
-                    st.success("¡Cuenta creada con éxito! Ya podés iniciar sesión.")
+                    st.success("¡Cuenta creada! Ya puedes iniciar sesión.")
                 except:
-                    st.error("El usuario ya existe o hubo un error en los datos.")
+                    st.error("Error: El usuario ya existe.")
 
     with t1:
         u_l = st.text_input("Email")
-        p_l = st.text_input("Contraseña", type="password", key="login_pass")
+        p_l = st.text_input("Contraseña", type="password", key="lp")
         if st.button("Entrar al Sistema"):
             cursor.execute("SELECT password, taller, direccion, tel, cuit FROM usuarios WHERE user_id=%s", (u_l,))
             r = cursor.fetchone()
@@ -81,87 +70,69 @@ if not st.session_state.autenticado:
                 st.error("Credenciales incorrectas")
     st.stop()
 
-# --- APLICACIÓN PRINCIPAL (POST-LOGIN) ---
+# --- APP POST-LOGIN ---
 user_act = st.session_state.user
 info = st.session_state.datos
 
-st.sidebar.title(f"👨‍🔧 {info['taller']}")
-st.sidebar.write(f"📍 {info['dir']}")
+st.sidebar.title(f"👨‍🔧 {info.get('taller', 'Mi Taller')}")
 if st.sidebar.button("Cerrar Sesión"):
     st.session_state.autenticado = False
     st.rerun()
 
-# --- CSS DE IMPRESIÓN ---
+# CSS IMPRESIÓN LIMPIA
 st.markdown("<style>@media print { .no-print, button, .stSidebar, header, [data-testid='stHeader'], [data-testid='stExpander'], .stForm, .stTabs [data-baseweb='tab-list'] { display: none !important; } .print-header { text-align: center; border-bottom: 2px solid black; margin-bottom: 20px; } }</style>", unsafe_allow_html=True)
 
 tab1, tab2, tab3 = st.tabs(["📄 PRESUPUESTO", "📦 INVENTARIO", "📊 DASHBOARD"])
 
 with tab1:
-    st.markdown(f"<div class='print-header'><h1>{info['taller'].upper()}</h1><p>{info['dir']} | Tel: {info['tel']} | {info['cuit']}</p></div>", unsafe_allow_html=True)
-    cli = st.text_input("👤 Cliente / Vehículo", placeholder="Ej: Juan Pérez - Toyota Hilux")
-    st.write(f"📅 **Fecha:** {datetime.now().strftime('%d/%m/%Y')}")
-
-    with st.expander("➕ Cargar Ítem al Presupuesto", expanded=True):
+    st.markdown(f"<div class='print-header'><h1>{info.get('taller','').upper()}</h1><p>{info.get('dir','')} | Tel: {info.get('tel','')} | {info.get('cuit','')}</p></div>", unsafe_allow_html=True)
+    cli = st.text_input("👤 Cliente / Vehículo")
+    
+    with st.expander("➕ Cargar Ítem", expanded=True):
         cursor.execute("SELECT sku, repuesto, precio FROM inventario WHERE usuario=%s", (user_act,))
         items_db = cursor.fetchall()
         opc = {f"{r[0]} | {r[1]}": (r[0], r[2]) for r in items_db}
-        sel = st.selectbox("Buscar en Stock (SKU o Nombre)", ["---"] + list(opc.keys()))
-        man = st.text_input("O Servicio Manual (Mano de obra, etc.)")
+        sel = st.selectbox("Stock", ["---"] + list(opc.keys()))
+        man = st.text_input("O Manual")
         c1, c2 = st.columns(2)
-        can = c1.number_input("Cantidad", min_value=1, value=1)
-        # Extraer precio sugerido del diccionario
-        pre_sug = opc.get(sel, (None, 0.0))[1]
-        pre = c2.number_input("Precio Unitario $", value=float(pre_sug))
-        
-        if st.button("Añadir Ítem"):
-            nom_f = sel if sel != "---" else man
-            sku_f = opc.get(sel, (None, 0.0))[0]
-            if nom_f:
-                st.session_state.carrito.append({"item": nom_f, "sku": sku_f, "cant": can, "pre": pre, "sub": can*pre, "es_s": sel != "---"})
-                st.rerun()
+        can = c1.number_input("Cant", min_value=1, value=1)
+        pre_s = opc.get(sel, (None, 0.0))[1]
+        pre = c2.number_input("Precio $", value=float(pre_s))
+        if st.button("Añadir"):
+            n_i = sel if sel != "---" else man
+            sku_i = opc.get(sel, (None, 0.0))[0]
+            st.session_state.carrito.append({"item": n_i, "sku": sku_i, "cant": can, "pre": pre, "sub": can*pre, "es_s": sel != "---"})
+            st.rerun()
 
     if st.session_state.carrito:
         df_p = pd.DataFrame(st.session_state.carrito)
         st.table(df_p[["item", "cant", "pre", "sub"]])
-        total_p = df_p['sub'].sum()
-        st.header(f"TOTAL: ${total_p:,.2f}")
-        
-        cb1, cb2 = st.columns(2)
-        if cb1.button("🖨️ IMPRIMIR"):
-            components.html("<script>window.parent.print();</script>", height=0)
-        if cb2.button("🚀 FINALIZAR Y DESCONTAR", type="primary"):
+        total_v = df_p['sub'].sum()
+        st.header(f"TOTAL: ${total_v:,.2f}")
+        if st.button("🖨️ IMPRIMIR"): components.html("<script>window.parent.print();</script>", height=0)
+        if st.button("🚀 FINALIZAR VENTA", type="primary"):
             for r in st.session_state.carrito:
-                if r["es_s"]:
-                    cursor.execute("UPDATE inventario SET stock = stock - %s WHERE sku = %s AND usuario = %s", (r["cant"], r["sku"], user_act))
-            # Guardar venta en movimientos
-            cursor.execute("INSERT INTO movimientos (usuario, tipo, categoria, descripcion, monto, fecha) VALUES (%s,%s,%s,%s,%s,%s)", (user_act, "INGRESO", "VENTA", f"Cliente: {cli}", total_p, datetime.now().strftime('%Y-%m-%d')))
-            conn.commit()
-            st.session_state.carrito = []
-            st.success("✅ Venta Guardada en la Nube")
-            st.rerun()
+                if r["es_s"]: cursor.execute("UPDATE inventario SET stock = stock - %s WHERE sku = %s AND usuario = %s", (r["cant"], r["sku"], user_act))
+            cursor.execute("INSERT INTO movimientos (usuario, tipo, categoria, descripcion, monto, fecha) VALUES (%s,%s,%s,%s,%s,%s)", (user_act, "INGRESO", "VENTA", cli, total_v, datetime.now().date()))
+            conn.commit(); st.session_state.carrito = []; st.success("Venta guardada"); st.rerun()
 
 with tab2:
-    st.header("📦 Gestión de Almacén")
-    with st.form("f_inv"):
+    st.header("📦 Inventario SKU")
+    with st.form("inv"):
         c1, c2, c3, c4 = st.columns(4)
-        f_s, f_n, f_c, f_p = c1.text_input("SKU"), c2.text_input("Nombre"), c3.number_input("Cant", min_value=0), c4.number_input("Precio", min_value=0.0)
-        if st.form_submit_button("Actualizar / Registrar"):
+        f_s, f_n, f_c, f_p = c1.text_input("SKU"), c2.text_input("Nombre"), c3.number_input("Stock", min_value=0), c4.number_input("Precio", min_value=0.0)
+        if st.form_submit_button("Actualizar"):
             cursor.execute("SELECT stock FROM inventario WHERE usuario=%s AND sku=%s", (user_act, f_s))
-            if cursor.fetchone():
-                cursor.execute("UPDATE inventario SET stock=stock+%s, precio=%s WHERE usuario=%s AND sku=%s", (f_c, f_p, user_act, f_s))
-            else:
-                cursor.execute("INSERT INTO inventario (usuario, sku, repuesto, stock, precio) VALUES (%s,%s,%s,%s,%s)", (user_act, f_s, f_n, f_c, f_p))
-            conn.commit()
-            st.rerun()
+            if cursor.fetchone(): cursor.execute("UPDATE inventario SET stock=stock+%s, precio=%s WHERE usuario=%s AND sku=%s", (f_c, f_p, user_act, f_s))
+            else: cursor.execute("INSERT INTO inventario (usuario, sku, repuesto, stock, precio) VALUES (%s,%s,%s,%s,%s)", (user_act, f_s, f_n, f_c, f_p))
+            conn.commit(); st.rerun()
     cursor.execute("SELECT sku, repuesto, stock, precio FROM inventario WHERE usuario=%s", (user_act,))
     st.dataframe(pd.DataFrame(cursor.fetchall(), columns=['SKU', 'Repuesto', 'Stock', 'Precio']), use_container_width=True, hide_index=True)
 
 with tab3:
-    st.header("📊 Resumen de Ventas")
+    st.header("📊 Finanzas")
     cursor.execute("SELECT fecha, monto FROM movimientos WHERE usuario=%s AND tipo='INGRESO'", (user_act,))
     df_m = pd.DataFrame(cursor.fetchall(), columns=['fecha', 'monto'])
     if not df_m.empty:
         st.metric("Ventas Totales", f"${df_m['monto'].sum():,.2f}")
         st.line_chart(df_m.groupby('fecha')['monto'].sum())
-    else:
-        st.info("Aún no hay ventas registradas.")
