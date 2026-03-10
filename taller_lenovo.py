@@ -10,8 +10,13 @@ st.set_page_config(page_title="Taller SaaS Pro", layout="wide")
 # --- CONEXIÓN POR URI (MÁXIMA ESTABILIDAD) ---
 def conectar_db():
     try:
-        # Conecta usando la URI de los secrets (Puerto 6543)
-        return psycopg2.connect(st.secrets["postgres"]["uri"], connect_timeout=20)
+        # Verificamos si existe la sección postgres y la uri en los secrets
+        if "postgres" in st.secrets and "uri" in st.secrets["postgres"]:
+            uri_cloud = st.secrets["postgres"]["uri"]
+            return psycopg2.connect(uri_cloud, connect_timeout=15)
+        else:
+            st.error("Faltan los Secrets de Postgres en Streamlit. Revisa la configuración.")
+            return None
     except Exception as e:
         st.error(f"Error de conexión: {e}")
         return None
