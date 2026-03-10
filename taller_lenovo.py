@@ -11,8 +11,9 @@ st.set_page_config(page_title="Taller SaaS Pro", layout="wide")
 # --- CONEXIÓN PROFESIONAL A LA NUBE (SUPABASE) ---
 def conectar_db():
     try:
-        # Usa los Secrets que cargaste en el panel de Streamlit
-        return psycopg2.connect(**st.secrets["postgres"])
+        # Esto toma los Secrets (host, user con ID, puerto 6543)
+        params = st.secrets["postgres"]
+        return psycopg2.connect(**params, connect_timeout=10)
     except Exception as e:
         st.error(f"Error de conexión a la nube: {e}")
         return None
