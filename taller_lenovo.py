@@ -7,55 +7,58 @@ import streamlit.components.v1 as components
 
 st.set_page_config(page_title="Taller SaaS Pro", layout="wide")
 
-# --- CONEXIÓN DIRECTA (PRUEBA DE FALLOS) ---
+# --- FORZADO DE CONEXIÓN DIRECTA ---
+# No usamos Secrets para descartar errores de configuración
+URI_NUBE = "postgresql://postgres.hetlgiunrfkkjuxbimzk:44YdZuhW4_Wnac@://aws-0-sa-east-1.pooler.supabase.com"
+
+@st.cache_resource
 def conectar_db():
     try:
-        # Ponemos la URI directamente aquí para saltar el error de Secrets
-        uri_directa = "postgresql://postgres.hetlgiunrfkkjuxbimzk:44YdZuhW4_Wnac@://aws-0-sa-east-1.pooler.supabase.com"
-        return psycopg2.connect(uri_directa, connect_timeout=20)
+        # Forzamos los parámetros uno por uno para que no busque el 'socket' local
+        conn = psycopg2.connect(URI_NUBE, connect_timeout=15)
+        return conn
     except Exception as e:
-        st.error(f"Error crítico de red: {e}")
+        st.error(f"Error Crítico de Red: {e}")
         return None
 
-conn = conectar_db()
-if conn:
-    cursor = conn.cursor()
-    # Tablas
+db_conn = conectar_db()
+if db_conn:
+    cursor = db_conn.cursor()
     cursor.execute('CREATE TABLE IF NOT EXISTS usuarios (user_id TEXT PRIMARY KEY, password TEXT, taller TEXT, direccion TEXT, tel TEXT, cuit TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS inventario (id SERIAL PRIMARY KEY, usuario TEXT, sku TEXT, repuesto TEXT, stock INTEGER, precio REAL)')
-    cursor.execute('CREATE TABLE IF NOT EXISTS movimientos (id SERIAL PRIMARY KEY, usuario TEXT, tipo TEXT, categoria TEXT, descripcion TEXT, monto REAL, fecha DATE)')
-    conn.commit()
+    db_conn.commit()
 else:
+    st.warning("Reintentando conexión...")
     st.stop()
 
+# --- FUNCIONES ---
 def generar_hash(p): return hashlib.sha256(p.encode()).hexdigest()
 
 if 'autenticado' not in st.session_state:
     st.session_state.update({'autenticado': False, 'user': '', 'datos': {}, 'carrito': []})
 
-# --- LOGIN / REGISTRO ---
+# --- LOGIN ---
 if not st.session_state.autenticado:
-    st.title("🚀 Gestión de Talleres - SaaS")
-    t1, t2 = st.tabs(["🔐 Ingresar", "📝 Registrar"])
-    with t2:
-        with st.form("reg"):
-            u, p = st.text_input("Email"), st.text_input("Pass", type="password")
-            nom, dir_t, tel, cui = st.text_input("Taller"), st.text_input("Dir"), st.text_input("Tel"), st.text_input("CUIT")
-            if st.form_submit_button("Crear mi cuenta"):
-                try:
-                    cursor.execute("INSERT INTO usuarios VALUES (%s,%s,%s,%s,%s,%s)", (u, generar_hash(p), nom, dir_t, tel, cui))
-                    conn.commit(); st.success("¡Registrado!")
-                except: st.error("Error: Usuario duplicado")
-    with t1:
-        u_l = st.text_input("Email")
-        p_l = st.text_input("Contraseña", type="password", key="login_pass")
+    st.title("🛠️ SaaS Gestión de Talleres")
+    tab1, tab2 = st.tabs(["🔐 Ingresar", "📝 Registrar"])
+    with tab2:
+        with st.form("registro"):
+            u = st.text_input("Email")
+            p = st.text_input("Pass", type="password")
+            nom = st.text_input("Taller")
+            if st.form_submit_button("Crear Cuenta"):
+                cursor.execute("INSERT INTO usuarios (user_id, password, taller) VALUES (%s,%s,%s)", (u, generar_hash(p), nom))
+                db_conn.commit(); st.success("¡Registrado!")
+    with tab1:
+        u_l = st.text_input("Usuario")
+        p_l = st.text_input("Contraseña", type="password")
         if st.button("Entrar"):
-            cursor.execute("SELECT password, taller, direccion, tel, cuit FROM usuarios WHERE user_id=%s", (u_l,))
+            cursor.execute("SELECT password, taller FROM usuarios WHERE user_id=%s", (u_l,))
             r = cursor.fetchone()
             if r and r[0] == generar_hash(p_l):
-                st.session_state.update({'autenticado': True, 'user': u_l, 'datos': {"t": r[1], "d": r[2], "te": r[3], "c": r[4]}})
+                st.session_state.update({'autenticado': True, 'user': u_l, 'datos': {"taller": r[1]}})
                 st.rerun()
-            else: st.error("Datos incorrectos")
+            else: st.error("Error")
     st.stop()
 
 # --- APP ---
