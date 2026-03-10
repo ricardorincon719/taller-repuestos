@@ -11,22 +11,22 @@ st.set_page_config(page_title="Taller SaaS Pro", layout="wide")
 # --- CONEXIÓN PROFESIONAL A LA NUBE (SUPABASE) ---
 def conectar_db():
     try:
-        # Extraemos los datos de los Secrets de Streamlit
+        # Extraemos los datos de los Secrets
         p = st.secrets["postgres"]
         conn = psycopg2.connect(
             host=p["host"],
             database=p["database"],
             user=p["user"],
             password=p["password"],
-            port=p["port"],
+            port=int(p["port"]),
             sslmode='require',
-            connect_timeout=10
+            connect_timeout=20  # Aumentamos el tiempo de espera
         )
         return conn
     except Exception as e:
-        st.error(f"Error de conexión a la nube: {e}")
+        # Si falla el 5432, intentamos avisar qué pasó
+        st.error(f"Error crítico de conexión: {e}")
         return None
-
 conn = conectar_db()
 if conn:
     cursor = conn.cursor()
