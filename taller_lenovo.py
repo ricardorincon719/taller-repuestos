@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import psycopg2
@@ -8,17 +7,18 @@ import streamlit.components.v1 as components
 
 st.set_page_config(page_title="Taller SaaS Pro", layout="wide")
 
-# --- DATOS DE CONEXIÓN (DESGLOSADOS) ---
-DB_HOST = "aws-0-sa-east-1.pooler.supabase.com"
+# --- PARÁMETROS DE CONEXIÓN DIRECTA (IPv4) ---
+# Usamos el host directo y puerto 5432 para evitar errores de "Tenant"
+DB_HOST = "db.hetlgiunrfkkjuxbimzk.supabase.co"
 DB_NAME = "postgres"
-DB_USER = "postgres.hetlgiunrfkkjuxbimzk"
+DB_USER = "postgres"
 DB_PASS = "44YdZuhW4_Wnac"
-DB_PORT = "6543"
+DB_PORT = "5432"
 
 @st.cache_resource
 def conectar_db():
     try:
-        # Pasamos los parámetros uno por uno para EVITAR el error de socket
+        # Conexión directa al motor de la base de datos
         conn = psycopg2.connect(
             host=DB_HOST,
             database=DB_NAME,
@@ -30,44 +30,41 @@ def conectar_db():
         )
         return conn
     except Exception as e:
-        st.error(f"Error de Red: {e}")
+        st.error(f"Error de Conexión Directa: {e}")
         return None
 
 db_conn = conectar_db()
 if db_conn:
     cursor = db_conn.cursor()
-    # Creamos las tablas necesarias
+    # Tablas iniciales
     cursor.execute('CREATE TABLE IF NOT EXISTS usuarios (user_id TEXT PRIMARY KEY, password TEXT, taller TEXT, direccion TEXT, tel TEXT, cuit TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS inventario (id SERIAL PRIMARY KEY, usuario TEXT, sku TEXT, repuesto TEXT, stock INTEGER, precio REAL)')
     db_conn.commit()
 else:
-    st.warning("Conectando con el servidor de la nube...")
+    st.warning("Estableciendo conexión con la base de datos central...")
     st.stop()
 
-# --- SEGURIDAD ---
-def generar_hash(p): 
-    return hashlib.sha256(p.encode()).hexdigest()
+def generar_hash(p): return hashlib.sha256(p.encode()).hexdigest()
 
 if 'autenticado' not in st.session_state:
     st.session_state.update({'autenticado': False, 'user': '', 'datos': {}, 'carrito': []})
 
-# --- PANTALLA DE ACCESO ---
+# --- ACCESO ---
 if not st.session_state.autenticado:
-    st.title("🛠️ SaaS Gestión de Talleres")
+    st.title("🚀 Gestión de Talleres - Acceso")
     tab1, tab2 = st.tabs(["🔐 Ingresar", "📝 Registrar"])
     
     with tab2:
-        with st.form("registro_form"):
+        with st.form("reg_form"):
             u = st.text_input("Email (Usuario)")
             p = st.text_input("Contraseña", type="password")
             nom = st.text_input("Nombre del Taller")
-            if st.form_submit_button("Crear Cuenta"):
+            if st.form_submit_button("Crear mi Cuenta"):
                 try:
                     cursor.execute("INSERT INTO usuarios (user_id, password, taller) VALUES (%s,%s,%s)", (u, generar_hash(p), nom))
                     db_conn.commit()
-                    st.success("¡Registrado! Ya podés entrar.")
-                except:
-                    st.error("Error: El usuario ya existe.")
+                    st.success("¡Registrado en la nube! Ya podés entrar.")
+                except: st.error("Error: El usuario ya existe.")
     
     with tab1:
         u_l = st.text_input("Email / Usuario")
@@ -78,12 +75,11 @@ if not st.session_state.autenticado:
             if r and r[0] == generar_hash(p_l):
                 st.session_state.update({'autenticado': True, 'user': u_l, 'datos': {"taller": r[1]}})
                 st.rerun()
-            else:
-                st.error("Credenciales incorrectas")
+            else: st.error("Credenciales incorrectas")
     st.stop()
 
-# --- INTERFAZ POST-LOGIN ---
-st.write(f"### Bienvenido: **{st.session_state.datos.get('taller', 'Mecánico')}**")
+# --- APP ---
+st.write(f"### Bienvenido: **{st.session_state.datos.get('taller')}**")
 if st.sidebar.button("Cerrar Sesión"):
     st.session_state.autenticado = False
     st.rerun()
