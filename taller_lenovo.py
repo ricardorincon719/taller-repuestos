@@ -7,28 +7,40 @@ import streamlit.components.v1 as components
 
 st.set_page_config(page_title="Taller SaaS Pro", layout="wide")
 
-# --- FORZADO DE CONEXIÓN DIRECTA ---
-# No usamos Secrets para descartar errores de configuración
-URI_NUBE = "postgresql://postgres.hetlgiunrfkkjuxbimzk:44YdZuhW4_Wnac@://aws-0-sa-east-1.pooler.supabase.com"
+# --- PARÁMETROS FIJOS (DESGLOSADOS PARA EVITAR EL ERROR DE SOCKET) ---
+DB_HOST = "aws-0-sa-east-1.pooler.supabase.com"
+DB_NAME = "postgres"
+DB_USER = "postgres.hetlgiunrfkkjuxbimzk"
+DB_PASS = "44YdZuhW4_Wnac"
+DB_PORT = "6543"
 
 @st.cache_resource
 def conectar_db():
     try:
-        # Forzamos los parámetros uno por uno para que no busque el 'socket' local
-        conn = psycopg2.connect(URI_NUBE, connect_timeout=15)
+        # Pasamos los datos uno por uno para que NO busque el socket local
+        conn = psycopg2.connect(
+            host=DB_HOST,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS,
+            port=DB_PORT,
+            sslmode='require',
+            connect_timeout=20
+        )
         return conn
     except Exception as e:
-        st.error(f"Error Crítico de Red: {e}")
+        st.error(f"Error de Red: {e}")
         return None
 
 db_conn = conectar_db()
 if db_conn:
     cursor = db_conn.cursor()
+    # Creamos las tablas iniciales
     cursor.execute('CREATE TABLE IF NOT EXISTS usuarios (user_id TEXT PRIMARY KEY, password TEXT, taller TEXT, direccion TEXT, tel TEXT, cuit TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS inventario (id SERIAL PRIMARY KEY, usuario TEXT, sku TEXT, repuesto TEXT, stock INTEGER, precio REAL)')
     db_conn.commit()
 else:
-    st.warning("Reintentando conexión...")
+    st.warning("El servidor de base de datos no responde. Reintentando...")
     st.stop()
 
 # --- FUNCIONES ---
@@ -37,30 +49,38 @@ def generar_hash(p): return hashlib.sha256(p.encode()).hexdigest()
 if 'autenticado' not in st.session_state:
     st.session_state.update({'autenticado': False, 'user': '', 'datos': {}, 'carrito': []})
 
-# --- LOGIN ---
+# --- PANTALLA DE ACCESO ---
 if not st.session_state.autenticado:
     st.title("🛠️ SaaS Gestión de Talleres")
     tab1, tab2 = st.tabs(["🔐 Ingresar", "📝 Registrar"])
     with tab2:
         with st.form("registro"):
-            u = st.text_input("Email")
-            p = st.text_input("Pass", type="password")
-            nom = st.text_input("Taller")
+            u = st.text_input("Email (Usuario)")
+            p = st.text_input("Contraseña", type="password")
+            nom = st.text_input("Nombre del Taller")
             if st.form_submit_button("Crear Cuenta"):
-                cursor.execute("INSERT INTO usuarios (user_id, password, taller) VALUES (%s,%s,%s)", (u, generar_hash(p), nom))
-                db_conn.commit(); st.success("¡Registrado!")
-    with tab1:
+                try:
+                    cursor.execute("INSERT INTO usuarios (user_id, password, taller) VALUES (%s,%s,%s)", (u, generar_hash(p), nom))
+                    db_conn.commit()
+                    st.success("¡Registrado! Ya podés entrar.")
+                except: st.error("Error: El usuario ya existe.")
+    with t_ing := tab1:
         u_l = st.text_input("Usuario")
-        p_l = st.text_input("Contraseña", type="password")
-        if st.button("Entrar"):
+        p_l = st.text_input("Contraseña", type="password", key="p_log")
+        if st.button("Entrar al Sistema"):
             cursor.execute("SELECT password, taller FROM usuarios WHERE user_id=%s", (u_l,))
             r = cursor.fetchone()
             if r and r[0] == generar_hash(p_l):
                 st.session_state.update({'autenticado': True, 'user': u_l, 'datos': {"taller": r[1]}})
                 st.rerun()
-            else: st.error("Error")
+            else: st.error("Datos incorrectos")
     st.stop()
 
+# --- INTERFAZ POST-LOGIN ---
+st.write(f"Bienvenido: **{st.session_state.datos['taller']}**")
+if st.button("Cerrar Sesión"):
+    st.session_state.autenticado = False
+    st.rerun()
 # --- APP ---
 info = st.session_state.datos
 st.sidebar.title(f"👨‍🔧 {info.get('t')}")
