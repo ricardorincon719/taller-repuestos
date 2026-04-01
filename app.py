@@ -10,7 +10,11 @@ import sqlite3
 from datetime import datetime
 import os
 import json
-from fpdf import FPDF
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
 import plotly.express as px
 import io
 import base64
@@ -164,66 +168,73 @@ class PDF(FPDF):
 
 def generar_pdf(cliente_nombre, cliente_telefono, cliente_email, 
                 repuestos, mano_obra, items, total, fecha):
-    """Generar PDF del presupuesto"""
-    pdf = PDF()
-    pdf.add_page()
+    """Generar PDF del presupuesto usando reportlab"""
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+    story = []
+    
+    # Título
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        spaceAfter=30,
+        alignment=1  # Centrado
+    )
+    story.append(Paragraph("TALLER MECÁNICO - PRESUPUESTO", title_style))
+    story.append(Spacer(1, 12))
     
     # Datos del cliente
-    pdf.set_font('Arial', 'B', 12)
-    pdf.cell(0, 10, 'DATOS DEL CLIENTE', 0, 1)
-    pdf.set_font('Arial', '', 10)
-    pdf.cell(0, 5, f'Nombre: {cliente_nombre}', 0, 1)
+    story.append(Paragraph("<b>DATOS DEL CLIENTE</b>", styles['Heading2']))
+    story.append(Spacer(1, 6))
+    story.append(Paragraph(f"Nombre: {cliente_nombre}", styles['Normal']))
     if cliente_telefono:
-        pdf.cell(0, 5, f'Teléfono: {cliente_telefono}', 0, 1)
+        story.append(Paragraph(f"Teléfono: {cliente_telefono}", styles['Normal']))
     if cliente_email:
-        pdf.cell(0, 5, f'Email: {cliente_email}', 0, 1)
-    pdf.cell(0, 5, f'Fecha: {fecha}', 0, 1)
-    pdf.ln(5)
+        story.append(Paragraph(f"Email: {cliente_email}", styles['Normal']))
+    story.append(Paragraph(f"Fecha: {fecha}", styles['Normal']))
+    story.append(Spacer(1, 12))
     
-    # Detalles del presupuesto
-    pdf.set_font('Arial', 'B', 12)
-    pdf.cell(0, 10, 'DETALLES DEL PRESUPUESTO', 0, 1)
-    
-    # Tabla
-    pdf.set_font('Arial', 'B', 10)
-    pdf.cell(80, 8, 'Concepto', 1)
-    pdf.cell(50, 8, 'Cantidad', 1)
-    pdf.cell(50, 8, 'Subtotal', 1)
-    pdf.ln()
-    
-    pdf.set_font('Arial', '', 10)
-    pdf.cell(80, 8, 'Repuestos', 1)
-    pdf.cell(50, 8, '1', 1)
-    pdf.cell(50, 8, f'${repuestos:.2f}', 1)
-    pdf.ln()
-    
-    pdf.cell(80, 8, 'Mano de obra', 1)
-    pdf.cell(50, 8, '1', 1)
-    pdf.cell(50, 8, f'${mano_obra:.2f}', 1)
-    pdf.ln()
-    
+    # Tabla de detalles
+    data = [["Concepto", "Subtotal"]]
+    data.append(["Repuestos", f"${repuestos:.2f}"])
+    data.append(["Mano de obra", f"${mano_obra:.2f}"])
     for item in items:
-        pdf.cell(80, 8, item['nombre'], 1)
-        pdf.cell(50, 8, '1', 1)
-        pdf.cell(50, 8, f'${item["precio"]:.2f}', 1)
-        pdf.ln()
+        data.append([item['nombre'], f"${item['precio']:.2f}"])
+    data.append(["", ""])
+    data.append(["TOTAL", f"${total:.2f}"])
     
-    # Total
-    pdf.ln(5)
-    pdf.set_font('Arial', 'B', 14)
-    pdf.cell(130, 10, 'TOTAL:', 0)
-    pdf.cell(50, 10, f'${total:.2f}', 0, 1, 'R')
+    table = Table(data, colWidths=[300, 100])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, -1), (-1, -1), colors.beige),
+        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, -1), (-1, -1), 14),
+        ('GRID', (0, 0), (-1, -2), 1, colors.black)
+    ]))
+    story.append(table)
+    story.append(Spacer(1, 20))
     
     # Notas
-    pdf.ln(10)
-    pdf.set_font('Arial', 'I', 9)
-    pdf.cell(0, 5, 'Presupuesto válido por 30 días.', 0, 1)
-    pdf.cell(0, 5, 'Incluye garantía de 3 meses en mano de obra.', 0, 1)
+    notes_style = ParagraphStyle(
+        'Notes',
+        parent=styles['Italic'],
+        fontSize=9,
+        textColor=colors.grey
+    )
+    story.append(Paragraph("Presupuesto válido por 30 días.", notes_style))
+    story.append(Paragraph("Incluye garantía de 3 meses en mano de obra.", notes_style))
     
-    # Generar archivo
-    output = io.BytesIO()
-    pdf.output(output)
-    return output.getvalue()
+    # Construir PDF
+    doc.build(story)
+    buffer.seek(0)
+    return buffer.getvalue()
 
 # ==================== FUNCIONES DE ESTADÍSTICAS ====================
 
