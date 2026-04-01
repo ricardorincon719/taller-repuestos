@@ -1,525 +1,204 @@
-"""
-Sistema de Presupuestos para Taller Mecánico
-Autor: Ricardo Rincon
-Versión: 2.0 - Profesional
-"""
-
 import streamlit as st
-import pandas as pd
-import sqlite3
 from datetime import datetime
-import os
 import json
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-import plotly.express as px
-import io
-import base64
 
-# Configuración de página
-st.set_page_config(
-    page_title="Taller Presupuestos",
-    page_icon="🔧",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+st.set_page_config(page_title="Taller Presupuestos", page_icon="🔧", layout="wide")
 
-# CSS personalizado
-st.markdown("""
-<style>
-    .main-header {
-        background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-        padding: 1rem;
-        border-radius: 10px;
-        color: white;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    .presupuesto-card {
-        background-color: #f0f2f6;
-        padding: 1rem;
-        border-radius: 10px;
-        border-left: 5px solid #2a5298;
-        margin: 1rem 0;
-    }
-    .total-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1.5rem;
-        border-radius: 10px;
-        color: white;
-        text-align: center;
-    }
-</style>
-""", unsafe_allow_html=True)
+st.title("🔧 Taller Presupuestos")
 
-# ==================== CONFIGURACIÓN DE BASE DE DATOS ====================
+# Inicializar datos en session_state
+if 'presupuestos' not in st.session_state:
+    st.session_state.presupuestos = []
+if 'items_actuales' not in st.session_state:
+    st.session_state.items_actuales = []
 
-def init_database():
-    """Inicializar la base de datos SQLite"""
-    conn = sqlite3.connect('taller_presupuestos.db')
-    c = conn.cursor()
+# Sidebar con resumen
+with st.sidebar:
+    st.header("📊 Resumen")
+    total_presupuestos = len(st.session_state.presupuestos)
+    total_facturado = sum(p.get('total', 0) for p in st.session_state.presupuestos)
+    st.metric("Presupuestos", total_presupuestos)
+    st.metric("Total Facturado", f"${total_facturado:,.2f}")
     
-    # Tabla de presupuestos
-    c.execute('''CREATE TABLE IF NOT EXISTS presupuestos
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  fecha TEXT,
-                  cliente_nombre TEXT,
-                  cliente_telefono TEXT,
-                  cliente_email TEXT,
-                  repuestos REAL,
-                  mano_obra REAL,
-                  items TEXT,
-                  total REAL,
-                  estado TEXT,
-                  notas TEXT)''')
-    
-    # Tabla de clientes
-    c.execute('''CREATE TABLE IF NOT EXISTS clientes
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  nombre TEXT UNIQUE,
-                  telefono TEXT,
-                  email TEXT,
-                  direccion TEXT,
-                  fecha_registro TEXT)''')
-    
-    # Tabla de productos/servicios
-    c.execute('''CREATE TABLE IF NOT EXISTS productos
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  nombre TEXT UNIQUE,
-                  precio REAL,
-                  tipo TEXT,
-                  fecha_creacion TEXT)''')
-    
-    conn.commit()
-    conn.close()
+    st.markdown("---")
+    if st.button("📤 Exportar datos (JSON)"):
+        json_str = json.dumps(st.session_state.presupuestos, indent=2)
+        st.download_button("Descargar JSON", json_str, "presupuestos.json", "application/json")
 
-# ==================== FUNCIONES DE BASE DE DATOS ====================
+# Pestañas principales
+tab1, tab2, tab3 = st.tabs(["💰 Nuevo Presupuesto", "📋 Historial", "📊 Estadísticas"])
 
-def guardar_presupuesto(cliente_nombre, cliente_telefono, cliente_email, 
-                        repuestos, mano_obra, items, total, notas=""):
-    """Guardar presupuesto en la base de datos"""
-    conn = sqlite3.connect('taller_presupuestos.db')
-    c = conn.cursor()
+# ==================== TAB 1: NUEVO PRESUPUESTO ====================
+with tab1:
+    st.subheader("📝 Datos del cliente")
+    col1, col2 = st.columns(2)
+    with col1:
+        cliente_nombre = st.text_input("Nombre del cliente *", placeholder="Ej: Juan Pérez")
+        telefono = st.text_input("Teléfono", placeholder="Ej: 123456789")
+    with col2:
+        email = st.text_input("Email", placeholder="cliente@email.com")
+        notas = st.text_area("Notas adicionales", placeholder="Observaciones...")
     
-    # Guardar cliente si no existe
-    try:
-        c.execute("INSERT OR IGNORE INTO clientes (nombre, telefono, email, fecha_registro) VALUES (?, ?, ?, ?)",
-                  (cliente_nombre, cliente_telefono, cliente_email, datetime.now().isoformat()))
-        conn.commit()
-    except:
-        pass
+    st.markdown("---")
     
-    # Guardar presupuesto
-    items_json = json.dumps(items)
-    c.execute('''INSERT INTO presupuestos 
-                 (fecha, cliente_nombre, cliente_telefono, cliente_email, 
-                  repuestos, mano_obra, items, total, estado, notas)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-              (datetime.now().isoformat(), cliente_nombre, cliente_telefono, 
-               cliente_email, repuestos, mano_obra, items_json, total, 
-               "PENDIENTE", notas))
+    col1, col2 = st.columns(2)
+    with col1:
+        repuestos = st.number_input("🔧 Repuestos ($)", min_value=0.0, step=10.0, value=0.0)
+    with col2:
+        mano_obra = st.number_input("👨‍🔧 Mano de obra ($)", min_value=0.0, step=10.0, value=0.0)
     
-    presupuesto_id = c.lastrowid
-    conn.commit()
-    conn.close()
+    st.markdown("---")
     
-    return presupuesto_id
-
-def cargar_presupuestos():
-    """Cargar historial de presupuestos"""
-    conn = sqlite3.connect('taller_presupuestos.db')
-    df = pd.read_sql_query("SELECT * FROM presupuestos ORDER BY fecha DESC", conn)
-    conn.close()
-    return df
-
-def cargar_clientes():
-    """Cargar lista de clientes"""
-    conn = sqlite3.connect('taller_presupuestos.db')
-    df = pd.read_sql_query("SELECT * FROM clientes ORDER BY nombre", conn)
-    conn.close()
-    return df
-
-def actualizar_estado_presupuesto(presupuesto_id, nuevo_estado):
-    """Actualizar estado de un presupuesto"""
-    conn = sqlite3.connect('taller_presupuestos.db')
-    c = conn.cursor()
-    c.execute("UPDATE presupuestos SET estado = ? WHERE id = ?", 
-              (nuevo_estado, presupuesto_id))
-    conn.commit()
-    conn.close()
-
-# ==================== FUNCIONES DE PDF ====================
-
-class PDF(FPDF):
-    def header(self):
-        self.set_font('Arial', 'B', 16)
-        self.cell(0, 10, 'TALLER MECÁNICO - PRESUPUESTO', 0, 1, 'C')
-        self.set_font('Arial', '', 10)
-        self.cell(0, 5, 'Documento válido como presupuesto', 0, 1, 'C')
-        self.ln(10)
-    
-    def footer(self):
-        self.set_y(-15)
-        self.set_font('Arial', 'I', 8)
-        self.cell(0, 10, f'Página {self.page_no()}', 0, 0, 'C')
-
-def generar_pdf(cliente_nombre, cliente_telefono, cliente_email, 
-                repuestos, mano_obra, items, total, fecha):
-    """Generar PDF del presupuesto usando reportlab"""
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
-    styles = getSampleStyleSheet()
-    story = []
-    
-    # Título
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=16,
-        spaceAfter=30,
-        alignment=1  # Centrado
-    )
-    story.append(Paragraph("TALLER MECÁNICO - PRESUPUESTO", title_style))
-    story.append(Spacer(1, 12))
-    
-    # Datos del cliente
-    story.append(Paragraph("<b>DATOS DEL CLIENTE</b>", styles['Heading2']))
-    story.append(Spacer(1, 6))
-    story.append(Paragraph(f"Nombre: {cliente_nombre}", styles['Normal']))
-    if cliente_telefono:
-        story.append(Paragraph(f"Teléfono: {cliente_telefono}", styles['Normal']))
-    if cliente_email:
-        story.append(Paragraph(f"Email: {cliente_email}", styles['Normal']))
-    story.append(Paragraph(f"Fecha: {fecha}", styles['Normal']))
-    story.append(Spacer(1, 12))
-    
-    # Tabla de detalles
-    data = [["Concepto", "Subtotal"]]
-    data.append(["Repuestos", f"${repuestos:.2f}"])
-    data.append(["Mano de obra", f"${mano_obra:.2f}"])
-    for item in items:
-        data.append([item['nombre'], f"${item['precio']:.2f}"])
-    data.append(["", ""])
-    data.append(["TOTAL", f"${total:.2f}"])
-    
-    table = Table(data, colWidths=[300, 100])
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 12),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, -1), (-1, -1), colors.beige),
-        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, -1), (-1, -1), 14),
-        ('GRID', (0, 0), (-1, -2), 1, colors.black)
-    ]))
-    story.append(table)
-    story.append(Spacer(1, 20))
-    
-    # Notas
-    notes_style = ParagraphStyle(
-        'Notes',
-        parent=styles['Italic'],
-        fontSize=9,
-        textColor=colors.grey
-    )
-    story.append(Paragraph("Presupuesto válido por 30 días.", notes_style))
-    story.append(Paragraph("Incluye garantía de 3 meses en mano de obra.", notes_style))
-    
-    # Construir PDF
-    doc.build(story)
-    buffer.seek(0)
-    return buffer.getvalue()
-
-# ==================== FUNCIONES DE ESTADÍSTICAS ====================
-
-def mostrar_estadisticas(df_presupuestos):
-    """Mostrar estadísticas en el sidebar"""
-    if not df_presupuestos.empty:
-        st.sidebar.markdown("---")
-        st.sidebar.subheader("📊 Estadísticas rápidas")
-        
-        total_presupuestos = len(df_presupuestos)
-        total_facturado = df_presupuestos['total'].sum()
-        promedio = df_presupuestos['total'].mean()
-        
-        st.sidebar.metric("Total presupuestos", total_presupuestos)
-        st.sidebar.metric("Total facturado", f"${total_facturado:,.2f}")
-        st.sidebar.metric("Promedio", f"${promedio:,.2f}")
-        
-        # Gráfico de tendencia
-        if len(df_presupuestos) > 1:
-            df_grafico = df_presupuestos.copy()
-            df_grafico['fecha'] = pd.to_datetime(df_grafico['fecha'])
-            df_grafico = df_grafico.sort_values('fecha')
-            fig = px.line(df_grafico, x='fecha', y='total', 
-                          title='Tendencia de presupuestos')
-            st.sidebar.plotly_chart(fig, use_container_width=True)
-
-# ==================== INTERFAZ PRINCIPAL ====================
-
-def main():
-    """Función principal de la aplicación"""
-    
-    # Inicializar base de datos
-    init_database()
-    
-    # Inicializar session state
-    if 'items' not in st.session_state:
-        st.session_state.items = []
-    if 'presupuesto_actual' not in st.session_state:
-        st.session_state.presupuesto_actual = None
-    
-    # Sidebar - Navegación
-    with st.sidebar:
-        st.image("https://cdn-icons-png.flaticon.com/512/2917/2917995.png", width=50)
-        st.title("🔧 Taller Pro")
-        
-        opcion = st.radio(
-            "Menú principal",
-            ["💰 Nuevo Presupuesto", "📋 Historial", "👥 Clientes", "📊 Estadísticas"],
-            index=0
-        )
-        
-        # Mostrar estadísticas en sidebar
-        df_presupuestos = cargar_presupuestos()
-        mostrar_estadisticas(df_presupuestos)
-    
-    # ==================== NUEVO PRESUPUESTO ====================
-    if opcion == "💰 Nuevo Presupuesto":
-        st.markdown('<div class="main-header"><h1>💰 Nuevo Presupuesto</h1><p>Complete los datos para generar un presupuesto profesional</p></div>', unsafe_allow_html=True)
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            cliente_nombre = st.text_input("Nombre del cliente *", placeholder="Ej: Juan Pérez")
-            cliente_telefono = st.text_input("Teléfono", placeholder="Ej: 123456789")
-        
-        with col2:
-            cliente_email = st.text_input("Email", placeholder="cliente@email.com")
-            notas = st.text_area("Notas adicionales", placeholder="Observaciones importantes...")
-        
-        st.markdown("---")
-        
-        # Costos principales
-        col1, col2 = st.columns(2)
-        with col1:
-            repuestos = st.number_input("🔧 Costo de repuestos ($)", min_value=0.0, step=10.0, key="repuestos_main")
-        with col2:
-            mano_obra = st.number_input("👨‍🔧 Mano de obra ($)", min_value=0.0, step=10.0, key="mano_obra_main")
-        
-        st.markdown("---")
-        
-        # Items adicionales
-        st.subheader("➕ Items adicionales")
-        col_item1, col_item2, col_item3 = st.columns([3, 2, 1])
-        
-        with col_item1:
-            nuevo_item = st.text_input("Nombre del ítem", key="nombre_item")
-        with col_item2:
-            precio_item = st.number_input("Precio", min_value=0.0, key="precio_item")
-        with col_item3:
-            if st.button("➕ Agregar", use_container_width=True):
-                if nuevo_item and precio_item > 0:
-                    st.session_state.items.append({"nombre": nuevo_item, "precio": precio_item})
-                    st.success(f"✅ '{nuevo_item}' agregado!")
-                    st.rerun()
-        
-        # Mostrar items agregados
-        if st.session_state.items:
-            st.subheader("📋 Items agregados:")
-            for i, item in enumerate(st.session_state.items):
-                col_a, col_b, col_c = st.columns([3, 2, 1])
-                col_a.write(f"**{item['nombre']}**")
-                col_b.write(f"${item['precio']:.2f}")
-                if col_c.button("❌", key=f"del_{i}"):
-                    st.session_state.items.pop(i)
-                    st.rerun()
-        
-        st.markdown("---")
-        
-        # Calcular total
-        total_items = sum(item['precio'] for item in st.session_state.items)
-        total_general = repuestos + mano_obra + total_items
-        
-        # Mostrar resumen
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown('<div class="presupuesto-card">', unsafe_allow_html=True)
-            st.subheader("📝 Resumen")
-            st.write(f"**Repuestos:** ${repuestos:,.2f}")
-            st.write(f"**Mano de obra:** ${mano_obra:,.2f}")
-            st.write(f"**Items adicionales:** ${total_items:,.2f}")
-            st.markdown('</div>', unsafe_allow_html=True)
-        
-        with col2:
-            st.markdown('<div class="total-card">', unsafe_allow_html=True)
-            st.subheader("💰 TOTAL")
-            st.markdown(f"<h1 style='color:white;'>${total_general:,.2f}</h1>", unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Botones de acción
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            if st.button("💾 Guardar Presupuesto", type="primary", use_container_width=True):
-                if not cliente_nombre:
-                    st.error("❌ Por favor ingrese el nombre del cliente")
-                else:
-                    presupuesto_id = guardar_presupuesto(
-                        cliente_nombre, cliente_telefono, cliente_email,
-                        repuestos, mano_obra, st.session_state.items, 
-                        total_general, notas
-                    )
-                    st.session_state.presupuesto_actual = presupuesto_id
-                    st.success(f"✅ Presupuesto guardado con ID: #{presupuesto_id}")
-                    
-                    # Limpiar items después de guardar
-                    st.session_state.items = []
-        
-        with col2:
-            if st.button("📄 Generar PDF", use_container_width=True):
-                if cliente_nombre:
-                    pdf_bytes = generar_pdf(
-                        cliente_nombre, cliente_telefono, cliente_email,
-                        repuestos, mano_obra, st.session_state.items, 
-                        total_general, datetime.now().strftime("%d/%m/%Y %H:%M")
-                    )
-                    b64 = base64.b64encode(pdf_bytes).decode()
-                    href = f'<a href="data:application/pdf;base64,{b64}" download="presupuesto_{cliente_nombre.replace(" ", "_")}.pdf">📥 Descargar PDF</a>'
-                    st.markdown(href, unsafe_allow_html=True)
-                    st.success("✅ PDF generado correctamente!")
-                else:
-                    st.error("❌ Complete el nombre del cliente primero")
-        
-        with col3:
-            if st.button("🔄 Limpiar todo", use_container_width=True):
-                st.session_state.items = []
+    # Items adicionales
+    st.subheader("➕ Items adicionales")
+    col_a, col_b, col_c = st.columns([3, 2, 1])
+    with col_a:
+        item_nombre = st.text_input("Nombre del ítem", key="nuevo_item_nombre")
+    with col_b:
+        item_precio = st.number_input("Precio", min_value=0.0, key="nuevo_item_precio")
+    with col_c:
+        if st.button("➕ Agregar", key="btn_agregar_item"):
+            if item_nombre and item_precio > 0:
+                st.session_state.items_actuales.append({
+                    "nombre": item_nombre,
+                    "precio": item_precio
+                })
+                st.success(f"✅ '{item_nombre}' agregado")
                 st.rerun()
     
-    # ==================== HISTORIAL ====================
-    elif opcion == "📋 Historial":
-        st.markdown('<div class="main-header"><h1>📋 Historial de Presupuestos</h1></div>', unsafe_allow_html=True)
-        
-        df = cargar_presupuestos()
-        
-        if not df.empty:
-            # Filtros
-            col1, col2 = st.columns(2)
-            with col1:
-                estados = st.multiselect("Filtrar por estado", 
-                                         ["PENDIENTE", "APROBADO", "RECHAZADO", "FACTURADO"],
-                                         default=["PENDIENTE", "APROBADO", "FACTURADO"])
-            with col2:
-                busqueda = st.text_input("Buscar por cliente", placeholder="Nombre...")
-            
-            # Aplicar filtros
-            if estados:
-                df = df[df['estado'].isin(estados)]
-            if busqueda:
-                df = df[df['cliente_nombre'].str.contains(busqueda, case=False, na=False)]
-            
-            # Mostrar presupuestos
-            for idx, row in df.head(20).iterrows():
-                with st.expander(f"📄 Presupuesto #{row['id']} - {row['cliente_nombre']} - ${row['total']:,.2f} - {row['estado']}"):
-                    col1, col2 = st.columns(2)
-                    
-                    with col1:
-                        st.write(f"**Fecha:** {row['fecha'][:16]}")
-                        st.write(f"**Cliente:** {row['cliente_nombre']}")
-                        st.write(f"**Teléfono:** {row['cliente_telefono']}")
-                        st.write(f"**Email:** {row['cliente_email']}")
-                    
-                    with col2:
-                        st.write(f"**Repuestos:** ${row['repuestos']:.2f}")
-                        st.write(f"**Mano de obra:** ${row['mano_obra']:.2f}")
-                        items = json.loads(row['items'])
-                        if items:
-                            st.write("**Items extra:**")
-                            for item in items:
-                                st.write(f"  - {item['nombre']}: ${item['precio']:.2f}")
-                    
-                    # Cambiar estado
-                    nuevo_estado = st.selectbox(
-                        "Cambiar estado",
-                        ["PENDIENTE", "APROBADO", "RECHAZADO", "FACTURADO"],
-                        index=["PENDIENTE", "APROBADO", "RECHAZADO", "FACTURADO"].index(row['estado']),
-                        key=f"estado_{row['id']}"
-                    )
-                    
-                    if nuevo_estado != row['estado']:
-                        actualizar_estado_presupuesto(row['id'], nuevo_estado)
-                        st.rerun()
-        else:
-            st.info("📭 No hay presupuestos guardados aún")
+    # Mostrar items agregados
+    if st.session_state.items_actuales:
+        st.write("**Items agregados:**")
+        for i, item in enumerate(st.session_state.items_actuales):
+            col_a, col_b, col_c = st.columns([3, 2, 1])
+            col_a.write(f"• {item['nombre']}")
+            col_b.write(f"${item['precio']:.2f}")
+            if col_c.button("❌", key=f"del_item_{i}"):
+                st.session_state.items_actuales.pop(i)
+                st.rerun()
     
-    # ==================== CLIENTES ====================
-    elif opcion == "👥 Clientes":
-        st.markdown('<div class="main-header"><h1>👥 Gestión de Clientes</h1></div>', unsafe_allow_html=True)
-        
-        df_clientes = cargar_clientes()
-        
-        if not df_clientes.empty:
-            st.dataframe(df_clientes[['nombre', 'telefono', 'email']], use_container_width=True)
-            
-            # Ver presupuestos del cliente
-            cliente_seleccionado = st.selectbox("Ver presupuestos de cliente", df_clientes['nombre'].tolist())
-            if cliente_seleccionado:
-                df_presup = cargar_presupuestos()
-                df_presup_cliente = df_presup[df_presup['cliente_nombre'] == cliente_seleccionado]
-                if not df_presup_cliente.empty:
-                    st.write(f"**Presupuestos de {cliente_seleccionado}:**")
-                    for _, row in df_presup_cliente.iterrows():
-                        st.write(f"- #{row['id']} - ${row['total']:.2f} - {row['estado']}")
-                else:
-                    st.info("Este cliente no tiene presupuestos aún")
-        else:
-            st.info("📭 No hay clientes registrados aún")
+    # Calcular total
+    total_items = sum(i['precio'] for i in st.session_state.items_actuales)
+    total_general = repuestos + mano_obra + total_items
     
-    # ==================== ESTADÍSTICAS ====================
-    elif opcion == "📊 Estadísticas":
-        st.markdown('<div class="main-header"><h1>📊 Estadísticas y Reportes</h1></div>', unsafe_allow_html=True)
-        
-        df = cargar_presupuestos()
-        
-        if not df.empty:
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                # Gráfico de presupuestos por estado
-                estados_counts = df['estado'].value_counts()
-                fig1 = px.pie(values=estados_counts.values, names=estados_counts.index, 
-                              title="Distribución por Estado")
-                st.plotly_chart(fig1, use_container_width=True)
-            
-            with col2:
-                # Top clientes
-                top_clientes = df.groupby('cliente_nombre')['total'].sum().nlargest(5)
-                fig2 = px.bar(x=top_clientes.values, y=top_clientes.index, 
-                              orientation='h', title="Top 5 Clientes por Facturación")
-                st.plotly_chart(fig2, use_container_width=True)
-            
-            # Tendencia temporal
-            df_tendencia = df.copy()
-            df_tendencia['fecha'] = pd.to_datetime(df_tendencia['fecha']).dt.date
-            tendencia = df_tendencia.groupby('fecha')['total'].sum().reset_index()
-            fig3 = px.line(tendencia, x='fecha', y='total', 
-                           title="Evolución de Presupuestos")
-            st.plotly_chart(fig3, use_container_width=True)
-            
-            # Exportar datos
-            st.markdown("---")
-            st.subheader("📥 Exportar Datos")
-            csv = df.to_csv(index=False).encode('utf-8')
-            st.download_button("Descargar CSV", csv, "presupuestos.csv", "text/csv")
-        else:
-            st.info("📊 No hay datos suficientes para mostrar estadísticas")
+    st.markdown("---")
+    st.markdown(f"### 💰 TOTAL DEL PRESUPUESTO: **${total_general:,.2f}**")
+    
+    # Botón guardar
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("💾 GUARDAR PRESUPUESTO", type="primary", use_container_width=True):
+            if not cliente_nombre:
+                st.error("❌ Por favor ingrese el nombre del cliente")
+            else:
+                nuevo_id = len(st.session_state.presupuestos) + 1
+                nuevo_presupuesto = {
+                    "id": nuevo_id,
+                    "fecha": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                    "cliente": cliente_nombre,
+                    "telefono": telefono,
+                    "email": email,
+                    "repuestos": repuestos,
+                    "mano_obra": mano_obra,
+                    "items": st.session_state.items_actuales.copy(),
+                    "total": total_general,
+                    "notas": notas,
+                    "estado": "PENDIENTE"
+                }
+                st.session_state.presupuestos.append(nuevo_presupuesto)
+                st.session_state.items_actuales = []
+                st.balloons()
+                st.success(f"✅ Presupuesto #{nuevo_id} guardado correctamente!")
+                st.rerun()
 
-if __name__ == "__main__":
-    main()
+# ==================== TAB 2: HISTORIAL ====================
+with tab2:
+    if not st.session_state.presupuestos:
+        st.info("📭 No hay presupuestos guardados aún. Crea uno en la pestaña 'Nuevo Presupuesto'.")
+    else:
+        # Filtro de búsqueda
+        busqueda = st.text_input("🔍 Buscar por cliente", placeholder="Nombre...")
+        
+        presupuestos_filtrados = st.session_state.presupuestos
+        if busqueda:
+            presupuestos_filtrados = [p for p in presupuestos_filtrados if busqueda.lower() in p['cliente'].lower()]
+        
+        st.write(f"**Mostrando {len(presupuestos_filtrados)} de {len(st.session_state.presupuestos)} presupuestos**")
+        
+        for p in reversed(presupuestos_filtrados):
+            with st.expander(f"📄 #{p['id']} - {p['cliente']} - ${p['total']:,.2f} - {p['estado']}"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.write(f"**Fecha:** {p['fecha']}")
+                    st.write(f"**Teléfono:** {p['telefono'] or '—'}")
+                    st.write(f"**Email:** {p['email'] or '—'}")
+                with col2:
+                    st.write(f"**Repuestos:** ${p['repuestos']:.2f}")
+                    st.write(f"**Mano de obra:** ${p['mano_obra']:.2f}")
+                    if p['items']:
+                        st.write("**Items adicionales:**")
+                        for item in p['items']:
+                            st.write(f"  • {item['nombre']}: ${item['precio']:.2f}")
+                
+                if p['notas']:
+                    st.write(f"**Notas:** {p['notas']}")
+                
+                # Cambiar estado
+                estados = ["PENDIENTE", "APROBADO", "RECHAZADO", "FACTURADO"]
+                estado_actual_idx = estados.index(p['estado'])
+                nuevo_estado = st.selectbox(
+                    "Cambiar estado",
+                    estados,
+                    index=estado_actual_idx,
+                    key=f"estado_{p['id']}"
+                )
+                if nuevo_estado != p['estado']:
+                    p['estado'] = nuevo_estado
+                    st.success(f"✅ Estado actualizado a {nuevo_estado}")
+                    st.rerun()
+
+# ==================== TAB 3: ESTADÍSTICAS ====================
+with tab3:
+    if not st.session_state.presupuestos:
+        st.info("📊 No hay datos suficientes para mostrar estadísticas.")
+    else:
+        st.subheader("📈 Resumen general")
+        
+        # Métricas
+        col1, col2, col3 = st.columns(3)
+        total = sum(p['total'] for p in st.session_state.presupuestos)
+        promedio = total / len(st.session_state.presupuestos)
+        
+        with col1:
+            st.metric("Total presupuestos", len(st.session_state.presupuestos))
+        with col2:
+            st.metric("Total facturado", f"${total:,.2f}")
+        with col3:
+            st.metric("Promedio por presupuesto", f"${promedio:,.2f}")
+        
+        st.markdown("---")
+        
+        # Distribución por estado (sin plotly, usando st.progress)
+        st.subheader("📊 Distribución por estado")
+        estados_count = {}
+        for p in st.session_state.presupuestos:
+            estado = p['estado']
+            estados_count[estado] = estados_count.get(estado, 0) + 1
+        
+        for estado, count in estados_count.items():
+            porcentaje = (count / len(st.session_state.presupuestos)) * 100
+            st.write(f"**{estado}:** {count} presupuestos ({porcentaje:.1f}%)")
+            st.progress(porcentaje / 100)
+        
+        st.markdown("---")
+        
+        # Top clientes
+        st.subheader("🏆 Top 5 clientes por facturación")
+        clientes_total = {}
+        for p in st.session_state.presupuestos:
+            cliente = p['cliente']
+            clientes_total[cliente] = clientes_total.get(cliente, 0) + p['total']
+        
+        top_clientes = sorted(clientes_total.items(), key=lambda x: x[1], reverse=True)[:5]
+        for cliente, total_cliente in top_clientes:
+            st.write(f"**{cliente}:** ${total_cliente:,.2f}")

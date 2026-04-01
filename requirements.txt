@@ -1,1 +1,1 @@
-echo "streamlit" > requirements.txt
+streamlit
