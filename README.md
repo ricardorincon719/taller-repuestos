@@ -1,26 +1,28 @@
-# 🔧 Taller Presupuestos - Sistema de Gestión para Talleres Mecánicos
+# 🔧 Taller Presupuestos
 
-Sistema profesional para gestión de presupuestos en talleres mecánicos. Desarrollado con Streamlit y SQLite.
+Sistema profesional para gestión de presupuestos en talleres mecánicos.
+
+## 🚀 Versión en línea
+
+**URL:** [taller-presupuestos.streamlit.app](https://taller-repuestos.streamlit.app/)
 
 ## ✨ Características
 
 - ✅ Creación rápida de presupuestos
-- ✅ Generación de PDF profesionales
-- ✅ Gestión de clientes
-- ✅ Historial completo de presupuestos
-- ✅ Estadísticas y gráficos interactivos
-- ✅ Base de datos SQLite local
-- ✅ Interfaz moderna y responsive
+- ✅ Historial de clientes
+- ✅ Estadísticas automáticas
+- ✅ Interfaz responsive (funciona en celular)
+- ✅ Sin instalación, solo navegador
 
-## 🚀 Instalación
+## 💼 ¿Quieres usar este sistema en tu taller?
 
-```bash
-# Clonar repositorio
-git clone https://github.com/ricardorincon719/taller-repuestos.git
+Ofrezco el sistema como servicio (SaaS) con:
+- Soporte por WhatsApp
+- Personalización con tu logo
+- Backup automático de datos
 
-# Instalar dependencias
-pip install -r requirements.txt
+**Contacto:** ricardorincon5512@gmail.com tel: +521291123332
 
-# Ejecutar
-streamlit run app.py
+## 📄 Licencia
 
+MIT License - Puedes usar y modificar el código, pero la versión alojada en [URL] es un servicio comercial.
