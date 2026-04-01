@@ -1,4 +1,1 @@
-echo "streamlit
-pandas
-plotly
-reportlab" > requirements.txt
+echo "streamlit" > requirements.txt
