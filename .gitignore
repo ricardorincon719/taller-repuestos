@@ -1,0 +1,9 @@
+# Datos sensibles y archivos locales
+data/
+backups/
+*.pyc
+__pycache__/
+.DS_Store
+venv/
+*.tmp
+*.log
