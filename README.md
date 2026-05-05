@@ -21,7 +21,7 @@ Ofrezco el sistema como servicio (SaaS) con:
 - Personalización con tu logo
 - Backup automático de datos
 
-**Contacto:** ricardorincon5512@gmail.com tel: +5212981123332
+**Contacto:** ricardorincon5512@gmail.com tel: +5512981123332
 
 ## 📄 Licencia
 
