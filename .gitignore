@@ -1,9 +1,67 @@
-# Datos sensibles y archivos locales
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Streamlit / data
 data/
 backups/
-*.pyc
-__pycache__/
+.streamlit/secrets.toml
+
+# VS Code
+.vscode/
+
+# Mac
 .DS_Store
-venv/
-*.tmp
+
+# Logs
+logs/
 *.log
+
+# PyCharm
+.idea/

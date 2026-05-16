@@ -7,6 +7,24 @@ import secrets
 import shutil
 from pathlib import Path
 from streamlit_cookies_manager import EncryptedCookieManager
+from dotenv import load_dotenv
+from filelock import FileLock, Timeout
+
+# Load environment variables from .env in development
+load_dotenv()
+
+# --- REQUIRED ENVIRONMENT VARIABLES ---
+REQUIRED_ENVS = ["ADMIN_PASSWORD", "MASTER_ACTIVATION_KEY", "COOKIE_PASSWORD"]
+missing_envs = [v for v in REQUIRED_ENVS if not os.environ.get(v)]
+if missing_envs:
+    raise RuntimeError(
+        "Missing required environment variables: " + ", ".join(missing_envs) + 
+        ". Define them in the environment or in a .env file (see .env.example)."
+    )
+
+ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
+MASTER_ACTIVATION_KEY = os.environ["MASTER_ACTIVATION_KEY"]
+COOKIE_PASSWORD = os.environ["COOKIE_PASSWORD"]
 
 # --- CONFIGURACIÓN PROFESIONAL ---
 st.set_page_config(page_title="Taller Pro", page_icon="🔧", layout="wide")
@@ -24,14 +42,20 @@ def backup_datos():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
         if os.path.exists(USUARIOS_FILE):
-            shutil.copy(USUARIOS_FILE, backup_dir / f"usuarios_{timestamp}.json")
+            try:
+                shutil.copy(USUARIOS_FILE, backup_dir / f"usuarios_{timestamp}.json")
+            except Exception as e:
+                st.error(f"Error creando backup usuarios: {e}")
         if os.path.exists(PRESUPUESTOS_FILE):
-            shutil.copy(PRESUPUESTOS_FILE, backup_dir / f"presupuestos_{timestamp}.json")
+            try:
+                shutil.copy(PRESUPUESTOS_FILE, backup_dir / f"presupuestos_{timestamp}.json")
+            except Exception as e:
+                st.error(f"Error creando backup presupuestos: {e}")
 
 # --- GESTIÓN DE COOKIES ---
 cookies = EncryptedCookieManager(
     prefix="taller_pro_",
-    password=os.environ.get("COOKIE_PASSWORD", "TallerProSecretKey2024!")
+    password=COOKIE_PASSWORD
 )
 if not cookies.ready():
     st.stop()
@@ -48,22 +72,38 @@ CONFIG_FILE = DATA_DIR / "config.json"
 def cargar_json(archivo, default=None):
     try:
         if os.path.exists(archivo):
-            with open(archivo, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            # Use a short lock for reading to avoid race conditions with writers
+            lock_path = str(archivo) + ".lock"
+            lock = FileLock(lock_path, timeout=2)
+            try:
+                with lock:
+                    with open(archivo, 'r', encoding='utf-8') as f:
+                        return json.load(f)
+            except Timeout:
+                st.error("El archivo está siendo usado por otro proceso. Intenta de nuevo.")
+                return default if default is not None else {}
     except Exception as e:
         st.error(f"Error cargando datos: {e}")
     return default if default is not None else {}
 
+
 def guardar_json(archivo, datos):
     temp_file = archivo.with_suffix('.tmp')
+    lock_path = str(archivo) + ".lock"
+    lock = FileLock(lock_path, timeout=5)
     try:
-        with open(temp_file, 'w', encoding='utf-8') as f:
-            json.dump(datos, f, indent=2, ensure_ascii=False)
-        temp_file.replace(archivo)
+        with lock:
+            with open(temp_file, 'w', encoding='utf-8') as f:
+                json.dump(datos, f, indent=2, ensure_ascii=False)
+            temp_file.replace(archivo)
         return True
+    except Timeout:
+        st.error("Otro proceso está usando el archivo, inténtalo de nuevo.")
+        return False
     except Exception as e:
         st.error(f"Error guardando: {e}")
         return False
+
 
 def cargar_usuarios():
     return cargar_json(USUARIOS_FILE, {})
@@ -117,6 +157,7 @@ def check_password(password, hashed):
 
 def generar_codigo_activacion(email):
     return f"TP-{secrets.token_hex(4).upper()[:8]}"
+
 
 def verificar_licencia(usuario_data):
     estado = usuario_data.get('estado', 'prueba')
@@ -232,7 +273,7 @@ if not st.session_state.autenticado:
                 
                 if email_act in usuarios:
                     codigo_guardado = usuarios[email_act].get('codigo_activacion')
-                    if codigo == codigo_guardado or codigo == "ADMIN-MASTER-KEY":
+                    if codigo == codigo_guardado or codigo == MASTER_ACTIVATION_KEY:
                         usuarios[email_act]['estado'] = 'activo'
                         usuarios[email_act]['fecha_activacion'] = datetime.now().strftime("%Y-%m-%d")
                         usuarios[email_act]['plan'] = 'profesional'
@@ -261,7 +302,7 @@ else:
             codigo_act = st.text_input("🔑 Código de Activación", placeholder="Ingresa el código recibido")
         with col2:
             if st.button("Activar Licencia", use_container_width=True):
-                if codigo_act == usuario_actual.get('codigo_activacion') or codigo_act == "ADMIN-MASTER-KEY":
+                if codigo_act == usuario_actual.get('codigo_activacion') or codigo_act == MASTER_ACTIVATION_KEY:
                     usuario_actual['estado'] = 'activo'
                     guardar_usuarios(usuarios)
                     st.success("✅ Licencia activada")
@@ -351,7 +392,7 @@ else:
         with st.expander("⚙️ Panel Admin", expanded=False):
             admin_password = st.text_input("🔐 Clave Administrador", type="password", key="admin_pass")
             
-            if admin_password == "TallerPro2024!":
+            if admin_password == ADMIN_PASSWORD:
                 st.success("✅ **Acceso Administrativo Autorizado**")
                 st.markdown("---")
                 
@@ -580,8 +621,16 @@ else:
                         backup_dir.mkdir(exist_ok=True)
                         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                         
-                        shutil.copy(USUARIOS_FILE, backup_dir / f"usuarios_backup_{timestamp}.json")
-                        shutil.copy(PRESUPUESTOS_FILE, backup_dir / f"presupuestos_backup_{timestamp}.json")
+                        if os.path.exists(USUARIOS_FILE):
+                            try:
+                                shutil.copy(USUARIOS_FILE, backup_dir / f"usuarios_backup_{timestamp}.json")
+                            except Exception as e:
+                                st.error(f"Error al crear backup usuarios: {e}")
+                        if os.path.exists(PRESUPUESTOS_FILE):
+                            try:
+                                shutil.copy(PRESUPUESTOS_FILE, backup_dir / f"presupuestos_backup_{timestamp}.json")
+                            except Exception as e:
+                                st.error(f"Error al crear backup presupuestos: {e}")
                         
                         st.success(f"✅ Backup creado: {timestamp}")
                     
@@ -601,7 +650,7 @@ else:
                         "fecha_sistema": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     })
             
-            elif admin_password and admin_password != "TallerPro2024!":
+            elif admin_password and admin_password != ADMIN_PASSWORD:
                 st.error("❌ Clave incorrecta")
     
     # =============================================

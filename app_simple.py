@@ -2,12 +2,10 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import plotly.express as px
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-import io
-import base64
+
+# Load environment variables in development
+from dotenv import load_dotenv
+load_dotenv()
 
 st.set_page_config(page_title="Taller Presupuestos", page_icon="🔧", layout="wide")
 
