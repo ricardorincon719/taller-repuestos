@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Ingresar | Taller Pro{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <p class="eyebrow">Acceso seguro</p>
+  <h1>Ingresa a tu taller</h1>
+  {% if form.errors %}<div class="error">Usuario o contraseña incorrectos.</div>{% endif %}
+  <form method="post" class="stacked-form">
+    {% csrf_token %}
+    <label for="id_username">Email</label>
+    {{ form.username }}
+    <label for="id_password">Contraseña</label>
+    {{ form.password }}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="primary" type="submit">Ingresar</button>
+  </form>
+  <div class="auth-links">
+    <a href="{% url 'password_reset' %}">Olvidé mi contraseña</a>
+    <a href="{% url 'resend-activation' %}">Reenviar activación</a>
+  </div>
+  <p class="auth-footer">¿Aún no tienes cuenta? <a href="{% url 'register' %}">Crear cuenta</a></p>
+</section>
+{% endblock %}

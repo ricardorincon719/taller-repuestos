@@ -7,3 +7,10 @@ __pycache__/
 venv/
 *.tmp
 *.log
+*.orig
+
+# Django SaaS local files
+saas/db.sqlite3
+saas/db.dev.sqlite3
+saas/staticfiles/
+.env.saas

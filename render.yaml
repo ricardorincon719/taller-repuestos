@@ -1,0 +1,50 @@
+services:
+  - type: web
+    name: taller-pro-saas
+    runtime: docker
+    plan: starter
+    region: virginia
+    dockerfilePath: ./Dockerfile.saas
+    dockerContext: .
+    healthCheckPath: /health/
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taller-pro-db
+          property: connectionString
+      - key: DJANGO_SECURE_SSL_REDIRECT
+        value: "true"
+      - key: DJANGO_SECURE_HSTS_SECONDS
+        value: "31536000"
+      - key: DJANGO_SECURE_HSTS_PRELOAD
+        value: "false"
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.smtp.EmailBackend
+      - key: EMAIL_HOST
+        value: smtp-relay.brevo.com
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: EMAIL_USE_TLS
+        value: "true"
+      - key: EMAIL_TIMEOUT
+        value: "10"
+      - key: WEB_CONCURRENCY
+        value: "2"
+
+databases:
+  - name: taller-pro-db
+    plan: basic-256mb
+    region: virginia
+    databaseName: taller_pro
+    user: taller_pro
+    ipAllowList: []

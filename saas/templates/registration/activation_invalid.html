@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Enlace inválido | Taller Pro{% endblock %}
+{% block content %}
+<section class="auth-card center-card">
+  <p class="eyebrow">No pudimos activar la cuenta</p>
+  <h1>Enlace inválido o vencido</h1>
+  <p>Solicita un nuevo correo de activación.</p>
+  <a class="primary button-link" href="{% url 'resend-activation' %}">Reenviar activación</a>
+</section>
+{% endblock %}

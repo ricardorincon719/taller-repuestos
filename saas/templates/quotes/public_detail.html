@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ quote.display_number }} | {{ quote.organization.name }}{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">{{ quote.get_status_display }}</p><h1>{{ quote.display_number }}</h1></div>
+  <a class="primary button-link" href="{% url 'public-quote-pdf' quote.share_token %}">Descargar PDF</a>
+</div>
+<section class="detail-grid">
+  <article class="panel">
+    <h2>{{ quote.organization.name }}</h2>
+    <p>{{ quote.organization.phone|default:"" }}{% if quote.organization.email %}<br>{{ quote.organization.email }}{% endif %}</p>
+    {% if quote.organization.address %}<p>{{ quote.organization.address|linebreaksbr }}</p>{% endif %}
+  </article>
+  <article class="panel">
+    <h2>Cliente</h2>
+    <strong>{{ quote.customer.name }}</strong>
+    {% if quote.vehicle %}<p><strong>Vehículo:</strong> {{ quote.vehicle }}</p>{% endif %}
+    <p><strong>Fecha:</strong> {{ quote.created_at|date:"d/m/Y" }}</p>
+  </article>
+</section>
+<section class="panel">
+  <h2>Detalle</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Descripción</th><th>Cantidad</th><th>Precio</th><th>Total</th></tr></thead>
+    <tbody>
+      {% for item in quote.items.all %}
+        <tr><td>{{ item.description }}</td><td>{{ item.quantity }}</td><td>R$ {{ item.unit_price|floatformat:2 }}</td><td>R$ {{ item.total_amount|floatformat:2 }}</td></tr>
+      {% empty %}
+        <tr><td colspan="4">Sin ítems adicionales.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table></div>
+  <div class="public-totals">
+    <p>Mano de obra <strong>R$ {{ quote.labor_amount|floatformat:2 }}</strong></p>
+    <p>Ítems <strong>R$ {{ quote.items_amount|floatformat:2 }}</strong></p>
+    <p>Descuento <strong>R$ {{ quote.discount_amount|floatformat:2 }}</strong></p>
+    <p class="grand-total">Total <strong>R$ {{ quote.total_amount|floatformat:2 }}</strong></p>
+  </div>
+  {% if quote.notes %}<h3>Notas</h3><p>{{ quote.notes|linebreaksbr }}</p>{% endif %}
+</section>
+{% endblock %}

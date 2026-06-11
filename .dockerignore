@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.saas.example
+venv/
+.venv/
+**/__pycache__/
+**/*.py[cod]
+**/*.sqlite3
+saas/staticfiles/
+data/
+backups/
+**/*.log
+**/*.tmp

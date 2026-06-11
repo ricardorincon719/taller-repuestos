@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Suscripción | Taller Pro{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">{{ organization.name }}</p><h1>Suscripción</h1></div>
+</div>
+<section class="panel center-card subscription-card">
+  {% if subscription %}
+    <p class="eyebrow">{{ subscription.get_plan_display }}</p>
+    <h2>{{ subscription.get_status_display }}</h2>
+    {% if subscription.allows_access %}
+      <p>Tu taller tiene acceso a todas las funciones.</p>
+      {% if subscription.trial_ends_at %}<p class="muted">La prueba termina el {{ subscription.trial_ends_at|date:"d/m/Y H:i" }}.</p>{% endif %}
+      <a class="primary button-link" href="{% url 'dashboard' %}">Volver al panel</a>
+    {% else %}
+      <p>El acceso está pausado porque la prueba venció o la suscripción requiere atención.</p>
+      <p class="muted">Contacta al soporte para activar o regularizar el plan.</p>
+    {% endif %}
+  {% else %}
+    <h2>Suscripción no configurada</h2>
+    <p>Contacta al soporte para asociar un plan a este taller.</p>
+  {% endif %}
+</section>
+{% endblock %}

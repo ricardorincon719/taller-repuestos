@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Solicitud recibida | Taller Pro{% endblock %}
+{% block content %}
+<section class="auth-card center-card">
+  <h1>Solicitud recibida</h1>
+  <p>Si existe una cuenta pendiente para ese email, enviaremos un nuevo enlace.</p>
+  <a href="{% url 'login' %}">Volver al acceso</a>
+</section>
+{% endblock %}

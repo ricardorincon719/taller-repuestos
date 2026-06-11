@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Resumen | Taller Pro{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">{{ membership.get_role_display }}</p>
+    <h1>{{ organization.name }}</h1>
+  </div>
+  <a class="primary button-link" href="{% url 'quote-create' %}">Crear presupuesto</a>
+</div>
+<section class="metrics">
+  <article><span>Presupuestos</span><strong>{{ metrics.total_quotes }}</strong></article>
+  <article><span>Facturado</span><strong>R$ {{ metrics.total_invoiced|floatformat:2 }}</strong></article>
+  <article><span>Por aprobar/facturar</span><strong>R$ {{ metrics.total_pending|floatformat:2 }}</strong></article>
+</section>
+<section class="panel">
+  <div class="panel-heading">
+    <h2>Actividad reciente</h2>
+    <a href="{% url 'quote-list' %}">Ver todos</a>
+  </div>
+  {% if recent_quotes %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Número</th><th>Cliente</th><th>Estado</th><th>Total</th></tr></thead>
+        <tbody>
+        {% for quote in recent_quotes %}
+          <tr>
+            <td><a href="{% url 'quote-detail' quote.pk %}">{{ quote.display_number }}</a></td>
+            <td>{{ quote.customer.name }}</td>
+            <td>{{ quote.get_status_display }}</td>
+            <td>R$ {{ quote.total_amount|floatformat:2 }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty">Todavía no hay presupuestos.</p>
+  {% endif %}
+</section>
+{% endblock %}

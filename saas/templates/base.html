@@ -1,0 +1,34 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Taller Pro{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{% url 'dashboard' %}">Taller Pro</a>
+    {% if user.is_authenticated %}
+      <nav>
+        <a href="{% url 'dashboard' %}">Resumen</a>
+        <a href="{% url 'customer-list' %}">Clientes</a>
+        <a href="{% url 'quote-list' %}">Presupuestos</a>
+        <a href="{% url 'billing-status' %}">Plan</a>
+        <a class="button-link" href="{% url 'quote-create' %}">Nuevo</a>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button class="link-button" type="submit">Salir</button>
+        </form>
+      </nav>
+    {% endif %}
+  </header>
+  <main class="container">
+    {% for message in messages %}
+      <div class="message">{{ message }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

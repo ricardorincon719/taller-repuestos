@@ -1,0 +1,20 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+COPY requirements-saas.txt .
+RUN pip install --no-cache-dir -r requirements-saas.txt
+COPY saas/ .
+RUN DJANGO_DEBUG=false \
+    DJANGO_SECRET_KEY=collectstatic-build-only-not-for-runtime \
+    DJANGO_ALLOWED_HOSTS=example.invalid \
+    DATABASE_URL=sqlite:////tmp/collectstatic.sqlite3 \
+    SITE_URL=https://example.invalid \
+    EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend \
+    python manage.py collectstatic --noinput
+
+EXPOSE 8000
+
+CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers ${WEB_CONCURRENCY:-2} --timeout 60"]

@@ -1,0 +1,6 @@
+Hola {{ user.first_name }},
+
+Activa tu cuenta de Taller Pro usando este enlace:
+{{ activation_url }}
+
+Si no solicitaste esta cuenta, ignora este mensaje.

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Crear cuenta | Taller Pro{% endblock %}
+{% block content %}
+<section class="auth-card auth-card-wide">
+  <p class="eyebrow">{{ settings.TRIAL_DAYS|default:"14" }} días de prueba</p>
+  <h1>Crea la cuenta de tu taller</h1>
+  <p class="muted">No se requiere tarjeta. Verificaremos tu email antes del primer acceso.</p>
+  <form method="post" class="stacked-form">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ form.website }}
+    <div class="form-grid">
+      {% for field in form.visible_fields %}
+        <div class="field {% if field.name == 'organization_name' or field.name == 'email' %}wide{% endif %}">
+          {{ field.label_tag }}{{ field }}{{ field.errors }}
+          {% if field.help_text %}<small class="muted">{{ field.help_text|safe }}</small>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    <button class="primary" type="submit">Crear cuenta</button>
+  </form>
+  <p class="auth-footer">¿Ya tienes cuenta? <a href="{% url 'login' %}">Ingresar</a></p>
+</section>
+{% endblock %}

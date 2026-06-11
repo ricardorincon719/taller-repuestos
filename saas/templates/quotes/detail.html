@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ quote.display_number }} | Taller Pro{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">{{ quote.get_status_display }}</p><h1>{{ quote.display_number }}</h1></div>
+  <div class="actions compact-actions">
+    <a href="{% url 'quote-pdf' quote.pk %}">Descargar PDF</a>
+    <a class="whatsapp button-link" href="{{ whatsapp_url }}" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+    <a href="{% url 'quote-list' %}">Volver</a>
+  </div>
+</div>
+<section class="panel share-panel">
+  <div>
+    <h2>Enlace para el cliente</h2>
+    <p class="muted">Permite consultar y descargar el presupuesto sin iniciar sesión.</p>
+  </div>
+  <input type="text" value="{{ public_url }}" readonly aria-label="Enlace público del presupuesto">
+</section>
+<section class="detail-grid">
+  <article class="panel">
+    <h2>Cliente</h2>
+    <strong>{{ quote.customer.name }}</strong>
+    <p>{{ quote.customer.phone|default:"Sin teléfono" }}<br>{{ quote.customer.email|default:"Sin email" }}</p>
+    {% if quote.vehicle %}<p><strong>Vehículo:</strong> {{ quote.vehicle }}</p>{% endif %}
+  </article>
+  <article class="panel">
+    <h2>Resumen</h2>
+    <p>Mano de obra <strong>R$ {{ quote.labor_amount|floatformat:2 }}</strong></p>
+    <p>Ítems <strong>R$ {{ quote.items_amount|floatformat:2 }}</strong></p>
+    <p>Descuento <strong>R$ {{ quote.discount_amount|floatformat:2 }}</strong></p>
+    <p class="grand-total">Total <strong>R$ {{ quote.total_amount|floatformat:2 }}</strong></p>
+  </article>
+</section>
+<section class="panel">
+  <form method="post" action="{% url 'quote-status-update' quote.pk %}" class="status-form">
+    {% csrf_token %}
+    <div class="field">
+      <label for="quote-status">Estado</label>
+      <select id="quote-status" name="status">
+        {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if quote.status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="secondary" type="submit">Actualizar estado</button>
+  </form>
+</section>
+<section class="panel">
+  <h2>Detalle</h2>
+  {% if quote.items.all %}
+    <div class="table-wrap"><table>
+      <thead><tr><th>Descripción</th><th>Cantidad</th><th>Precio</th><th>Total</th></tr></thead>
+      <tbody>{% for item in quote.items.all %}<tr><td>{{ item.description }}</td><td>{{ item.quantity }}</td><td>R$ {{ item.unit_price|floatformat:2 }}</td><td>R$ {{ item.total_amount|floatformat:2 }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  {% else %}<p class="empty">Sin ítems adicionales.</p>{% endif %}
+  {% if quote.notes %}<h3>Notas</h3><p>{{ quote.notes|linebreaksbr }}</p>{% endif %}
+</section>
+{% endblock %}

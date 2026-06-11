@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Presupuestos | Taller Pro{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">{{ organization.name }}</p><h1>Presupuestos</h1></div>
+  <a class="primary button-link" href="{% url 'quote-create' %}">Nuevo presupuesto</a>
+</div>
+<section class="panel">
+{% if quotes %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Número</th><th>Cliente</th><th>Vehículo</th><th>Estado</th><th>Total</th><th>Fecha</th></tr></thead>
+      <tbody>
+      {% for quote in quotes %}
+        <tr>
+          <td><a href="{% url 'quote-detail' quote.pk %}">{{ quote.display_number }}</a></td>
+          <td>{{ quote.customer.name }}</td>
+          <td>{{ quote.vehicle|default:"-" }}</td>
+          <td>{{ quote.get_status_display }}</td>
+          <td>R$ {{ quote.total_amount|floatformat:2 }}</td>
+          <td>{{ quote.created_at|date:"d/m/Y" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}<p class="empty">No hay presupuestos registrados.</p>{% endif %}
+</section>
+{% endblock %}
