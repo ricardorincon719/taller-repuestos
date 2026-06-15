@@ -103,7 +103,7 @@ class QuoteServiceTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
-    def test_quote_create_view_persists_items_and_totals(self):
+    def test_quote_create_view_persists_multiple_items_and_totals(self):
         self.client.force_login(self.user)
         response = self.client.post(
             reverse("quote-create"),
@@ -115,20 +115,33 @@ class QuoteServiceTests(TestCase):
                 "discount_amount": "5.00",
                 "valid_until": "",
                 "notes": "Cambio de aceite",
-                "items-TOTAL_FORMS": "1",
+                "items-TOTAL_FORMS": "2",
                 "items-INITIAL_FORMS": "0",
                 "items-MIN_NUM_FORMS": "0",
                 "items-MAX_NUM_FORMS": "1000",
                 "items-0-description": "Filtro",
                 "items-0-quantity": "2.00",
                 "items-0-unit_price": "25.00",
+                "items-1-description": "Aceite",
+                "items-1-quantity": "1.00",
+                "items-1-unit_price": "40.00",
             },
         )
 
         quote = Quote.objects.get(organization=self.organization)
         self.assertRedirects(response, reverse("quote-detail", args=(quote.pk,)))
-        self.assertEqual(quote.items.count(), 1)
-        self.assertEqual(quote.total_amount, Decimal("145.00"))
+        self.assertEqual(quote.items.count(), 2)
+        self.assertEqual(quote.items_amount, Decimal("90.00"))
+        self.assertEqual(quote.total_amount, Decimal("185.00"))
+
+    def test_quote_create_view_exposes_dynamic_item_controls(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("quote-create"))
+
+        self.assertContains(response, "Agregar ítem")
+        self.assertContains(response, "quote-item-template")
+        self.assertContains(response, "Total estimado")
 
     def test_quote_form_only_lists_current_organization_data(self):
         other = Organization.objects.create(name="Taller Dos", slug="taller-dos")

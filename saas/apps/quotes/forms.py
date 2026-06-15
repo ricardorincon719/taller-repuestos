@@ -52,5 +52,10 @@ QuoteItemFormSet = inlineformset_factory(
     QuoteItem,
     fields=("description", "quantity", "unit_price"),
     extra=1,
-    can_delete=True,
+    can_delete=False,
+    widgets={
+        "description": forms.TextInput(attrs={"placeholder": "Ej. Filtro de aceite"}),
+        "quantity": forms.NumberInput(attrs={"step": "0.01", "min": "0.01"}),
+        "unit_price": forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
+    },
 )

@@ -12,19 +12,131 @@
     </div>
   {% endfor %}
   </div>
-  <h2>Repuestos y servicios</h2>
-  {{ formset.management_form }}
-  {% for item_form in formset %}
-    <div class="item-row">
-      {% for hidden in item_form.hidden_fields %}{{ hidden }}{% endfor %}
-      {% for field in item_form.visible_fields %}
-        <div class="field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>
-      {% endfor %}
+  <div class="panel-heading quote-items-heading">
+    <div>
+      <h2>Repuestos y servicios</h2>
+      <p class="muted">Agrega cada repuesto o servicio por separado para discriminar cantidades y montos.</p>
     </div>
-  {% endfor %}
+    <button class="secondary" type="button" id="add-quote-item">Agregar ítem</button>
+  </div>
+  {{ formset.management_form }}
+  <div id="quote-items">
+    {% for item_form in formset %}
+    <div class="item-row" data-item-row>
+      {% for hidden in item_form.hidden_fields %}{{ hidden }}{% endfor %}
+      <div class="field">{{ item_form.description.label_tag }}{{ item_form.description }}{{ item_form.description.errors }}</div>
+      <div class="field">{{ item_form.quantity.label_tag }}{{ item_form.quantity }}{{ item_form.quantity.errors }}</div>
+      <div class="field">{{ item_form.unit_price.label_tag }}{{ item_form.unit_price }}{{ item_form.unit_price.errors }}</div>
+      <div class="item-subtotal"><span>Subtotal</span><strong data-item-subtotal>R$ 0.00</strong></div>
+      <button class="link-button item-remove" type="button" data-remove-item>Quitar</button>
+    </div>
+    {% endfor %}
+  </div>
+  <template id="quote-item-template">
+    <div class="item-row" data-item-row>
+      {% for hidden in formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+      <div class="field">{{ formset.empty_form.description.label_tag }}{{ formset.empty_form.description }}</div>
+      <div class="field">{{ formset.empty_form.quantity.label_tag }}{{ formset.empty_form.quantity }}</div>
+      <div class="field">{{ formset.empty_form.unit_price.label_tag }}{{ formset.empty_form.unit_price }}</div>
+      <div class="item-subtotal"><span>Subtotal</span><strong data-item-subtotal>R$ 0.00</strong></div>
+      <button class="link-button item-remove" type="button" data-remove-item>Quitar</button>
+    </div>
+  </template>
+  <div class="quote-total-preview" aria-live="polite">
+    <p><span>Ítems</span><strong data-items-total>R$ 0.00</strong></p>
+    <p><span>Mano de obra</span><strong data-labor-total>R$ 0.00</strong></p>
+    <p><span>Descuento</span><strong data-discount-total>R$ 0.00</strong></p>
+    <p class="grand-total"><span>Total estimado</span><strong data-grand-total>R$ 0.00</strong></p>
+  </div>
   <div class="actions">
     <a href="{% url 'quote-list' %}">Cancelar</a>
     <button class="primary" type="submit">Guardar presupuesto</button>
   </div>
 </form>
+<script>
+(() => {
+  const container = document.querySelector("#quote-items");
+  const template = document.querySelector("#quote-item-template");
+  const addButton = document.querySelector("#add-quote-item");
+  const totalForms = document.querySelector("#id_items-TOTAL_FORMS");
+  const laborInput = document.querySelector("#id_labor_amount");
+  const discountInput = document.querySelector("#id_discount_amount");
+  const itemsTotal = document.querySelector("[data-items-total]");
+  const laborTotal = document.querySelector("[data-labor-total]");
+  const discountTotal = document.querySelector("[data-discount-total]");
+  const grandTotal = document.querySelector("[data-grand-total]");
+
+  const parseMoney = (value) => {
+    const number = Number.parseFloat(String(value || "0").replace(",", "."));
+    return Number.isFinite(number) ? number : 0;
+  };
+
+  const formatMoney = (value) => `R$ ${Math.max(value, 0).toFixed(2)}`;
+
+  const renumberRows = () => {
+    const rows = [...container.querySelectorAll("[data-item-row]")];
+    rows.forEach((row, index) => {
+      row.querySelectorAll("input, select, textarea, label").forEach((element) => {
+        ["name", "id", "for"].forEach((attribute) => {
+          const current = element.getAttribute(attribute);
+          if (current) {
+            element.setAttribute(attribute, current.replace(/items-(\d+|__prefix__)-/g, `items-${index}-`));
+          }
+        });
+      });
+    });
+    totalForms.value = rows.length;
+  };
+
+  const updateTotals = () => {
+    let itemSum = 0;
+    container.querySelectorAll("[data-item-row]").forEach((row) => {
+      const quantity = parseMoney(row.querySelector('[name$="-quantity"]')?.value);
+      const price = parseMoney(row.querySelector('[name$="-unit_price"]')?.value);
+      const subtotal = quantity * price;
+      itemSum += subtotal;
+      row.querySelector("[data-item-subtotal]").textContent = formatMoney(subtotal);
+    });
+    const labor = parseMoney(laborInput?.value);
+    const discount = parseMoney(discountInput?.value);
+    itemsTotal.textContent = formatMoney(itemSum);
+    laborTotal.textContent = formatMoney(labor);
+    discountTotal.textContent = formatMoney(discount);
+    grandTotal.textContent = formatMoney(itemSum + labor - discount);
+  };
+
+  addButton.addEventListener("click", () => {
+    const index = Number.parseInt(totalForms.value, 10);
+    const html = template.innerHTML.replace(/__prefix__/g, index);
+    container.insertAdjacentHTML("beforeend", html);
+    totalForms.value = index + 1;
+    updateTotals();
+  });
+
+  container.addEventListener("click", (event) => {
+    if (!event.target.matches("[data-remove-item]")) return;
+    const rows = container.querySelectorAll("[data-item-row]");
+    const row = event.target.closest("[data-item-row]");
+    if (rows.length === 1) {
+      row.querySelectorAll("input").forEach((input) => { input.value = ""; });
+    } else {
+      row.remove();
+      renumberRows();
+    }
+    updateTotals();
+  });
+
+  document.addEventListener("input", (event) => {
+    if (
+      event.target.closest("#quote-items") ||
+      event.target === laborInput ||
+      event.target === discountInput
+    ) {
+      updateTotals();
+    }
+  });
+
+  updateTotals();
+})();
+</script>
 {% endblock %}
