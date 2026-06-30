@@ -659,3 +659,96 @@ msgstr "Veículo #%(pk)s"
 
 msgid "Si necesitas activar la cuenta manualmente, escribe por WhatsApp a +55 12 98112-3332 o al email contacto@pearlhome.com.br."
 msgstr "Se precisar ativar a conta manualmente, escreva pelo WhatsApp para +55 12 98112-3332 ou para o email contacto@pearlhome.com.br."
+
+msgid "Taller Pro | Presupuestos profesionales para tu negocio"
+msgstr "Taller Pro | Orçamentos profissionais para seu negócio"
+
+msgid "SaaS para crear presupuestos, gestionar clientes y compartir documentos profesionales por WhatsApp en español y portugués."
+msgstr "SaaS para criar orçamentos, gerenciar clientes e compartilhar documentos profissionais pelo WhatsApp em espanhol e português."
+
+msgid "Producto"
+msgstr "Produto"
+
+msgid "Capturas"
+msgstr "Capturas"
+
+msgid "Idioma"
+msgstr "Idioma"
+
+msgid "SaaS para LATAM y Brasil"
+msgstr "SaaS para LATAM e Brasil"
+
+msgid "Presupuestos profesionales para tu negocio, listos para compartir por WhatsApp y descargar en PDF."
+msgstr "Orçamentos profissionais para seu negócio, prontos para compartilhar pelo WhatsApp e baixar em PDF."
+
+msgid "Probar el SaaS"
+msgstr "Testar o SaaS"
+
+msgid "Entrar al panel"
+msgstr "Entrar no painel"
+
+msgid "Producto real"
+msgstr "Produto real"
+
+msgid "Para talleres, oficinas y negocios de servicios"
+msgstr "Para oficinas, escritórios e negócios de serviços"
+
+msgid "Presupuestos rápidos"
+msgstr "Orçamentos rápidos"
+
+msgid "Registra productos, servicios, mano de obra y descuentos con totales claros."
+msgstr "Registre produtos, serviços, mão de obra e descontos com totais claros."
+
+msgid "Clientes organizados"
+msgstr "Clientes organizados"
+
+msgid "Guarda contactos, vehículos y el historial de presupuestos por cliente."
+msgstr "Guarde contatos, veículos e o histórico de orçamentos por cliente."
+
+msgid "PDF y WhatsApp"
+msgstr "PDF e WhatsApp"
+
+msgid "Envía un enlace público, descarga el PDF y usa los datos comerciales del negocio."
+msgstr "Envie um link público, baixe o PDF e use os dados comerciais do negócio."
+
+msgid "Español y portugués"
+msgstr "Espanhol e português"
+
+msgid "Cambia el idioma de la cuenta para operar en LATAM o Brasil."
+msgstr "Altere o idioma da conta para operar na LATAM ou no Brasil."
+
+msgid "Capturas móviles"
+msgstr "Capturas móveis"
+
+msgid "El panel funcionando desde el celular"
+msgstr "O painel funcionando pelo celular"
+
+msgid "Dashboard móvil de Taller Pro en portugués"
+msgstr "Dashboard móvel do Taller Pro em português"
+
+msgid "Resumen del negocio"
+msgstr "Resumo do negócio"
+
+msgid "Perfil del negocio con idioma portugués de Brasil"
+msgstr "Perfil do negócio com idioma português do Brasil"
+
+msgid "Perfil e idioma"
+msgstr "Perfil e idioma"
+
+msgid "Formulario móvil para crear un presupuesto"
+msgstr "Formulário móvel para criar um orçamento"
+
+msgid "Detalle de productos y servicios en un presupuesto"
+msgstr "Detalhe de produtos e serviços em um orçamento"
+
+msgid "Acceso y activación"
+msgstr "Acesso e ativação"
+
+msgid "Prueba el SaaS y solicita activación si la necesitas"
+msgstr "Teste o SaaS e solicite ativação se precisar"
+
+msgid "Si creas una cuenta y necesitas ayuda para activarla, envía un mensaje por WhatsApp o por email temporal."
+msgstr "Se você criar uma conta e precisar de ajuda para ativá-la, envie uma mensagem pelo WhatsApp ou pelo email temporário."
+
+msgid "WhatsApp +55 12 98112-3332"
+msgstr "WhatsApp +55 12 98112-3332"

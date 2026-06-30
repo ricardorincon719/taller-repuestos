@@ -106,6 +106,9 @@ th { color: var(--muted); font-size: .78rem; text-transform: uppercase; }
 .public-nav nav { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: flex-end; }
 .public-nav a { color: #e8eefc; }
 .public-login { border: 1px solid rgba(255,255,255,.28); border-radius: 8px; padding: .55rem .8rem; }
+.public-language-switch { display: inline-flex; align-items: center; gap: .2rem; padding: .18rem; border: 1px solid rgba(255,255,255,.24); border-radius: 8px; }
+.public-language-switch a { min-width: 2.3rem; padding: .38rem .48rem; border-radius: 6px; text-align: center; font-size: .82rem; font-weight: 800; color: #d8e2f6; }
+.public-language-switch a.active { background: white; color: #101828; text-decoration: none; }
 .public-hero { min-height: 82vh; display: flex; align-items: center; padding: 7rem 5vw 6rem; color: white; background-color: #101828; background-image: linear-gradient(90deg, rgba(16,24,40,.96), rgba(16,24,40,.74), rgba(16,24,40,.28)), url("/static/img/landing/dashboard-mobile.jpeg"); background-repeat: no-repeat; background-size: cover; background-position: center right 18%; }
 .public-hero-content { width: min(760px, 100%); }
 .public-hero h1 { color: white; font-size: clamp(3rem, 9vw, 6.8rem); line-height: .92; margin: .4rem 0 1.2rem; }

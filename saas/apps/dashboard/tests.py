@@ -15,6 +15,14 @@ class DashboardTests(TestCase):
         self.assertContains(response, "Probar el SaaS")
         self.assertContains(response, "+55 12 98112-3332")
 
+    def test_public_home_can_switch_to_portuguese(self):
+        response = self.client.get(reverse("public-home"), {"lang": "pt-br"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Testar o SaaS")
+        self.assertContains(response, "Entrar no painel")
+        self.assertEqual(response.cookies["django_language"].value, "pt-br")
+
     def test_dashboard_requires_login(self):
         response = self.client.get(reverse("dashboard"))
         self.assertRedirects(response, f"{reverse('login')}?next={reverse('dashboard')}")
