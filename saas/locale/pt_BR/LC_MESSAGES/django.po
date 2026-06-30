@@ -656,3 +656,6 @@ msgstr "Seu usuário não pertence a um negócio ativo."
 
 msgid "Vehículo #%(pk)s"
 msgstr "Veículo #%(pk)s"
+
+msgid "Si necesitas activar la cuenta manualmente, escribe por WhatsApp a +55 12 98112-3332 o al email contacto@pearlhome.com.br."
+msgstr "Se precisar ativar a conta manualmente, escreva pelo WhatsApp para +55 12 98112-3332 ou para o email contacto@pearlhome.com.br."

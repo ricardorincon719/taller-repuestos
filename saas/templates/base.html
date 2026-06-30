@@ -9,7 +9,7 @@
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="{% url 'dashboard' %}">Taller Pro</a>
+    <a class="brand" href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'public-home' %}{% endif %}">Taller Pro</a>
     {% if user.is_authenticated %}
       <nav>
         <a href="{% url 'dashboard' %}">{% trans "Resumen" %}</a>

@@ -12,6 +12,8 @@
     <p>{% blocktrans %}Enviamos un enlace de activación a <strong>{{ email }}</strong>.{% endblocktrans %}</p>
     <p class="muted">{% trans "Debes activar la cuenta antes de ingresar." %}</p>
   {% endif %}
+  <p class="muted">{% trans "Si necesitas activar la cuenta manualmente, escribe por WhatsApp a +55 12 98112-3332 o al email contacto@pearlhome.com.br." %}</p>
+  <p><a class="whatsapp button-link" href="https://wa.me/5512981123332?text=Hola%2C%20quiero%20activar%20mi%20cuenta%20de%20Taller%20Pro." target="_blank" rel="noopener">WhatsApp</a></p>
   <a href="{% url 'login' %}">{% trans "Volver al acceso" %}</a>
 </section>
 {% endblock %}

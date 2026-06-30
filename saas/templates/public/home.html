@@ -1,0 +1,99 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Taller Pro | Presupuestos profesionales para tu negocio</title>
+  <meta name="description" content="SaaS para crear presupuestos, gestionar clientes y compartir documentos profesionales por WhatsApp en español y portugués.">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="public-page">
+  <header class="public-nav">
+    <a class="brand" href="{% url 'public-home' %}">Taller Pro</a>
+    <nav>
+      <a href="#producto">Producto</a>
+      <a href="#capturas">Capturas</a>
+      <a href="#contacto">Activación</a>
+      <a class="public-login" href="{% url 'login' %}">Ingresar</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="public-hero">
+      <div class="public-hero-content">
+        <p class="eyebrow">SaaS para LATAM y Brasil</p>
+        <h1>Taller Pro</h1>
+        <p class="public-lead">Presupuestos profesionales para tu negocio, listos para compartir por WhatsApp y descargar en PDF.</p>
+        <div class="public-actions">
+          <a class="primary button-link" href="{% url 'register' %}">Probar el SaaS</a>
+          <a class="secondary" href="{% url 'login' %}">Entrar al panel</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="producto" class="public-section public-band">
+      <div class="public-section-heading">
+        <p class="eyebrow">Producto real</p>
+        <h2>Para talleres, oficinas y negocios de servicios</h2>
+      </div>
+      <div class="public-feature-grid">
+        <article>
+          <h3>Presupuestos rápidos</h3>
+          <p>Registra productos, servicios, mano de obra y descuentos con totales claros.</p>
+        </article>
+        <article>
+          <h3>Clientes organizados</h3>
+          <p>Guarda contactos, vehículos y el historial de presupuestos por cliente.</p>
+        </article>
+        <article>
+          <h3>PDF y WhatsApp</h3>
+          <p>Envía un enlace público, descarga el PDF y usa los datos comerciales del negocio.</p>
+        </article>
+        <article>
+          <h3>Español y portugués</h3>
+          <p>Cambia el idioma de la cuenta para operar en LATAM o Brasil.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="capturas" class="public-section">
+      <div class="public-section-heading">
+        <p class="eyebrow">Capturas móviles</p>
+        <h2>El panel funcionando desde el celular</h2>
+      </div>
+      <div class="public-shot-grid">
+        <figure>
+          <img src="{% static 'img/landing/dashboard-mobile.jpeg' %}" alt="Dashboard móvil de Taller Pro en portugués">
+          <figcaption>Resumen del negocio</figcaption>
+        </figure>
+        <figure>
+          <img src="{% static 'img/landing/profile-mobile.jpeg' %}" alt="Perfil del negocio con idioma portugués de Brasil">
+          <figcaption>Perfil e idioma</figcaption>
+        </figure>
+        <figure>
+          <img src="{% static 'img/landing/quote-form-mobile.jpeg' %}" alt="Formulario móvil para crear un presupuesto">
+          <figcaption>Nuevo presupuesto</figcaption>
+        </figure>
+        <figure>
+          <img src="{% static 'img/landing/quote-items-mobile.jpeg' %}" alt="Detalle de productos y servicios en un presupuesto">
+          <figcaption>Productos y servicios</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="contacto" class="public-section public-contact">
+      <div>
+        <p class="eyebrow">Acceso y activación</p>
+        <h2>Prueba el SaaS y solicita activación si la necesitas</h2>
+        <p>Si creas una cuenta y necesitas ayuda para activarla, envía un mensaje por WhatsApp o por email temporal.</p>
+      </div>
+      <div class="public-contact-actions">
+        <a class="primary button-link" href="{% url 'register' %}">Crear cuenta</a>
+        <a class="whatsapp button-link" href="https://wa.me/5512981123332?text=Hola%2C%20quiero%20probar%20Taller%20Pro%20y%20necesito%20activar%20mi%20cuenta." target="_blank" rel="noopener">WhatsApp +55 12 98112-3332</a>
+        <a class="secondary" href="mailto:contacto@pearlhome.com.br">contacto@pearlhome.com.br</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

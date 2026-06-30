@@ -9,6 +9,10 @@ from apps.organizations.services import get_current_membership
 from apps.quotes.models import Quote
 
 
+def public_home(request):
+    return render(request, "public/home.html")
+
+
 @login_required
 @subscription_required
 def dashboard(request):

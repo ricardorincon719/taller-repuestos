@@ -7,6 +7,13 @@ from apps.organizations.models import Membership, Organization
 
 
 class DashboardTests(TestCase):
+    def test_public_home_is_available_without_login(self):
+        response = self.client.get(reverse("public-home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Probar el SaaS")
+        self.assertContains(response, "+55 12 98112-3332")
+
     def test_dashboard_requires_login(self):
         response = self.client.get(reverse("dashboard"))
         self.assertRedirects(response, f"{reverse('login')}?next={reverse('dashboard')}")
