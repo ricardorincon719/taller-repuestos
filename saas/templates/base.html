@@ -1,6 +1,6 @@
-{% load static %}
+{% load static i18n %}
 <!doctype html>
-<html lang="es">
+<html lang="{{ request.LANGUAGE_CODE|default:'es' }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,14 +12,15 @@
     <a class="brand" href="{% url 'dashboard' %}">Taller Pro</a>
     {% if user.is_authenticated %}
       <nav>
-        <a href="{% url 'dashboard' %}">Resumen</a>
-        <a href="{% url 'customer-list' %}">Clientes</a>
-        <a href="{% url 'quote-list' %}">Presupuestos</a>
-        <a href="{% url 'billing-status' %}">Plan</a>
-        <a class="button-link" href="{% url 'quote-create' %}">Nuevo</a>
+        <a href="{% url 'dashboard' %}">{% trans "Resumen" %}</a>
+        <a href="{% url 'customer-list' %}">{% trans "Clientes" %}</a>
+        <a href="{% url 'quote-list' %}">{% trans "Presupuestos" %}</a>
+        <a href="{% url 'organization-profile' %}">{% trans "Perfil del negocio" %}</a>
+        <a href="{% url 'billing-status' %}">{% trans "Plan" %}</a>
+        <a class="button-link" href="{% url 'quote-create' %}">{% trans "Nuevo" %}</a>
         <form method="post" action="{% url 'logout' %}">
           {% csrf_token %}
-          <button class="link-button" type="submit">Salir</button>
+          <button class="link-button" type="submit">{% trans "Salir" %}</button>
         </form>
       </nav>
     {% endif %}

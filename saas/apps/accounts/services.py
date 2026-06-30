@@ -29,7 +29,7 @@ def create_trial_account(*, email, password, first_name, last_name, organization
         last_name=last_name,
         is_active=False,
     )
-    base_slug = slugify(organization_name)[:40] or "taller"
+    base_slug = slugify(organization_name)[:40] or "negocio"
     organization = Organization.objects.create(
         name=organization_name,
         slug=f"{base_slug}-{uuid.uuid4().hex[:8]}",

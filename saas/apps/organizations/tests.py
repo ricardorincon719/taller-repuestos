@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
+from django.urls import reverse
 from django.test import TestCase
 
 from .models import Membership, Organization
@@ -17,6 +18,45 @@ class MembershipTests(TestCase):
 
         with self.assertRaises(IntegrityError), transaction.atomic():
             Membership.objects.create(user=user, organization=organization)
+
+
+class OrganizationProfileTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email="owner@example.com", password="secret123"
+        )
+        self.organization = Organization.objects.create(
+            name="Taller Uno", slug="taller-uno"
+        )
+        Membership.objects.create(
+            user=self.user,
+            organization=self.organization,
+            role=Membership.Role.OWNER,
+        )
+        self.client.force_login(self.user)
+
+    def test_profile_updates_business_type_and_language(self):
+        response = self.client.post(
+            reverse("organization-profile"),
+            {
+                "name": "Oficina Central",
+                "business_type": Organization.BusinessType.OFFICE,
+                "language": Organization.Language.PORTUGUESE_BR,
+                "email": "contato@example.com",
+                "phone": "+55 11 99999-0000",
+                "address": "Rua Central 123",
+                "tax_id": "12.345.678/0001-90",
+                "quote_prefix": "ORC",
+            },
+            follow=True,
+        )
+
+        self.organization.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.organization.business_type, Organization.BusinessType.OFFICE)
+        self.assertEqual(self.organization.language, Organization.Language.PORTUGUESE_BR)
+        self.assertContains(response, "Perfil do negócio")
+        self.assertContains(response, "Idioma do sistema")
 
 
 import json

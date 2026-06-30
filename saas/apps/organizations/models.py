@@ -2,11 +2,36 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class Organization(models.Model):
+    class BusinessType(models.TextChoices):
+        AUTO_REPAIR = "auto_repair", _("Taller / Oficina")
+        OFFICE = "office", _("Oficina administrativa")
+        PERSONAL = "personal_business", _("Negocio personal")
+        SERVICES = "services", _("Servicios profesionales")
+        RETAIL = "retail", _("Comercio")
+        OTHER = "other", _("Otro negocio")
+
+    class Language(models.TextChoices):
+        SPANISH = "es", _("Español")
+        PORTUGUESE_BR = "pt-br", _("Português do Brasil")
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField("nombre", max_length=160)
+    business_type = models.CharField(
+        _("tipo de negocio"),
+        max_length=40,
+        choices=BusinessType.choices,
+        default=BusinessType.AUTO_REPAIR,
+    )
+    language = models.CharField(
+        _("idioma"),
+        max_length=10,
+        choices=Language.choices,
+        default=Language.SPANISH,
+    )
     slug = models.SlugField(unique=True)
     tax_id = models.CharField("documento fiscal", max_length=40, blank=True)
     email = models.EmailField(blank=True)

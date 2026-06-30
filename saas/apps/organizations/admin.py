@@ -10,8 +10,16 @@ class MembershipInline(admin.TabularInline):
 
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug", "is_active", "next_quote_number", "created_at")
-    list_filter = ("is_active",)
+    list_display = (
+        "name",
+        "business_type",
+        "language",
+        "slug",
+        "is_active",
+        "next_quote_number",
+        "created_at",
+    )
+    list_filter = ("business_type", "language", "is_active")
     search_fields = ("name", "slug", "email", "tax_id")
     prepopulated_fields = {"slug": ("name",)}
     inlines = (MembershipInline,)

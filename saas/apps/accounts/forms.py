@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.utils.translation import gettext_lazy as _
 
 from .models import User
 
@@ -9,11 +10,11 @@ class EmailAuthenticationForm(AuthenticationForm):
 
 
 class RegistrationForm(UserCreationForm):
-    first_name = forms.CharField(label="Nombre", max_length=150)
-    last_name = forms.CharField(label="Apellido", max_length=150, required=False)
+    first_name = forms.CharField(label=_("Nombre"), max_length=150)
+    last_name = forms.CharField(label=_("Apellido"), max_length=150, required=False)
     email = forms.EmailField(label="Email")
-    organization_name = forms.CharField(label="Nombre del taller", max_length=160)
-    phone = forms.CharField(label="Teléfono", max_length=40, required=False)
+    organization_name = forms.CharField(label=_("Nombre del negocio"), max_length=160)
+    phone = forms.CharField(label=_("Teléfono"), max_length=40, required=False)
     website = forms.CharField(required=False, widget=forms.HiddenInput)
 
     class Meta:

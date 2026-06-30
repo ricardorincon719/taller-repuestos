@@ -1,0 +1,133 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Taller Pro\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-30 00:00-0300\n"
+"PO-Revision-Date: 2026-06-30 00:00-0300\n"
+"Last-Translator: Taller Pro\n"
+"Language-Team: Portuguese Brazil\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Taller / Oficina"
+msgstr "Oficina / Escritório"
+
+msgid "Oficina administrativa"
+msgstr "Escritório administrativo"
+
+msgid "Negocio personal"
+msgstr "Negócio pessoal"
+
+msgid "Servicios profesionales"
+msgstr "Serviços profissionais"
+
+msgid "Comercio"
+msgstr "Comércio"
+
+msgid "Otro negocio"
+msgstr "Outro negócio"
+
+msgid "tipo de negocio"
+msgstr "tipo de negócio"
+
+msgid "idioma"
+msgstr "idioma"
+
+msgid "Nombre comercial"
+msgstr "Nome comercial"
+
+msgid "Tipo de negocio"
+msgstr "Tipo de negócio"
+
+msgid "Idioma del sistema"
+msgstr "Idioma do sistema"
+
+msgid "Email comercial"
+msgstr "Email comercial"
+
+msgid "Teléfono / WhatsApp"
+msgstr "Telefone / WhatsApp"
+
+msgid "Dirección"
+msgstr "Endereço"
+
+msgid "Documento fiscal"
+msgstr "Documento fiscal"
+
+msgid "Prefijo de documentos"
+msgstr "Prefixo dos documentos"
+
+msgid "Este idioma se aplica al panel de esta cuenta y prepara los documentos del negocio."
+msgstr "Este idioma se aplica ao painel desta conta e prepara os documentos do negócio."
+
+msgid "Ejemplo: PRES, COT, ORC."
+msgstr "Exemplo: PRES, COT, ORC."
+
+msgid "Perfil del negocio actualizado."
+msgstr "Perfil do negócio atualizado."
+
+msgid "Nombre"
+msgstr "Nome"
+
+msgid "Apellido"
+msgstr "Sobrenome"
+
+msgid "Nombre del negocio"
+msgstr "Nome do negócio"
+
+msgid "Teléfono"
+msgstr "Telefone"
+
+msgid "Resumen"
+msgstr "Resumo"
+
+msgid "Clientes"
+msgstr "Clientes"
+
+msgid "Presupuestos"
+msgstr "Orçamentos"
+
+msgid "Perfil del negocio"
+msgstr "Perfil do negócio"
+
+msgid "Plan"
+msgstr "Plano"
+
+msgid "Nuevo"
+msgstr "Novo"
+
+msgid "Salir"
+msgstr "Sair"
+
+msgid "Crear cuenta"
+msgstr "Criar conta"
+
+msgid "días de prueba"
+msgstr "dias de teste"
+
+msgid "Crea la cuenta de tu negocio"
+msgstr "Crie a conta do seu negócio"
+
+msgid "No se requiere tarjeta. Verificaremos tu email antes del primer acceso."
+msgstr "Não é necessário cartão. Vamos verificar seu email antes do primeiro acesso."
+
+msgid "¿Ya tienes cuenta?"
+msgstr "Já tem uma conta?"
+
+msgid "Ingresar"
+msgstr "Entrar"
+
+msgid "Datos comerciales"
+msgstr "Dados comerciais"
+
+msgid "Esta información identifica tu negocio dentro del sistema y prepara los documentos que enviaremos a tus clientes."
+msgstr "Essas informações identificam seu negócio dentro do sistema e preparam os documentos que enviaremos aos seus clientes."
+
+msgid "Cancelar"
+msgstr "Cancelar"
+
+msgid "Guardar perfil"
+msgstr "Salvar perfil"

@@ -1,10 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Crear cuenta | Taller Pro{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Crear cuenta" %} | Taller Pro{% endblock %}
 {% block content %}
 <section class="auth-card auth-card-wide">
-  <p class="eyebrow">{{ settings.TRIAL_DAYS|default:"14" }} días de prueba</p>
-  <h1>Crea la cuenta de tu taller</h1>
-  <p class="muted">No se requiere tarjeta. Verificaremos tu email antes del primer acceso.</p>
+  <p class="eyebrow">{{ settings.TRIAL_DAYS|default:"14" }} {% trans "días de prueba" %}</p>
+  <h1>{% trans "Crea la cuenta de tu negocio" %}</h1>
+  <p class="muted">{% trans "No se requiere tarjeta. Verificaremos tu email antes del primer acceso." %}</p>
   <form method="post" class="stacked-form">
     {% csrf_token %}
     {{ form.non_field_errors }}
@@ -17,8 +18,8 @@
         </div>
       {% endfor %}
     </div>
-    <button class="primary" type="submit">Crear cuenta</button>
+    <button class="primary" type="submit">{% trans "Crear cuenta" %}</button>
   </form>
-  <p class="auth-footer">¿Ya tienes cuenta? <a href="{% url 'login' %}">Ingresar</a></p>
+  <p class="auth-footer">{% trans "¿Ya tienes cuenta?" %} <a href="{% url 'login' %}">{% trans "Ingresar" %}</a></p>
 </section>
 {% endblock %}

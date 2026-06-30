@@ -51,6 +51,7 @@ urlpatterns = [
         name="password_reset_complete",
     ),
     path("suscripcion/", include("apps.billing.urls")),
+    path("negocio/", include("apps.organizations.urls")),
     path("", include("apps.dashboard.urls")),
     path("clientes/", include("apps.customers.urls")),
     path("presupuestos/", include("apps.quotes.urls")),

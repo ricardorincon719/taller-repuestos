@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Perfil del negocio" %} | Taller Pro{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">{{ organization.get_business_type_display }}</p>
+    <h1>{% trans "Perfil del negocio" %}</h1>
+  </div>
+</div>
+
+<section class="panel">
+  <div class="panel-heading">
+    <div>
+      <h2>{% trans "Datos comerciales" %}</h2>
+      <p class="muted">{% trans "Esta información identifica tu negocio dentro del sistema y prepara los documentos que enviaremos a tus clientes." %}</p>
+    </div>
+  </div>
+  <form method="post" class="stacked-form">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="form-grid">
+      {% for field in form.visible_fields %}
+        <div class="field {% if field.name == 'name' or field.name == 'address' or field.name == 'language' %}wide{% endif %}">
+          {{ field.label_tag }}{{ field }}{{ field.errors }}
+          {% if field.help_text %}<small class="muted">{{ field.help_text }}</small>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="actions">
+      <a class="secondary" href="{% url 'dashboard' %}">{% trans "Cancelar" %}</a>
+      <button class="primary" type="submit">{% trans "Guardar perfil" %}</button>
+    </div>
+  </form>
+</section>
+{% endblock %}
