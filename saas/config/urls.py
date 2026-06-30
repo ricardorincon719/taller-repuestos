@@ -3,10 +3,19 @@ from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
 from apps.accounts.forms import EmailAuthenticationForm, ImportedUserPasswordResetForm
-from config.views import health_check
+from config.views import (
+    GOOGLE_SITE_VERIFICATION_FILE,
+    google_site_verification,
+    health_check,
+)
 
 urlpatterns = [
     path("health/", health_check, name="health-check"),
+    path(
+        GOOGLE_SITE_VERIFICATION_FILE,
+        google_site_verification,
+        name="google-site-verification",
+    ),
     path("admin/", admin.site.urls),
     path("cuenta/", include("apps.accounts.urls")),
     path(

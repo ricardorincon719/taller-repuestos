@@ -4,6 +4,7 @@ from django.urls import reverse
 
 from apps.billing.models import Subscription
 from apps.organizations.models import Membership, Organization
+from config.views import GOOGLE_SITE_VERIFICATION_CONTENT, GOOGLE_SITE_VERIFICATION_FILE
 
 
 class DashboardTests(TestCase):
@@ -44,3 +45,12 @@ class HealthCheckTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok"})
+
+
+class SiteVerificationTests(TestCase):
+    def test_google_site_verification_file_is_served_at_root(self):
+        response = self.client.get(f"/{GOOGLE_SITE_VERIFICATION_FILE}")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/plain")
+        self.assertEqual(response.content.decode(), GOOGLE_SITE_VERIFICATION_CONTENT)
