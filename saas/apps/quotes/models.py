@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.customers.models import Customer, Vehicle
 from apps.organizations.models import Organization
@@ -17,12 +18,12 @@ class QuoteQuerySet(models.QuerySet):
 
 class Quote(models.Model):
     class Status(models.TextChoices):
-        DRAFT = "draft", "Borrador"
-        SENT = "sent", "Enviado"
-        APPROVED = "approved", "Aprobado"
-        INVOICED = "invoiced", "Facturado"
-        REJECTED = "rejected", "Rechazado"
-        CANCELLED = "cancelled", "Cancelado"
+        DRAFT = "draft", _("Borrador")
+        SENT = "sent", _("Enviado")
+        APPROVED = "approved", _("Aprobado")
+        INVOICED = "invoiced", _("Facturado")
+        REJECTED = "rejected", _("Rechazado")
+        CANCELLED = "cancelled", _("Cancelado")
 
     organization = models.ForeignKey(
         Organization,
@@ -130,16 +131,16 @@ class Quote(models.Model):
         super().clean()
         if self.customer_id and self.customer.organization_id != self.organization_id:
             raise ValidationError(
-                {"customer": "El cliente debe pertenecer al mismo taller."}
+                {"customer": _("El cliente debe pertenecer al mismo negocio.")}
             )
         if self.vehicle_id:
             if self.vehicle.organization_id != self.organization_id:
                 raise ValidationError(
-                    {"vehicle": "El vehículo debe pertenecer al mismo taller."}
+                    {"vehicle": _("El vehículo debe pertenecer al mismo negocio.")}
                 )
             if self.vehicle.customer_id != self.customer_id:
                 raise ValidationError(
-                    {"vehicle": "El vehículo debe pertenecer al cliente seleccionado."}
+                    {"vehicle": _("El vehículo debe pertenecer al cliente seleccionado.")}
                 )
 
     def __str__(self):

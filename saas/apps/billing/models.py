@@ -1,20 +1,21 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from apps.organizations.models import Organization
 
 
 class Subscription(models.Model):
     class Plan(models.TextChoices):
-        TRIAL = "trial", "Prueba"
-        STARTER = "starter", "Inicial"
-        PROFESSIONAL = "professional", "Profesional"
+        TRIAL = "trial", _("Prueba")
+        STARTER = "starter", _("Inicial")
+        PROFESSIONAL = "professional", _("Profesional")
 
     class Status(models.TextChoices):
-        TRIALING = "trialing", "En prueba"
-        ACTIVE = "active", "Activa"
-        PAST_DUE = "past_due", "Pago pendiente"
-        CANCELLED = "cancelled", "Cancelada"
+        TRIALING = "trialing", _("En prueba")
+        ACTIVE = "active", _("Activa")
+        PAST_DUE = "past_due", _("Pago pendiente")
+        CANCELLED = "cancelled", _("Cancelada")
 
     organization = models.OneToOneField(
         Organization,

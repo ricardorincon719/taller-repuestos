@@ -1,4 +1,5 @@
-<p>Hola {{ user.first_name }},</p>
-<p>Activa tu cuenta de Taller Pro mediante el siguiente enlace:</p>
-<p><a href="{{ activation_url }}">Activar mi cuenta</a></p>
-<p>Si no solicitaste esta cuenta, ignora este mensaje.</p>
+{% load i18n %}
+<p>{% blocktrans with first_name=user.first_name %}Hola {{ first_name }},{% endblocktrans %}</p>
+<p>{% trans "Activa tu cuenta de Taller Pro mediante el siguiente enlace:" %}</p>
+<p><a href="{{ activation_url }}">{% trans "Activar mi cuenta" %}</a></p>
+<p>{% trans "Si no solicitaste esta cuenta, ignora este mensaje." %}</p>

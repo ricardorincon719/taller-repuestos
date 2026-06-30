@@ -32,13 +32,13 @@ class RegistrationForm(UserCreationForm):
     def clean_email(self):
         email = self.cleaned_data["email"].strip().lower()
         if User.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError("Ya existe una cuenta con este email.")
+            raise forms.ValidationError(_("Ya existe una cuenta con este email."))
         return email
 
     def clean(self):
         cleaned_data = super().clean()
         if cleaned_data.get("website"):
-            raise forms.ValidationError("Registro inválido.")
+            raise forms.ValidationError(_("Registro inválido."))
         return cleaned_data
 
 

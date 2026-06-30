@@ -131,3 +131,528 @@ msgstr "Cancelar"
 
 msgid "Guardar perfil"
 msgstr "Salvar perfil"
+
+msgid "Acceso seguro"
+msgstr "Acesso seguro"
+
+msgid "Activa"
+msgstr "Ativa"
+
+msgid "Activa tu cuenta de Taller Pro"
+msgstr "Ative sua conta do Taller Pro"
+
+msgid "Activa tu cuenta de Taller Pro mediante el siguiente enlace:"
+msgstr "Ative sua conta do Taller Pro pelo link abaixo:"
+
+msgid "Activa tu cuenta de Taller Pro usando este enlace:"
+msgstr "Ative sua conta do Taller Pro usando este link:"
+
+msgid "Activación"
+msgstr "Ativação"
+
+msgid "Activar mi cuenta"
+msgstr "Ativar minha conta"
+
+msgid "Actividad reciente"
+msgstr "Atividade recente"
+
+msgid "Actualizar estado"
+msgstr "Atualizar status"
+
+msgid "Administrador"
+msgstr "Administrador"
+
+msgid "Agrega cada producto o servicio por separado para discriminar cantidades y montos."
+msgstr "Adicione cada produto ou serviço separadamente para detalhar quantidades e valores."
+
+msgid "Agregar vehículo"
+msgstr "Adicionar veículo"
+
+msgid "Agregar ítem"
+msgstr "Adicionar item"
+
+msgid "Aprobado"
+msgstr "Aprovado"
+
+msgid "Archivado"
+msgstr "Arquivado"
+
+msgid "Archivar"
+msgstr "Arquivar"
+
+msgid "Archivar cliente"
+msgstr "Arquivar cliente"
+
+msgid "Año"
+msgstr "Ano"
+
+msgid "Borrador"
+msgstr "Rascunho"
+
+msgid "Buscar"
+msgstr "Buscar"
+
+msgid "Buscar por nombre, teléfono, email o documento"
+msgstr "Buscar por nome, telefone, email ou documento"
+
+msgid "Cancelada"
+msgstr "Cancelada"
+
+msgid "Cancelado"
+msgstr "Cancelado"
+
+msgid "Cantidad"
+msgstr "Quantidade"
+
+msgid "Cliente"
+msgstr "Cliente"
+
+msgid "Cliente activo"
+msgstr "Cliente ativo"
+
+msgid "Cliente actualizado."
+msgstr "Cliente atualizado."
+
+msgid "Cliente archivado"
+msgstr "Cliente arquivado"
+
+msgid "Cliente creado correctamente."
+msgstr "Cliente criado corretamente."
+
+msgid "Cliente inválido para este negocio."
+msgstr "Cliente inválido para este negócio."
+
+msgid "Clientes archivados"
+msgstr "Clientes arquivados"
+
+msgid "Colaborador"
+msgstr "Colaborador"
+
+msgid "Contacta al soporte para activar o regularizar el plan."
+msgstr "Entre em contato com o suporte para ativar ou regularizar o plano."
+
+msgid "Contacta al soporte para asociar un plan a este negocio."
+msgstr "Entre em contato com o suporte para associar um plano a este negócio."
+
+msgid "Contacto"
+msgstr "Contato"
+
+msgid "Contraseña"
+msgstr "Senha"
+
+msgid "Contraseña actualizada"
+msgstr "Senha atualizada"
+
+msgid "Correo enviado"
+msgstr "Email enviado"
+
+msgid "Crear nueva contraseña"
+msgstr "Criar nova senha"
+
+msgid "Crear presupuesto"
+msgstr "Criar orçamento"
+
+msgid "Cuenta creada"
+msgstr "Conta criada"
+
+msgid "Debes activar la cuenta antes de ingresar."
+msgstr "Você precisa ativar a conta antes de entrar."
+
+msgid "Define una contraseña"
+msgstr "Defina uma senha"
+
+msgid "Demasiados intentos de registro. Inténtalo más tarde."
+msgstr "Muitas tentativas de cadastro. Tente novamente mais tarde."
+
+msgid "Descargar PDF"
+msgstr "Baixar PDF"
+
+msgid "Descripción"
+msgstr "Descrição"
+
+msgid "Descuento"
+msgstr "Desconto"
+
+msgid "Detalle"
+msgstr "Detalhe"
+
+msgid "Documento"
+msgstr "Documento"
+
+msgid "Editar"
+msgstr "Editar"
+
+msgid "Editar cliente"
+msgstr "Editar cliente"
+
+msgid "Editar vehículo"
+msgstr "Editar veículo"
+
+msgid "Ej. Filtro de aceite"
+msgstr "Ex. filtro de óleo"
+
+msgid "El acceso está pausado porque la prueba venció o la suscripción requiere atención."
+msgstr "O acesso está pausado porque o período de teste venceu ou a assinatura requer atenção."
+
+msgid "El cliente debe pertenecer al mismo negocio."
+msgstr "O cliente deve pertencer ao mesmo negócio."
+
+msgid "El vehículo debe pertenecer al cliente seleccionado."
+msgstr "O veículo deve pertencer ao cliente selecionado."
+
+msgid "El vehículo debe pertenecer al mismo negocio."
+msgstr "O veículo deve pertencer ao mesmo negócio."
+
+msgid "El vehículo no pertenece al cliente."
+msgstr "O veículo não pertence ao cliente."
+
+msgid "Email"
+msgstr "Email"
+
+msgid "En prueba"
+msgstr "Em teste"
+
+msgid "Enlace inválido"
+msgstr "Link inválido"
+
+msgid "Enlace inválido o vencido"
+msgstr "Link inválido ou expirado"
+
+msgid "Enlace para el cliente"
+msgstr "Link para o cliente"
+
+msgid "Enlace público del presupuesto"
+msgstr "Link público do orçamento"
+
+msgid "Enviado"
+msgstr "Enviado"
+
+msgid "Enviar enlace"
+msgstr "Enviar link"
+
+msgid "Enviar instrucciones"
+msgstr "Enviar instruções"
+
+msgid "Enviar por WhatsApp"
+msgstr "Enviar por WhatsApp"
+
+msgid "Enviaremos instrucciones si el email corresponde a una cuenta activa."
+msgstr "Enviaremos instruções se o email corresponder a uma conta ativa."
+
+msgid "Español"
+msgstr "Espanhol"
+
+msgid "Estado"
+msgstr "Status"
+
+msgid "Estado del cliente actualizado."
+msgstr "Status do cliente atualizado."
+
+msgid "Estado del presupuesto actualizado."
+msgstr "Status do orçamento atualizado."
+
+msgid "Estado del vehículo actualizado."
+msgstr "Status do veículo atualizado."
+
+msgid "Estado inválido."
+msgstr "Status inválido."
+
+msgid "Este cliente todavía no tiene vehículos."
+msgstr "Este cliente ainda não tem veículos."
+
+msgid "Facturado"
+msgstr "Faturado"
+
+msgid "Fecha"
+msgstr "Data"
+
+msgid "Generado por Taller Pro"
+msgstr "Gerado pelo Taller Pro"
+
+msgid "Guardar cliente"
+msgstr "Salvar cliente"
+
+msgid "Guardar contraseña"
+msgstr "Salvar senha"
+
+msgid "Guardar presupuesto"
+msgstr "Salvar orçamento"
+
+msgid "Guardar vehículo"
+msgstr "Salvar veículo"
+
+msgid "Hola %(customer)s, compartimos el presupuesto %(number)s por %(total)s: %(url)s"
+msgstr "Olá %(customer)s, compartilhamos o orçamento %(number)s no valor de %(total)s: %(url)s"
+
+msgid "Hola %(first_name)s,"
+msgstr "Olá %(first_name)s,"
+
+msgid "Hola,"
+msgstr "Olá,"
+
+msgid "Ingresa a tu negocio"
+msgstr "Entre no seu negócio"
+
+msgid "Inicial"
+msgstr "Inicial"
+
+msgid "La prueba termina el %(trial_date)s."
+msgstr "O teste termina em %(trial_date)s."
+
+msgid "Mano de obra"
+msgstr "Mão de obra"
+
+msgid "Marca"
+msgstr "Marca"
+
+msgid "Matrícula"
+msgstr "Placa"
+
+msgid "Modelo"
+msgstr "Modelo"
+
+msgid "No encontramos clientes con esos criterios."
+msgstr "Não encontramos clientes com esses critérios."
+
+msgid "No hay presupuestos para este cliente."
+msgstr "Não há orçamentos para este cliente."
+
+msgid "No hay presupuestos registrados."
+msgstr "Não há orçamentos registrados."
+
+msgid "No pudimos activar la cuenta"
+msgstr "Não foi possível ativar a conta"
+
+msgid "No pudimos enviar el correo en este momento."
+msgstr "Não foi possível enviar o email neste momento."
+
+msgid "Notas"
+msgstr "Notas"
+
+msgid "Nueva contraseña"
+msgstr "Nova senha"
+
+msgid "Nuevo acceso"
+msgstr "Novo acesso"
+
+msgid "Nuevo cliente"
+msgstr "Novo cliente"
+
+msgid "Nuevo presupuesto"
+msgstr "Novo orçamento"
+
+msgid "Nuevo vehículo"
+msgstr "Novo veículo"
+
+msgid "Número"
+msgstr "Número"
+
+msgid "Olvidé mi contraseña"
+msgstr "Esqueci minha senha"
+
+msgid "Pago pendiente"
+msgstr "Pagamento pendente"
+
+msgid "Permite consultar y descargar el presupuesto sin iniciar sesión."
+msgstr "Permite consultar e baixar o orçamento sem fazer login."
+
+msgid "Por aprobar/facturar"
+msgstr "A aprovar/faturar"
+
+msgid "Português do Brasil"
+msgstr "Português do Brasil"
+
+msgid "Precio"
+msgstr "Preço"
+
+msgid "Precio unitario"
+msgstr "Preço unitário"
+
+msgid "Presupuesto"
+msgstr "Orçamento"
+
+msgid "Presupuesto %(number)s creado."
+msgstr "Orçamento %(number)s criado."
+
+msgid "Productos y servicios"
+msgstr "Produtos e serviços"
+
+msgid "Profesional"
+msgstr "Profissional"
+
+msgid "Propietario"
+msgstr "Proprietário"
+
+msgid "Prueba"
+msgstr "Teste"
+
+msgid "Quitar"
+msgstr "Remover"
+
+msgid "Reactivar"
+msgstr "Reativar"
+
+msgid "Reactivar cliente"
+msgstr "Reativar cliente"
+
+msgid "Rechazado"
+msgstr "Recusado"
+
+msgid "Recuperación de acceso"
+msgstr "Recuperação de acesso"
+
+msgid "Recuperar contraseña"
+msgstr "Recuperar senha"
+
+msgid "Reenviar activación"
+msgstr "Reenviar ativação"
+
+msgid "Reenviar enlace"
+msgstr "Reenviar link"
+
+msgid "Registro inválido."
+msgstr "Cadastro inválido."
+
+msgid "Restablece tu contraseña"
+msgstr "Redefina sua senha"
+
+msgid "Restablece tu contraseña de Taller Pro"
+msgstr "Redefina sua senha do Taller Pro"
+
+msgid "Revisa tu email"
+msgstr "Confira seu email"
+
+msgid "Si encontramos una cuenta activa, recibirás instrucciones para restablecer la contraseña."
+msgstr "Se encontrarmos uma conta ativa, você receberá instruções para redefinir a senha."
+
+msgid "Si existe una cuenta pendiente para ese email, enviaremos un nuevo enlace."
+msgstr "Se existir uma conta pendente para esse email, enviaremos um novo link."
+
+msgid "Si no lo solicitaste, ignora este mensaje."
+msgstr "Se você não solicitou isso, ignore esta mensagem."
+
+msgid "Si no solicitaste esta cuenta, ignora este mensaje."
+msgstr "Se você não solicitou esta conta, ignore esta mensagem."
+
+msgid "Sin email"
+msgstr "Sem email"
+
+msgid "Sin teléfono"
+msgstr "Sem telefone"
+
+msgid "Sin ítems adicionales"
+msgstr "Sem itens adicionais"
+
+msgid "Sin ítems adicionales."
+msgstr "Sem itens adicionais."
+
+msgid "Solicita un nuevo correo de activación."
+msgstr "Solicite um novo email de ativação."
+
+msgid "Solicita un nuevo enlace de activación"
+msgstr "Solicite um novo link de ativação"
+
+msgid "Solicitar uno nuevo"
+msgstr "Solicitar outro"
+
+msgid "Solicitaste definir o restablecer tu contraseña de Taller Pro."
+msgstr "Você solicitou criar ou redefinir sua senha do Taller Pro."
+
+msgid "Solicitaste definir o restablecer tu contraseña de Taller Pro. Abre este enlace:"
+msgstr "Você solicitou criar ou redefinir sua senha do Taller Pro. Abra este link:"
+
+msgid "Solicitud recibida"
+msgstr "Solicitação recebida"
+
+msgid "Subtotal"
+msgstr "Subtotal"
+
+msgid "Suscripción"
+msgstr "Assinatura"
+
+msgid "Suscripción no configurada"
+msgstr "Assinatura não configurada"
+
+msgid "TOTAL"
+msgstr "TOTAL"
+
+msgid "Todavía no hay presupuestos."
+msgstr "Ainda não há orçamentos."
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Total estimado"
+msgstr "Total estimado"
+
+msgid "Tu cuenta fue activada correctamente."
+msgstr "Sua conta foi ativada corretamente."
+
+msgid "Tu negocio tiene acceso a todas las funciones."
+msgstr "Seu negócio tem acesso a todas as funcionalidades."
+
+msgid "Usuario o contraseña incorrectos."
+msgstr "Usuário ou senha incorretos."
+
+msgid "Vehículo"
+msgstr "Veículo"
+
+msgid "Vehículo actualizado."
+msgstr "Veículo atualizado."
+
+msgid "Vehículo agregado."
+msgstr "Veículo adicionado."
+
+msgid "Vehículo inválido para este negocio."
+msgstr "Veículo inválido para este negócio."
+
+msgid "Vehículos"
+msgstr "Veículos"
+
+msgid "Ver activos"
+msgstr "Ver ativos"
+
+msgid "Ver archivados"
+msgstr "Ver arquivados"
+
+msgid "Ver todos"
+msgstr "Ver todos"
+
+msgid "Volver"
+msgstr "Voltar"
+
+msgid "Volver al acceso"
+msgstr "Voltar ao acesso"
+
+msgid "Volver al panel"
+msgstr "Voltar ao painel"
+
+msgid "Válido hasta"
+msgstr "Válido até"
+
+msgid "Ya existe un vehículo con esta matrícula."
+msgstr "Já existe um veículo com esta placa."
+
+msgid "Ya existe una cuenta con este email."
+msgstr "Já existe uma conta com este email."
+
+msgid "Ya puedes ingresar con tu nueva contraseña."
+msgstr "Você já pode entrar com sua nova senha."
+
+msgid "¿Aún no tienes cuenta?"
+msgstr "Ainda não tem uma conta?"
+
+msgid "Ítems"
+msgstr "Itens"
+
+msgid "Últimos presupuestos"
+msgstr "Últimos orçamentos"
+
+msgid "Enviamos un enlace de activación a <strong>%(email)s</strong>."
+msgstr "Enviamos um link de ativação para <strong>%(email)s</strong>."
+
+msgid "Tu usuario no pertenece a un negocio activo."
+msgstr "Seu usuário não pertence a um negócio ativo."
+
+msgid "Vehículo #%(pk)s"
+msgstr "Veículo #%(pk)s"

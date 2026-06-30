@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from apps.billing.decorators import subscription_required
@@ -71,12 +72,12 @@ def customer_create(request):
         customer.organization = organization
         customer.full_clean()
         customer.save()
-        messages.success(request, "Cliente creado correctamente.")
+        messages.success(request, _("Cliente creado correctamente."))
         return redirect("customer-detail", pk=customer.pk)
     return render(
         request,
         "customers/form.html",
-        {"organization": organization, "form": form, "title": "Nuevo cliente"},
+        {"organization": organization, "form": form, "title": _("Nuevo cliente")},
     )
 
 
@@ -88,12 +89,12 @@ def customer_update(request, pk):
     form = CustomerForm(request.POST or None, instance=customer)
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "Cliente actualizado.")
+        messages.success(request, _("Cliente actualizado."))
         return redirect("customer-detail", pk=customer.pk)
     return render(
         request,
         "customers/form.html",
-        {"organization": organization, "form": form, "title": "Editar cliente"},
+        {"organization": organization, "form": form, "title": _("Editar cliente")},
     )
 
 
@@ -105,7 +106,7 @@ def customer_archive(request, pk):
     customer = get_object_or_404(Customer.objects.for_organization(organization), pk=pk)
     customer.is_active = not customer.is_active
     customer.save(update_fields=("is_active", "updated_at"))
-    messages.success(request, "Estado del cliente actualizado.")
+    messages.success(request, _("Estado del cliente actualizado."))
     return redirect("customer-detail", pk=customer.pk)
 
 
@@ -123,12 +124,12 @@ def vehicle_create(request, customer_pk):
         vehicle.customer = customer
         vehicle.full_clean()
         vehicle.save()
-        messages.success(request, "Vehículo agregado.")
+        messages.success(request, _("Vehículo agregado."))
         return redirect("customer-detail", pk=customer.pk)
     return render(
         request,
         "customers/vehicle_form.html",
-        {"customer": customer, "form": form, "title": "Nuevo vehículo"},
+        {"customer": customer, "form": form, "title": _("Nuevo vehículo")},
     )
 
 
@@ -145,12 +146,12 @@ def vehicle_update(request, pk):
     )
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "Vehículo actualizado.")
+        messages.success(request, _("Vehículo actualizado."))
         return redirect("customer-detail", pk=vehicle.customer_id)
     return render(
         request,
         "customers/vehicle_form.html",
-        {"customer": vehicle.customer, "form": form, "title": "Editar vehículo"},
+        {"customer": vehicle.customer, "form": form, "title": _("Editar vehículo")},
     )
 
 
@@ -165,5 +166,5 @@ def vehicle_archive(request, pk):
     )
     vehicle.is_active = not vehicle.is_active
     vehicle.save(update_fields=("is_active", "updated_at"))
-    messages.success(request, "Estado del vehículo actualizado.")
+    messages.success(request, _("Estado del vehículo actualizado."))
     return redirect("customer-detail", pk=vehicle.customer_id)

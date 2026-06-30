@@ -1,23 +1,24 @@
 {% extends "base.html" %}
-{% block title %}Ingresar | Taller Pro{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Ingresar" %} | Taller Pro{% endblock %}
 {% block content %}
 <section class="auth-card">
-  <p class="eyebrow">Acceso seguro</p>
-  <h1>Ingresa a tu taller</h1>
-  {% if form.errors %}<div class="error">Usuario o contraseña incorrectos.</div>{% endif %}
+  <p class="eyebrow">{% trans "Acceso seguro" %}</p>
+  <h1>{% trans "Ingresa a tu negocio" %}</h1>
+  {% if form.errors %}<div class="error">{% trans "Usuario o contraseña incorrectos." %}</div>{% endif %}
   <form method="post" class="stacked-form">
     {% csrf_token %}
     <label for="id_username">Email</label>
     {{ form.username }}
-    <label for="id_password">Contraseña</label>
+    <label for="id_password">{% trans "Contraseña" %}</label>
     {{ form.password }}
     <input type="hidden" name="next" value="{{ next }}">
-    <button class="primary" type="submit">Ingresar</button>
+    <button class="primary" type="submit">{% trans "Ingresar" %}</button>
   </form>
   <div class="auth-links">
-    <a href="{% url 'password_reset' %}">Olvidé mi contraseña</a>
-    <a href="{% url 'resend-activation' %}">Reenviar activación</a>
+    <a href="{% url 'password_reset' %}">{% trans "Olvidé mi contraseña" %}</a>
+    <a href="{% url 'resend-activation' %}">{% trans "Reenviar activación" %}</a>
   </div>
-  <p class="auth-footer">¿Aún no tienes cuenta? <a href="{% url 'register' %}">Crear cuenta</a></p>
+  <p class="auth-footer">{% trans "¿Aún no tienes cuenta?" %} <a href="{% url 'register' %}">{% trans "Crear cuenta" %}</a></p>
 </section>
 {% endblock %}

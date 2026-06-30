@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.organizations.models import Organization
 
@@ -81,9 +82,9 @@ class Vehicle(models.Model):
         super().clean()
         if self.customer_id and self.customer.organization_id != self.organization_id:
             raise ValidationError(
-                {"customer": "El cliente debe pertenecer al mismo taller."}
+                {"customer": _("El cliente debe pertenecer al mismo negocio.")}
             )
 
     def __str__(self):
         description = " ".join(part for part in (self.make, self.model) if part)
-        return self.license_plate or description or f"Vehículo #{self.pk}"
+        return self.license_plate or description or _("Vehículo #%(pk)s") % {"pk": self.pk}

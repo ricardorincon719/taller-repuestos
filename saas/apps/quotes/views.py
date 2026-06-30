@@ -7,6 +7,8 @@ from django.db import transaction
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import translation
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from apps.billing.decorators import subscription_required
@@ -76,7 +78,7 @@ def quote_create(request):
             formset.instance = quote
             formset.save()
             quote.recalculate_totals()
-        messages.success(request, f"Presupuesto {quote.display_number} creado.")
+        messages.success(request, _("Presupuesto %(number)s creado.") % {"number": quote.display_number})
         return redirect("quote-detail", pk=quote.pk)
 
     return render(
@@ -95,10 +97,10 @@ def quote_status_update(request, pk):
     status = request.POST.get("status", "")
     valid_statuses = {value for value, _label in Quote.Status.choices}
     if status not in valid_statuses:
-        return HttpResponseBadRequest("Estado inválido.")
+        return HttpResponseBadRequest(_("Estado inválido."))
     quote.status = status
     quote.save(update_fields=("status", "updated_at"))
-    messages.success(request, "Estado del presupuesto actualizado.")
+    messages.success(request, _("Estado del presupuesto actualizado."))
     return redirect("quote-detail", pk=quote.pk)
 
 
@@ -117,15 +119,19 @@ def quote_pdf(request, pk):
 
 def public_quote_detail(request, token):
     quote = _public_quote(token)
-    return render(
-        request,
-        "quotes/public_detail.html",
-        _quote_context(request, quote),
-    )
+    with translation.override(quote.organization.language):
+        request.LANGUAGE_CODE = translation.get_language()
+        return render(
+            request,
+            "quotes/public_detail.html",
+            _quote_context(request, quote),
+        )
 
 
 def public_quote_pdf(request, token):
-    return _pdf_response(_public_quote(token))
+    quote = _public_quote(token)
+    with translation.override(quote.organization.language):
+        return _pdf_response(quote)
 
 
 def _public_quote(token):
@@ -141,10 +147,14 @@ def _quote_context(request, quote):
     public_url = request.build_absolute_uri(
         reverse("public-quote-detail", args=(quote.share_token,))
     )
-    message = (
-        f"Hola {quote.customer.name}, compartimos el presupuesto "
-        f"{quote.display_number} por {_money(quote.total_amount)}: {public_url}"
-    )
+    message = _(
+        "Hola %(customer)s, compartimos el presupuesto %(number)s por %(total)s: %(url)s"
+    ) % {
+        "customer": quote.customer.name,
+        "number": quote.display_number,
+        "total": _money(quote.total_amount),
+        "url": public_url,
+    }
     phone = re.sub(r"\D", "", quote.customer.phone)
     whatsapp_base = f"https://wa.me/{phone}" if phone else "https://wa.me/"
     return {

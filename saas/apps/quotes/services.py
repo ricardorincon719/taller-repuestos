@@ -3,6 +3,8 @@ from xml.sax.saxutils import escape
 
 from django.conf import settings
 from django.db import transaction
+from django.utils import translation
+from django.utils.translation import gettext as _
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
@@ -38,6 +40,11 @@ def create_quote(*, organization, customer, created_by, vehicle=None, **fields):
 
 
 def build_quote_pdf(quote):
+    with translation.override(quote.organization.language):
+        return _build_quote_pdf(quote)
+
+
+def _build_quote_pdf(quote):
     output = BytesIO()
     document = SimpleDocTemplate(
         output,
@@ -50,38 +57,71 @@ def build_quote_pdf(quote):
         author=quote.organization.name,
     )
     styles = getSampleStyleSheet()
+
+    organization_lines = [
+        escape(quote.organization.get_business_type_display()),
+        *[
+            escape(value)
+            for value in (
+                quote.organization.phone,
+                quote.organization.email,
+                quote.organization.tax_id,
+            )
+            if value
+        ],
+    ]
+    if quote.organization.address:
+        organization_lines.append(escape(quote.organization.address).replace("\n", "<br/>"))
+
     story = [
         Paragraph(escape(quote.organization.name), styles["Title"]),
-        Paragraph(f"Presupuesto {escape(quote.display_number)}", styles["Heading2"]),
+        Paragraph("<br/>".join(organization_lines), styles["BodyText"]),
+        Spacer(1, 4 * mm),
+        Paragraph(f"{escape(_('Presupuesto'))} {escape(quote.display_number)}", styles["Heading2"]),
         Spacer(1, 6 * mm),
-        Paragraph(f"<b>Cliente:</b> {escape(quote.customer.name)}", styles["BodyText"]),
+        Paragraph(f"<b>{escape(_('Cliente'))}:</b> {escape(quote.customer.name)}", styles["BodyText"]),
     ]
     if quote.customer.phone:
         story.append(
             Paragraph(
-                f"<b>Teléfono:</b> {escape(quote.customer.phone)}",
+                f"<b>{escape(_('Teléfono'))}:</b> {escape(quote.customer.phone)}",
+                styles["BodyText"],
+            )
+        )
+    if quote.customer.email:
+        story.append(
+            Paragraph(
+                f"<b>Email:</b> {escape(quote.customer.email)}",
                 styles["BodyText"],
             )
         )
     if quote.vehicle:
         story.append(
-            Paragraph(f"<b>Vehículo:</b> {escape(str(quote.vehicle))}", styles["BodyText"])
+            Paragraph(f"<b>{escape(_('Vehículo'))}:</b> {escape(str(quote.vehicle))}", styles["BodyText"])
         )
     story.extend(
         [
             Paragraph(
-                f"<b>Estado:</b> {escape(quote.get_status_display())}",
+                f"<b>{escape(_('Estado'))}:</b> {escape(quote.get_status_display())}",
                 styles["BodyText"],
             ),
             Paragraph(
-                f"<b>Fecha:</b> {quote.created_at.astimezone().strftime('%d/%m/%Y')}",
+                f"<b>{escape(_('Fecha'))}:</b> {quote.created_at.astimezone().strftime('%d/%m/%Y')}",
                 styles["BodyText"],
             ),
             Spacer(1, 6 * mm),
         ]
     )
+    if quote.valid_until:
+        story.insert(
+            -1,
+            Paragraph(
+                f"<b>{escape(_('Válido hasta'))}:</b> {quote.valid_until.strftime('%d/%m/%Y')}",
+                styles["BodyText"],
+            ),
+        )
 
-    rows = [["Descripción", "Cantidad", "Precio", "Total"]]
+    rows = [[_("Descripción"), _("Cantidad"), _("Precio"), _("Total")]]
     for item in quote.items.all():
         rows.append(
             [
@@ -92,7 +132,7 @@ def build_quote_pdf(quote):
             ]
         )
     if len(rows) == 1:
-        rows.append(["Sin ítems adicionales", "-", "-", "-"])
+        rows.append([_("Sin ítems adicionales"), "-", "-", "-"])
 
     items_table = Table(rows, colWidths=(86 * mm, 25 * mm, 31 * mm, 31 * mm))
     items_table.setStyle(
@@ -113,10 +153,10 @@ def build_quote_pdf(quote):
 
     totals = Table(
         [
-            ["Mano de obra", _money(quote.labor_amount)],
-            ["Ítems", _money(quote.items_amount)],
-            ["Descuento", _money(quote.discount_amount)],
-            ["TOTAL", _money(quote.total_amount)],
+            [_("Mano de obra"), _money(quote.labor_amount)],
+            [_("Ítems"), _money(quote.items_amount)],
+            [_("Descuento"), _money(quote.discount_amount)],
+            [_("TOTAL"), _money(quote.total_amount)],
         ],
         colWidths=(45 * mm, 35 * mm),
         hAlign="RIGHT",
@@ -137,7 +177,7 @@ def build_quote_pdf(quote):
         story.extend(
             [
                 Spacer(1, 7 * mm),
-                Paragraph("<b>Notas</b>", styles["Heading3"]),
+                Paragraph(f"<b>{escape(_('Notas'))}</b>", styles["Heading3"]),
                 Paragraph(escape(quote.notes).replace("\n", "<br/>"), styles["BodyText"]),
             ]
         )
@@ -145,7 +185,7 @@ def build_quote_pdf(quote):
         [
             Spacer(1, 10 * mm),
             Paragraph(
-                escape(getattr(settings, "QUOTE_PDF_FOOTER", "Taller Pro")),
+                escape(getattr(settings, "QUOTE_PDF_FOOTER", _("Generado por Taller Pro"))),
                 styles["Italic"],
             ),
         ]

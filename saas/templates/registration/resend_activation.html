@@ -1,13 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Reenviar activación | Taller Pro{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Reenviar activación" %} | Taller Pro{% endblock %}
 {% block content %}
 <section class="auth-card">
-  <p class="eyebrow">Activación</p>
-  <h1>Reenviar enlace</h1>
+  <p class="eyebrow">{% trans "Activación" %}</p>
+  <h1>{% trans "Reenviar enlace" %}</h1>
   <form method="post" class="stacked-form">
     {% csrf_token %}
     {{ form.email.label_tag }}{{ form.email }}{{ form.email.errors }}
-    <button class="primary" type="submit">Enviar enlace</button>
+    <button class="primary" type="submit">{% trans "Enviar enlace" %}</button>
   </form>
 </section>
 {% endblock %}

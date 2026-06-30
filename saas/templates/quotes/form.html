@@ -1,7 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Nuevo presupuesto | Taller Pro{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Nuevo presupuesto" %} | Taller Pro{% endblock %}
 {% block content %}
-<div class="page-heading"><div><p class="eyebrow">{{ organization.name }}</p><h1>Nuevo presupuesto</h1></div></div>
+<div class="page-heading"><div><p class="eyebrow">{{ organization.name }}</p><h1>{% trans "Nuevo presupuesto" %}</h1></div></div>
 <form method="post" class="panel stacked-form">
   {% csrf_token %}
   {{ form.non_field_errors }}
@@ -14,10 +15,10 @@
   </div>
   <div class="panel-heading quote-items-heading">
     <div>
-      <h2>Repuestos y servicios</h2>
-      <p class="muted">Agrega cada repuesto o servicio por separado para discriminar cantidades y montos.</p>
+      <h2>{% trans "Productos y servicios" %}</h2>
+      <p class="muted">{% trans "Agrega cada producto o servicio por separado para discriminar cantidades y montos." %}</p>
     </div>
-    <button class="secondary" type="button" id="add-quote-item">Agregar ítem</button>
+    <button class="secondary" type="button" id="add-quote-item">{% trans "Agregar ítem" %}</button>
   </div>
   {{ formset.management_form }}
   <div id="quote-items">
@@ -27,8 +28,8 @@
       <div class="field">{{ item_form.description.label_tag }}{{ item_form.description }}{{ item_form.description.errors }}</div>
       <div class="field">{{ item_form.quantity.label_tag }}{{ item_form.quantity }}{{ item_form.quantity.errors }}</div>
       <div class="field">{{ item_form.unit_price.label_tag }}{{ item_form.unit_price }}{{ item_form.unit_price.errors }}</div>
-      <div class="item-subtotal"><span>Subtotal</span><strong data-item-subtotal>R$ 0.00</strong></div>
-      <button class="link-button item-remove" type="button" data-remove-item>Quitar</button>
+      <div class="item-subtotal"><span>{% trans "Subtotal" %}</span><strong data-item-subtotal>R$ 0.00</strong></div>
+      <button class="link-button item-remove" type="button" data-remove-item>{% trans "Quitar" %}</button>
     </div>
     {% endfor %}
   </div>
@@ -38,19 +39,19 @@
       <div class="field">{{ formset.empty_form.description.label_tag }}{{ formset.empty_form.description }}</div>
       <div class="field">{{ formset.empty_form.quantity.label_tag }}{{ formset.empty_form.quantity }}</div>
       <div class="field">{{ formset.empty_form.unit_price.label_tag }}{{ formset.empty_form.unit_price }}</div>
-      <div class="item-subtotal"><span>Subtotal</span><strong data-item-subtotal>R$ 0.00</strong></div>
-      <button class="link-button item-remove" type="button" data-remove-item>Quitar</button>
+      <div class="item-subtotal"><span>{% trans "Subtotal" %}</span><strong data-item-subtotal>R$ 0.00</strong></div>
+      <button class="link-button item-remove" type="button" data-remove-item>{% trans "Quitar" %}</button>
     </div>
   </template>
   <div class="quote-total-preview" aria-live="polite">
-    <p><span>Ítems</span><strong data-items-total>R$ 0.00</strong></p>
-    <p><span>Mano de obra</span><strong data-labor-total>R$ 0.00</strong></p>
-    <p><span>Descuento</span><strong data-discount-total>R$ 0.00</strong></p>
-    <p class="grand-total"><span>Total estimado</span><strong data-grand-total>R$ 0.00</strong></p>
+    <p><span>{% trans "Ítems" %}</span><strong data-items-total>R$ 0.00</strong></p>
+    <p><span>{% trans "Mano de obra" %}</span><strong data-labor-total>R$ 0.00</strong></p>
+    <p><span>{% trans "Descuento" %}</span><strong data-discount-total>R$ 0.00</strong></p>
+    <p class="grand-total"><span>{% trans "Total estimado" %}</span><strong data-grand-total>R$ 0.00</strong></p>
   </div>
   <div class="actions">
-    <a href="{% url 'quote-list' %}">Cancelar</a>
-    <button class="primary" type="submit">Guardar presupuesto</button>
+    <a href="{% url 'quote-list' %}">{% trans "Cancelar" %}</a>
+    <button class="primary" type="submit">{% trans "Guardar presupuesto" %}</button>
   </div>
 </form>
 <script>

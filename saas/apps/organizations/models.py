@@ -56,9 +56,9 @@ class Organization(models.Model):
 
 class Membership(models.Model):
     class Role(models.TextChoices):
-        OWNER = "owner", "Propietario"
-        ADMIN = "admin", "Administrador"
-        MEMBER = "member", "Colaborador"
+        OWNER = "owner", _("Propietario")
+        ADMIN = "admin", _("Administrador")
+        MEMBER = "member", _("Colaborador")
 
     organization = models.ForeignKey(
         Organization,

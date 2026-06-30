@@ -1,6 +1,6 @@
-Hola {{ user.first_name }},
+{% load i18n %}{% blocktrans with first_name=user.first_name %}Hola {{ first_name }},{% endblocktrans %}
 
-Activa tu cuenta de Taller Pro usando este enlace:
+{% trans "Activa tu cuenta de Taller Pro usando este enlace:" %}
 {{ activation_url }}
 
-Si no solicitaste esta cuenta, ignora este mensaje.
+{% trans "Si no solicitaste esta cuenta, ignora este mensaje." %}

@@ -10,7 +10,7 @@ from apps.customers.models import Customer, Vehicle
 from apps.organizations.models import Membership, Organization
 
 from .models import Quote, QuoteItem
-from .services import create_quote
+from .services import build_quote_pdf, create_quote
 
 
 class QuoteServiceTests(TestCase):
@@ -203,6 +203,52 @@ class QuoteServiceTests(TestCase):
         self.assertEqual(pdf_response.status_code, 200)
         self.assertEqual(pdf_response["Content-Type"], "application/pdf")
         self.assertTrue(pdf_response.content.startswith(b"%PDF"))
+
+    def test_public_quote_uses_organization_language_and_profile_data(self):
+        self.organization.language = Organization.Language.PORTUGUESE_BR
+        self.organization.business_type = Organization.BusinessType.OFFICE
+        self.organization.email = "contato@example.com"
+        self.organization.phone = "+55 11 99999-0000"
+        self.organization.tax_id = "12.345.678/0001-90"
+        self.organization.address = "Rua Central 123"
+        self.organization.save()
+        quote = create_quote(
+            organization=self.organization,
+            customer=self.customer,
+            created_by=self.user,
+            labor_amount=Decimal("100.00"),
+        )
+
+        response = self.client.get(
+            reverse("public-quote-detail", args=(quote.share_token,))
+        )
+
+        self.assertContains(response, "Baixar PDF")
+        self.assertContains(response, "Detalhe")
+        self.assertContains(response, "Escritório administrativo")
+        self.assertContains(response, "contato@example.com")
+        self.assertContains(response, "12.345.678/0001-90")
+        self.assertContains(response, "Rua Central 123")
+
+    def test_pdf_builds_with_organization_profile_data(self):
+        self.organization.language = Organization.Language.PORTUGUESE_BR
+        self.organization.business_type = Organization.BusinessType.OFFICE
+        self.organization.email = "contato@example.com"
+        self.organization.phone = "+55 11 99999-0000"
+        self.organization.tax_id = "12.345.678/0001-90"
+        self.organization.address = "Rua Central 123"
+        self.organization.save()
+        quote = create_quote(
+            organization=self.organization,
+            customer=self.customer,
+            created_by=self.user,
+            labor_amount=Decimal("100.00"),
+        )
+
+        content = build_quote_pdf(quote)
+
+        self.assertTrue(content.startswith(b"%PDF"))
+        self.assertGreater(len(content), 1000)
 
     def test_authenticated_pdf_is_isolated_by_organization(self):
         other_user = get_user_model().objects.create_user(

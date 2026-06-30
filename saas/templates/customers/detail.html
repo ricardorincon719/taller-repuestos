@@ -1,43 +1,44 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block title %}{{ customer.name }} | Taller Pro{% endblock %}
 {% block content %}
 <div class="page-heading">
-  <div><p class="eyebrow">{% if customer.is_active %}Cliente activo{% else %}Cliente archivado{% endif %}</p><h1>{{ customer.name }}</h1></div>
-  <div class="actions compact-actions"><a href="{% url 'customer-update' customer.pk %}">Editar</a>{% if customer.is_active %}<a class="primary button-link" href="{% url 'vehicle-create' customer.pk %}">Agregar vehículo</a>{% endif %}</div>
+  <div><p class="eyebrow">{% if customer.is_active %}{% trans "Cliente activo" %}{% else %}{% trans "Cliente archivado" %}{% endif %}</p><h1>{{ customer.name }}</h1></div>
+  <div class="actions compact-actions"><a href="{% url 'customer-update' customer.pk %}">{% trans "Editar" %}</a>{% if customer.is_active %}<a class="primary button-link" href="{% url 'vehicle-create' customer.pk %}">{% trans "Agregar vehículo" %}</a>{% endif %}</div>
 </div>
 <section class="detail-grid">
   <article class="panel">
-    <h2>Contacto</h2>
-    <p><strong>Teléfono:</strong> {{ customer.phone|default:"-" }}</p>
+    <h2>{% trans "Contacto" %}</h2>
+    <p><strong>{% trans "Teléfono" %}:</strong> {{ customer.phone|default:"-" }}</p>
     <p><strong>Email:</strong> {{ customer.email|default:"-" }}</p>
-    <p><strong>Documento:</strong> {{ customer.tax_id|default:"-" }}</p>
-    {% if customer.address %}<p><strong>Dirección:</strong><br>{{ customer.address|linebreaksbr }}</p>{% endif %}
-    {% if customer.notes %}<p><strong>Notas:</strong><br>{{ customer.notes|linebreaksbr }}</p>{% endif %}
+    <p><strong>{% trans "Documento" %}:</strong> {{ customer.tax_id|default:"-" }}</p>
+    {% if customer.address %}<p><strong>{% trans "Dirección" %}:</strong><br>{{ customer.address|linebreaksbr }}</p>{% endif %}
+    {% if customer.notes %}<p><strong>{% trans "Notas" %}:</strong><br>{{ customer.notes|linebreaksbr }}</p>{% endif %}
     <form method="post" action="{% url 'customer-archive' customer.pk %}">
       {% csrf_token %}
-      <button class="secondary" type="submit">{% if customer.is_active %}Archivar cliente{% else %}Reactivar cliente{% endif %}</button>
+      <button class="secondary" type="submit">{% if customer.is_active %}{% trans "Archivar cliente" %}{% else %}{% trans "Reactivar cliente" %}{% endif %}</button>
     </form>
   </article>
   <article class="panel">
-    <div class="panel-heading"><h2>Vehículos</h2></div>
+    <div class="panel-heading"><h2>{% trans "Vehículos" %}</h2></div>
     {% if customer.vehicles.all %}
       <div class="entity-list">{% for vehicle in customer.vehicles.all %}
         <div class="entity-row {% if not vehicle.is_active %}archived{% endif %}">
-          <div><strong>{{ vehicle }}</strong><small>{{ vehicle.year|default:"" }}{% if not vehicle.is_active %} · Archivado{% endif %}</small></div>
+          <div><strong>{{ vehicle }}</strong><small>{{ vehicle.year|default:"" }}{% if not vehicle.is_active %} · {% trans "Archivado" %}{% endif %}</small></div>
           <div class="row-actions">
-            <a href="{% url 'vehicle-update' vehicle.pk %}">Editar</a>
-            <form method="post" action="{% url 'vehicle-archive' vehicle.pk %}">{% csrf_token %}<button class="link-button inline-action" type="submit">{% if vehicle.is_active %}Archivar{% else %}Reactivar{% endif %}</button></form>
+            <a href="{% url 'vehicle-update' vehicle.pk %}">{% trans "Editar" %}</a>
+            <form method="post" action="{% url 'vehicle-archive' vehicle.pk %}">{% csrf_token %}<button class="link-button inline-action" type="submit">{% if vehicle.is_active %}{% trans "Archivar" %}{% else %}{% trans "Reactivar" %}{% endif %}</button></form>
           </div>
         </div>
       {% endfor %}</div>
-    {% else %}<p class="empty">Este cliente todavía no tiene vehículos.</p>{% endif %}
+    {% else %}<p class="empty">{% trans "Este cliente todavía no tiene vehículos." %}</p>{% endif %}
   </article>
 </section>
 <section class="panel">
-  <h2>Últimos presupuestos</h2>
+  <h2>{% trans "Últimos presupuestos" %}</h2>
   {% if quotes %}<div class="table-wrap"><table>
-    <thead><tr><th>Número</th><th>Vehículo</th><th>Estado</th><th>Total</th></tr></thead>
+    <thead><tr><th>{% trans "Número" %}</th><th>{% trans "Vehículo" %}</th><th>{% trans "Estado" %}</th><th>{% trans "Total" %}</th></tr></thead>
     <tbody>{% for quote in quotes %}<tr><td><a href="{% url 'quote-detail' quote.pk %}">{{ quote.display_number }}</a></td><td>{{ quote.vehicle|default:"-" }}</td><td>{{ quote.get_status_display }}</td><td>R$ {{ quote.total_amount|floatformat:2 }}</td></tr>{% endfor %}</tbody>
-  </table></div>{% else %}<p class="empty">No hay presupuestos para este cliente.</p>{% endif %}
+  </table></div>{% else %}<p class="empty">{% trans "No hay presupuestos para este cliente." %}</p>{% endif %}
 </section>
 {% endblock %}

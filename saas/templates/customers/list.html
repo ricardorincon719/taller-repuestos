@@ -1,22 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Clientes | Taller Pro{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Clientes" %} | Taller Pro{% endblock %}
 {% block content %}
 <div class="page-heading">
-  <div><p class="eyebrow">{{ organization.name }}</p><h1>{% if show_archived %}Clientes archivados{% else %}Clientes{% endif %}</h1></div>
-  <a class="primary button-link" href="{% url 'customer-create' %}">Nuevo cliente</a>
+  <div><p class="eyebrow">{{ organization.name }}</p><h1>{% if show_archived %}{% trans "Clientes archivados" %}{% else %}{% trans "Clientes" %}{% endif %}</h1></div>
+  <a class="primary button-link" href="{% url 'customer-create' %}">{% trans "Nuevo cliente" %}</a>
 </div>
 <section class="panel">
   <form method="get" class="search-bar">
-    <input type="search" name="q" value="{{ query }}" placeholder="Buscar por nombre, teléfono, email o documento">
+    <input type="search" name="q" value="{{ query }}" placeholder="{% trans 'Buscar por nombre, teléfono, email o documento' %}">
     {% if show_archived %}<input type="hidden" name="archivados" value="1">{% endif %}
-    <button class="secondary" type="submit">Buscar</button>
+    <button class="secondary" type="submit">{% trans "Buscar" %}</button>
   </form>
   <div class="subnav">
-    {% if show_archived %}<a href="{% url 'customer-list' %}">Ver activos</a>{% else %}<a href="?archivados=1">Ver archivados</a>{% endif %}
+    {% if show_archived %}<a href="{% url 'customer-list' %}">{% trans "Ver activos" %}</a>{% else %}<a href="?archivados=1">{% trans "Ver archivados" %}</a>{% endif %}
   </div>
   {% if customers %}
     <div class="table-wrap"><table>
-      <thead><tr><th>Cliente</th><th>Teléfono</th><th>Email</th><th>Vehículos</th></tr></thead>
+      <thead><tr><th>{% trans "Cliente" %}</th><th>{% trans "Teléfono" %}</th><th>Email</th><th>{% trans "Vehículos" %}</th></tr></thead>
       <tbody>{% for customer in customers %}
         <tr>
           <td><a href="{% url 'customer-detail' customer.pk %}">{{ customer.name }}</a></td>
@@ -26,6 +27,6 @@
         </tr>
       {% endfor %}</tbody>
     </table></div>
-  {% else %}<p class="empty">No encontramos clientes con esos criterios.</p>{% endif %}
+  {% else %}<p class="empty">{% trans "No encontramos clientes con esos criterios." %}</p>{% endif %}
 </section>
 {% endblock %}

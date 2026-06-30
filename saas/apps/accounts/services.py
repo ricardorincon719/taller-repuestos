@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.text import slugify
+from django.utils.translation import gettext as _
 
 from apps.billing.models import Subscription
 from apps.organizations.models import Membership, Organization
@@ -57,7 +58,7 @@ def send_activation_email(user):
     activation_url = f"{settings.SITE_URL}{activation_path}"
     context = {"user": user, "activation_url": activation_url}
     send_mail(
-        subject="Activa tu cuenta de Taller Pro",
+        subject=_("Activa tu cuenta de Taller Pro"),
         message=render_to_string("registration/activation_email.txt", context),
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email],

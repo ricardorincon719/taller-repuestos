@@ -1,24 +1,25 @@
 {% extends "base.html" %}
-{% block title %}Suscripción | Taller Pro{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Suscripción" %} | Taller Pro{% endblock %}
 {% block content %}
 <div class="page-heading">
-  <div><p class="eyebrow">{{ organization.name }}</p><h1>Suscripción</h1></div>
+  <div><p class="eyebrow">{{ organization.name }}</p><h1>{% trans "Suscripción" %}</h1></div>
 </div>
 <section class="panel center-card subscription-card">
   {% if subscription %}
     <p class="eyebrow">{{ subscription.get_plan_display }}</p>
     <h2>{{ subscription.get_status_display }}</h2>
     {% if subscription.allows_access %}
-      <p>Tu taller tiene acceso a todas las funciones.</p>
-      {% if subscription.trial_ends_at %}<p class="muted">La prueba termina el {{ subscription.trial_ends_at|date:"d/m/Y H:i" }}.</p>{% endif %}
-      <a class="primary button-link" href="{% url 'dashboard' %}">Volver al panel</a>
+      <p>{% trans "Tu negocio tiene acceso a todas las funciones." %}</p>
+      {% if subscription.trial_ends_at %}<p class="muted">{% blocktrans with trial_date=subscription.trial_ends_at|date:"d/m/Y H:i" %}La prueba termina el {{ trial_date }}.{% endblocktrans %}</p>{% endif %}
+      <a class="primary button-link" href="{% url 'dashboard' %}">{% trans "Volver al panel" %}</a>
     {% else %}
-      <p>El acceso está pausado porque la prueba venció o la suscripción requiere atención.</p>
-      <p class="muted">Contacta al soporte para activar o regularizar el plan.</p>
+      <p>{% trans "El acceso está pausado porque la prueba venció o la suscripción requiere atención." %}</p>
+      <p class="muted">{% trans "Contacta al soporte para activar o regularizar el plan." %}</p>
     {% endif %}
   {% else %}
-    <h2>Suscripción no configurada</h2>
-    <p>Contacta al soporte para asociar un plan a este taller.</p>
+    <h2>{% trans "Suscripción no configurada" %}</h2>
+    <p>{% trans "Contacta al soporte para asociar un plan a este negocio." %}</p>
   {% endif %}
 </section>
 {% endblock %}

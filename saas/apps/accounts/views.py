@@ -7,6 +7,7 @@ from django.db import IntegrityError
 from django.shortcuts import redirect, render
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
+from django.utils.translation import gettext as _
 
 from .forms import RegistrationForm, ResendActivationForm
 from .models import User
@@ -27,7 +28,7 @@ def register(request):
         ip_address = request.META.get("REMOTE_ADDR", "unknown")
         email = form.cleaned_data["email"]
         if registration_is_limited(f"ip:{ip_address}", f"email:{email}"):
-            form.add_error(None, "Demasiados intentos de registro. Inténtalo más tarde.")
+            form.add_error(None, _("Demasiados intentos de registro. Inténtalo más tarde."))
             return render(
                 request,
                 "registration/register.html",
@@ -44,7 +45,7 @@ def register(request):
                 phone=form.cleaned_data["phone"],
             )
         except IntegrityError:
-            form.add_error("email", "Ya existe una cuenta con este email.")
+            form.add_error("email", _("Ya existe una cuenta con este email."))
         else:
             delivery_failed = False
             try:
@@ -74,7 +75,7 @@ def activate_account(request, uidb64, token):
         user.is_active = True
         user.save(update_fields=("is_active",))
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-    messages.success(request, "Tu cuenta fue activada correctamente.")
+    messages.success(request, _("Tu cuenta fue activada correctamente."))
     return redirect("dashboard")
 
 

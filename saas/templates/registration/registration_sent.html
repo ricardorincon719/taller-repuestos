@@ -1,16 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Revisa tu email | Taller Pro{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Revisa tu email" %} | Taller Pro{% endblock %}
 {% block content %}
 <section class="auth-card center-card">
-  <p class="eyebrow">Cuenta creada</p>
-  <h1>Revisa tu email</h1>
+  <p class="eyebrow">{% trans "Cuenta creada" %}</p>
+  <h1>{% trans "Revisa tu email" %}</h1>
   {% if delivery_failed %}
-    <p>No pudimos enviar el correo en este momento.</p>
-    <p><a href="{% url 'resend-activation' %}">Solicita un nuevo enlace de activación</a>.</p>
+    <p>{% trans "No pudimos enviar el correo en este momento." %}</p>
+    <p><a href="{% url 'resend-activation' %}">{% trans "Solicita un nuevo enlace de activación" %}</a>.</p>
   {% else %}
-    <p>Enviamos un enlace de activación a <strong>{{ email }}</strong>.</p>
-    <p class="muted">Debes activar la cuenta antes de ingresar.</p>
+    <p>{% blocktrans %}Enviamos un enlace de activación a <strong>{{ email }}</strong>.{% endblocktrans %}</p>
+    <p class="muted">{% trans "Debes activar la cuenta antes de ingresar." %}</p>
   {% endif %}
-  <a href="{% url 'login' %}">Volver al acceso</a>
+  <a href="{% url 'login' %}">{% trans "Volver al acceso" %}</a>
 </section>
 {% endblock %}

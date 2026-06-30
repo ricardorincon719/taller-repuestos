@@ -1,4 +1,5 @@
 from django.core.exceptions import PermissionDenied
+from django.utils.translation import gettext as _
 
 from .models import Membership
 
@@ -10,5 +11,5 @@ def get_current_membership(user):
         .first()
     )
     if membership is None:
-        raise PermissionDenied("Tu usuario no pertenece a un taller activo.")
+        raise PermissionDenied(_("Tu usuario no pertenece a un negocio activo."))
     return membership
