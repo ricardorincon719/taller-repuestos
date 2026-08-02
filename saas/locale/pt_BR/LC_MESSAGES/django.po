@@ -752,3 +752,621 @@ msgstr "Se você criar uma conta e precisar de ajuda para ativá-la, envie uma m
 
 msgid "WhatsApp +55 12 98112-3332"
 msgstr "WhatsApp +55 12 98112-3332"
+
+msgid "%(entity)s trata los datos necesarios para prestar, proteger y mejorar Taller Pro. El negocio usuario controla los datos de sus propios clientes y debe contar con una base legítima para registrarlos."
+msgstr "%(entity)s trata os dados necessários para prestar, proteger e melhorar o Taller Pro. A empresa usuária controla os dados de seus próprios clientes e deve ter uma base legal para registrá-los."
+
+msgid "Acceso"
+msgstr "Acesso"
+
+msgid "Acceso activo"
+msgstr "Acesso ativo"
+
+msgid "Acción inválida."
+msgstr "Ação inválida."
+
+msgid "Aceptar invitación"
+msgstr "Aceitar convite"
+
+msgid "Acepto los Términos del servicio y la Política de privacidad"
+msgstr "Aceito os Termos de serviço e a Política de privacidade"
+
+msgid "Activo"
+msgstr "Ativo"
+
+msgid "Administrar pago, facturas o cancelación"
+msgstr "Gerenciar pagamento, faturas ou cancelamento"
+
+msgid "Algunos proveedores pueden operar en otros países con salvaguardas contractuales. Los cambios materiales de esta política se comunicarán dentro del servicio o por email."
+msgstr "Alguns fornecedores podem operar em outros países com salvaguardas contratuais. Alterações relevantes desta política serão comunicadas no serviço ou por email."
+
+msgid "Anterior"
+msgstr "Anterior"
+
+msgid "Aplicamos medidas razonables de seguridad, respaldo y continuidad. Ningún servicio en línea es absolutamente ininterrumpido; ante una incidencia trabajaremos para restaurarlo y comunicar su impacto."
+msgstr "Aplicamos medidas razoáveis de segurança, backup e continuidade. Nenhum serviço online é absolutamente ininterrupto; diante de um incidente, trabalharemos para restaurá-lo e comunicar seu impacto."
+
+msgid "Aprobar"
+msgstr "Aprovar"
+
+msgid "Archivo de presupuesto actualizado."
+msgstr "Arquivo do orçamento atualizado."
+
+msgid "Argentina"
+msgstr "Argentina"
+
+msgid "Autenticación, prestación del servicio, generación de documentos, soporte, prevención de abuso, facturación, comunicaciones operativas, cumplimiento legal y recuperación ante incidentes."
+msgstr "Autenticação, prestação do serviço, geração de documentos, suporte, prevenção de abuso, faturamento, comunicações operacionais, conformidade legal e recuperação de incidentes."
+
+msgid "Bloquear las cookies esenciales impedirá iniciar sesión o guardar formularios. Si en el futuro incorporamos analítica no esencial, solicitaremos la elección correspondiente antes de activarla."
+msgstr "Bloquear os cookies essenciais impedirá o login ou o salvamento de formulários. Se no futuro incorporarmos análises não essenciais, solicitaremos sua escolha antes de ativá-las."
+
+msgid "Bolivia"
+msgstr "Bolívia"
+
+msgid "Borrador actualizado"
+msgstr "Rascunho atualizado"
+
+msgid "Brasil"
+msgstr "Brasil"
+
+msgid "Buscar cliente o número"
+msgstr "Buscar cliente ou número"
+
+msgid "Cambiar"
+msgstr "Alterar"
+
+msgid "Cancelar eliminación"
+msgstr "Cancelar exclusão"
+
+msgid "Chile"
+msgstr "Chile"
+
+msgid "Ciudad"
+msgstr "Cidade"
+
+msgid "Colombia"
+msgstr "Colômbia"
+
+msgid "Comenzar prueba"
+msgstr "Começar teste"
+
+msgid "Condiciones"
+msgstr "Condições"
+
+msgid "Condiciones de pago"
+msgstr "Condições de pagamento"
+
+msgid "Condiciones predeterminadas"
+msgstr "Condições padrão"
+
+msgid "Confirmar contraseña"
+msgstr "Confirmar senha"
+
+msgid "Conservación y seguridad"
+msgstr "Retenção e segurança"
+
+msgid "Conservamos los datos mientras la cuenta esté activa y durante los plazos operativos o legales aplicables. Empleamos HTTPS, controles de acceso por organización, registros de auditoría, copias de recuperación y revisión de dependencias."
+msgstr "Conservamos os dados enquanto a conta estiver ativa e durante os prazos operacionais ou legais aplicáveis. Usamos HTTPS, controles de acesso por organização, registros de auditoria, cópias de recuperação e revisão de dependências."
+
+msgid "Consultas contractuales"
+msgstr "Dúvidas contratuais"
+
+msgid "Contraseña incorrecta."
+msgstr "Senha incorreta."
+
+msgid "Contratar Taller Pro"
+msgstr "Assinar o Taller Pro"
+
+msgid "Costa Rica"
+msgstr "Costa Rica"
+
+msgid "Datos de cuenta, negocio, miembros, clientes, vehículos, presupuestos, suscripción, eventos de seguridad y registros técnicos. No almacenamos números completos de tarjetas; Paddle procesa la información de pago."
+msgstr "Dados da conta, empresa, membros, clientes, veículos, orçamentos, assinatura, eventos de segurança e registros técnicos. Não armazenamos números completos de cartões; a Paddle processa as informações de pagamento."
+
+msgid "Datos tratados"
+msgstr "Dados tratados"
+
+msgid "Demasiadas solicitudes. Inténtalo más tarde."
+msgstr "Muitas solicitações. Tente novamente mais tarde."
+
+msgid "Demasiados intentos. Inténtalo más tarde."
+msgstr "Muitas tentativas. Tente novamente mais tarde."
+
+msgid "Derechos"
+msgstr "Direitos"
+
+msgid "Desactivado"
+msgstr "Desativado"
+
+msgid "Descargar una copia de los datos"
+msgstr "Baixar uma cópia dos dados"
+
+msgid "Después de este plazo el enlace deja de abrir."
+msgstr "Depois desse prazo, o link deixa de abrir."
+
+msgid "Disponibilidad y responsabilidad"
+msgstr "Disponibilidade e responsabilidade"
+
+msgid "Disponible hasta %(date)s."
+msgstr "Disponível até %(date)s."
+
+msgid "Duplicar"
+msgstr "Duplicar"
+
+msgid "Ecuador"
+msgstr "Equador"
+
+msgid "Editar presupuesto"
+msgstr "Editar orçamento"
+
+msgid "El Salvador"
+msgstr "El Salvador"
+
+msgid "El acceso está pausado hasta regularizar la suscripción."
+msgstr "O acesso está pausado até a regularização da assinatura."
+
+msgid "El archivo debe ser una imagen PNG válida."
+msgstr "O arquivo deve ser uma imagem PNG válida."
+
+msgid "El enlace está revocado, vencido, cancelado o archivado."
+msgstr "O link foi revogado, expirou, foi cancelado ou arquivado."
+
+msgid "El enlace se habilita al marcar el presupuesto como enviado."
+msgstr "O link é habilitado quando o orçamento é marcado como enviado."
+
+msgid "El logo debe medir como máximo 1200×600 píxeles."
+msgstr "O logotipo deve ter no máximo 1200×600 pixels."
+
+msgid "El logo no puede superar 1 MB."
+msgstr "O logotipo não pode ultrapassar 1 MB."
+
+msgid "El negocio debe conservar al menos un propietario."
+msgstr "A empresa deve manter pelo menos um proprietário."
+
+msgid "El nombre no coincide."
+msgstr "O nome não corresponde."
+
+msgid "El proveedor de pagos todavía no está activado en este entorno."
+msgstr "O provedor de pagamentos ainda não está ativado neste ambiente."
+
+msgid "Elige un plan para continuar después de la prueba."
+msgstr "Escolha um plano para continuar após o período de teste."
+
+msgid "Eliminar logo actual"
+msgstr "Remover logotipo atual"
+
+msgid "Eliminar negocio"
+msgstr "Excluir empresa"
+
+msgid "Enlace público revocado."
+msgstr "Link público revogado."
+
+msgid "Enlace renovado"
+msgstr "Link renovado"
+
+msgid "Enlace revocado"
+msgstr "Link revogado"
+
+msgid "Enviar invitación"
+msgstr "Enviar convite"
+
+msgid "Equipo"
+msgstr "Equipe"
+
+msgid "Escribe el nombre del negocio"
+msgstr "Digite o nome da empresa"
+
+msgid "Esta acción programará la eliminación definitiva de clientes, vehículos, presupuestos y miembros después del período de gracia."
+msgstr "Esta ação programará a exclusão definitiva de clientes, veículos, orçamentos e membros após o período de carência."
+
+msgid "Esta decisión ya no está disponible."
+msgstr "Esta decisão não está mais disponível."
+
+msgid "Esta invitación venció, fue usada o fue revocada."
+msgstr "Este convite expirou, já foi usado ou foi revogado."
+
+msgid "Esta persona ya pertenece al negocio."
+msgstr "Esta pessoa já faz parte da empresa."
+
+msgid "Estado actualizado"
+msgstr "Status atualizado"
+
+msgid "Estado de tu suscripción de Taller Pro"
+msgstr "Status da sua assinatura do Taller Pro"
+
+msgid "Estos términos regulan el uso de Taller Pro, operado por %(entity)s. Al crear una cuenta confirmas que tienes capacidad para contratar y administrar los datos del negocio registrado."
+msgstr "Estes termos regulam o uso do Taller Pro, operado por %(entity)s. Ao criar uma conta, você confirma que tem capacidade para contratar e administrar os dados da empresa cadastrada."
+
+msgid "Exportar datos"
+msgstr "Exportar dados"
+
+msgid "Filtrar"
+msgstr "Filtrar"
+
+msgid "Finalidades"
+msgstr "Finalidades"
+
+msgid "Garantía"
+msgstr "Garantia"
+
+msgid "Garantía predeterminada"
+msgstr "Garantia padrão"
+
+msgid "Generar enlace nuevo"
+msgstr "Gerar novo link"
+
+msgid "Guardar"
+msgstr "Salvar"
+
+msgid "Guardar cambios"
+msgstr "Salvar alterações"
+
+msgid "Guatemala"
+msgstr "Guatemala"
+
+msgid "Historial"
+msgstr "Histórico"
+
+msgid "Honduras"
+msgstr "Honduras"
+
+msgid "Incluye %(trial_days)s días de prueba, todos los presupuestos, clientes, vehículos, PDF, aprobación pública, equipo y soporte operativo. Paddle muestra moneda, impuestos, renovación y total antes de confirmar."
+msgstr "Inclui %(trial_days)s dias de teste, todos os orçamentos, clientes, veículos, PDF, aprovação pública, equipe e suporte operacional. A Paddle mostra moeda, impostos, renovação e total antes da confirmação."
+
+msgid "Invitaciones pendientes"
+msgstr "Convites pendentes"
+
+msgid "Invitación"
+msgstr "Convite"
+
+msgid "Invitación a %(business)s"
+msgstr "Convite para %(business)s"
+
+msgid "Invitación al equipo"
+msgstr "Convite para a equipe"
+
+msgid "Invitación enviada."
+msgstr "Convite enviado."
+
+msgid "Invitar colaborador"
+msgstr "Convidar colaborador"
+
+msgid "La cancelación está programada para el final del período."
+msgstr "O cancelamento está programado para o fim do período."
+
+msgid "La duración de la prueba y el precio aplicable se muestran antes del checkout. Los pagos, impuestos, comprobantes, métodos de pago y reembolsos son gestionados por Paddle como Merchant of Record. El propietario puede cancelar o actualizar el pago desde el portal de suscripción; la cancelación programada conserva acceso hasta terminar el período pagado."
+msgstr "A duração do teste e o preço aplicável são mostrados antes do checkout. Pagamentos, impostos, comprovantes, formas de pagamento e reembolsos são gerenciados pela Paddle como Merchant of Record. O proprietário pode cancelar ou atualizar o pagamento no portal da assinatura; o cancelamento programado mantém o acesso até o fim do período pago."
+
+msgid "La eliminación definitiva está programada para %(date)s. Exporta tus datos antes de esa fecha."
+msgstr "A exclusão definitiva está programada para %(date)s. Exporte seus dados antes dessa data."
+
+msgid "La eliminación fue cancelada."
+msgstr "A exclusão foi cancelada."
+
+msgid "La eliminación quedó programada."
+msgstr "A exclusão foi programada."
+
+msgid "La invitación está destinada a %(email)s."
+msgstr "O convite é destinado a %(email)s."
+
+msgid "La invitación pertenece a otro email."
+msgstr "O convite pertence a outro email."
+
+msgid "La invitación se creó, pero el correo no pudo enviarse."
+msgstr "O convite foi criado, mas não foi possível enviar o email."
+
+msgid "La suscripción de %(business)s cambió de %(old)s a %(new)s. Puedes revisar y administrar el plan en %(url)s."
+msgstr "A assinatura de %(business)s mudou de %(old)s para %(new)s. Você pode revisar e gerenciar o plano em %(url)s."
+
+msgid "Las contraseñas no coinciden."
+msgstr "As senhas não coincidem."
+
+msgid "Logo PNG"
+msgstr "Logotipo PNG"
+
+msgid "Miembro actualizado."
+msgstr "Membro atualizado."
+
+msgid "Miembros"
+msgstr "Membros"
+
+msgid "Moneda"
+msgstr "Moeda"
+
+msgid "México"
+msgstr "México"
+
+msgid "Negocio activo"
+msgstr "Empresa ativa"
+
+msgid "Nicaragua"
+msgstr "Nicarágua"
+
+msgid "No puedes desactivar tu propio acceso."
+msgstr "Você não pode desativar o próprio acesso."
+
+msgid "No se permite utilizar el servicio para fraude, contenido ilegal, acceso no autorizado, interferencia técnica o tratamiento de datos sin base legítima."
+msgstr "Não é permitido usar o serviço para fraude, conteúdo ilegal, acesso não autorizado, interferência técnica ou tratamento de dados sem base legal."
+
+msgid "No tienes permisos para archivar clientes."
+msgstr "Você não tem permissão para arquivar clientes."
+
+msgid "No tienes permisos para archivar vehículos."
+msgstr "Você não tem permissão para arquivar veículos."
+
+msgid "No tienes permisos para archivar."
+msgstr "Você não tem permissão para arquivar."
+
+msgid "No tienes permisos para ese cambio de estado."
+msgstr "Você não tem permissão para essa alteração de status."
+
+msgid "No tienes permisos para realizar esta acción."
+msgstr "Você não tem permissão para realizar esta ação."
+
+msgid "Otro"
+msgstr "Outro"
+
+msgid "PNG de hasta 1 MB y 1200×600 píxeles."
+msgstr "PNG de até 1 MB e 1200×600 pixels."
+
+msgid "Paddle procesa el pago, impuestos y comprobantes como Merchant of Record. Antes de confirmar verás el precio total, moneda y ciclo de cobro."
+msgstr "A Paddle processa o pagamento, impostos e comprovantes como Merchant of Record. Antes de confirmar, você verá o preço total, a moeda e o ciclo de cobrança."
+
+msgid "Paginación"
+msgstr "Paginação"
+
+msgid "Panamá"
+msgstr "Panamá"
+
+msgid "Para ejercer derechos escribe a"
+msgstr "Para exercer seus direitos, escreva para"
+
+msgid "Paraguay"
+msgstr "Paraguai"
+
+msgid "Pausada"
+msgstr "Pausada"
+
+msgid "País"
+msgstr "País"
+
+msgid "Período actual hasta %(period_date)s."
+msgstr "Período atual até %(period_date)s."
+
+msgid "Perú"
+msgstr "Peru"
+
+msgid "Pie del documento"
+msgstr "Rodapé do documento"
+
+msgid "Plan profesional"
+msgstr "Plano profissional"
+
+msgid "Podemos utilizar proveedores de alojamiento, PostgreSQL, correo transaccional, monitoreo y Paddle. Solo reciben los datos necesarios para su función y bajo sus obligaciones de seguridad."
+msgstr "Podemos utilizar fornecedores de hospedagem, PostgreSQL, email transacional, monitoramento e Paddle. Eles recebem apenas os dados necessários para sua função e conforme suas obrigações de segurança."
+
+msgid "Política de cookies"
+msgstr "Política de cookies"
+
+msgid "Política de privacidad"
+msgstr "Política de privacidade"
+
+msgid "Presupuesto actualizado."
+msgstr "Orçamento atualizado."
+
+msgid "Presupuesto archivado"
+msgstr "Orçamento arquivado"
+
+msgid "Presupuesto creado"
+msgstr "Orçamento criado"
+
+msgid "Presupuesto duplicado"
+msgstr "Orçamento duplicado"
+
+msgid "Presupuesto restaurado"
+msgstr "Orçamento restaurado"
+
+msgid "Presupuestos archivados"
+msgstr "Orçamentos arquivados"
+
+msgid "Privacidad"
+msgstr "Privacidade"
+
+msgid "Programar eliminación"
+msgstr "Programar exclusão"
+
+msgid "Proveedores"
+msgstr "Fornecedores"
+
+msgid "Prueba, pagos y cancelación"
+msgstr "Teste, pagamentos e cancelamento"
+
+msgid "Puedes exportar los datos del negocio y solicitar su eliminación desde el perfil. La solicitud dispone de un período de gracia antes de la eliminación definitiva, salvo obligaciones legales de conservación."
+msgstr "Você pode exportar os dados da empresa e solicitar a exclusão no perfil. A solicitação tem um período de carência antes da exclusão definitiva, salvo obrigações legais de retenção."
+
+msgid "Puedes solicitar acceso, corrección, portabilidad o eliminación. El propietario también puede exportar y programar la eliminación desde el producto."
+msgstr "Você pode solicitar acesso, correção, portabilidade ou exclusão. O proprietário também pode exportar e programar a exclusão dentro do produto."
+
+msgid "Página %(current)s de %(total)s"
+msgstr "Página %(current)s de %(total)s"
+
+msgid "Razón social"
+msgstr "Razão social"
+
+msgid "Rechazar"
+msgstr "Recusar"
+
+msgid "Registra tu decisión. El negocio verá la respuesta inmediatamente."
+msgstr "Registre sua decisão. A empresa verá a resposta imediatamente."
+
+msgid "República Dominicana"
+msgstr "República Dominicana"
+
+msgid "Responder presupuesto"
+msgstr "Responder orçamento"
+
+msgid "Restaurar"
+msgstr "Restaurar"
+
+msgid "Revocar"
+msgstr "Revogar"
+
+msgid "Rol"
+msgstr "Função"
+
+msgid "Se creó un nuevo borrador a partir del presupuesto."
+msgstr "Um novo rascunho foi criado a partir do orçamento."
+
+msgid "Se generó un enlace público nuevo."
+msgstr "Um novo link público foi gerado."
+
+msgid "Selecciona una zona horaria válida."
+msgstr "Selecione um fuso horário válido."
+
+msgid "Servicio"
+msgstr "Serviço"
+
+msgid "Siguiente"
+msgstr "Próxima"
+
+msgid "Sin eventos."
+msgstr "Sem eventos."
+
+msgid "Sin suscripción"
+msgstr "Sem assinatura"
+
+msgid "Solo se pueden compartir documentos emitidos."
+msgstr "Somente documentos emitidos podem ser compartilhados."
+
+msgid "Solo se pueden editar borradores. Duplica el documento para corregir uno emitido."
+msgstr "Somente rascunhos podem ser editados. Duplique o documento para corrigir um que já foi emitido."
+
+msgid "Solo un propietario puede invitar administradores."
+msgstr "Somente um proprietário pode convidar administradores."
+
+msgid "Taller Pro permite gestionar clientes, vehículos y presupuestos. El negocio usuario es responsable de la exactitud de sus documentos, precios, impuestos, garantías y comunicaciones con sus clientes."
+msgstr "O Taller Pro permite gerenciar clientes, veículos e orçamentos. A empresa usuária é responsável pela exatidão de seus documentos, preços, impostos, garantias e comunicações com seus clientes."
+
+msgid "Taller Pro utiliza cookies estrictamente necesarias para mantener la sesión, proteger formularios contra ataques CSRF y recordar el idioma. No se usan cookies publicitarias ni de seguimiento en la configuración actual."
+msgstr "O Taller Pro utiliza cookies estritamente necessários para manter a sessão, proteger formulários contra ataques CSRF e lembrar o idioma. A configuração atual não usa cookies de publicidade nem de rastreamento."
+
+msgid "Te invitaron a colaborar en %(business)s dentro de Taller Pro. Acepta la invitación aquí: %(url)s"
+msgstr "Você foi convidado para colaborar em %(business)s no Taller Pro. Aceite o convite aqui: %(url)s"
+
+msgid "Terminación y datos"
+msgstr "Encerramento e dados"
+
+msgid "Todos los estados"
+msgstr "Todos os status"
+
+msgid "Transferencias y cambios"
+msgstr "Transferências e alterações"
+
+msgid "Transición de estado inválida."
+msgstr "Transição de status inválida."
+
+msgid "Tu contraseña"
+msgstr "Sua senha"
+
+msgid "Tu negocio tiene acceso a las funciones contratadas."
+msgstr "Sua empresa tem acesso às funcionalidades contratadas."
+
+msgid "Tu respuesta quedó registrada."
+msgstr "Sua resposta foi registrada."
+
+msgid "Términos"
+msgstr "Termos"
+
+msgid "Términos del servicio"
+msgstr "Termos de serviço"
+
+msgid "Uruguay"
+msgstr "Uruguai"
+
+msgid "Usa únicamente letras, números y guiones."
+msgstr "Use apenas letras, números e hífens."
+
+msgid "Uso permitido"
+msgstr "Uso permitido"
+
+msgid "Venezuela"
+msgstr "Venezuela"
+
+msgid "Ver condiciones"
+msgstr "Ver condições"
+
+msgid "Versión"
+msgstr "Versão"
+
+msgid "Vigencia del enlace público (días)"
+msgstr "Validade do link público (dias)"
+
+msgid "Ya formas parte del negocio."
+msgstr "Agora você faz parte da empresa."
+
+msgid "Zona horaria"
+msgstr "Fuso horário"
+
+msgid "vence"
+msgstr "vence em"
+
+msgid "Invitación revocada."
+msgstr "Convite revogado."
+
+msgid "Revocar invitación"
+msgstr "Revogar convite"
+
+msgid "Solo un propietario puede revocar invitaciones de administrador."
+msgstr "Somente um proprietário pode revogar convites de administrador."
+
+msgid "La vigencia debe estar entre 1 y 365 días."
+msgstr "A validade deve estar entre 1 e 365 dias."
+
+msgid "Acceso no autorizado"
+msgstr "Acesso não autorizado"
+
+msgid "El incidente quedó registrado. Inténtalo nuevamente en unos minutos."
+msgstr "O incidente foi registrado. Tente novamente em alguns minutos."
+
+msgid "La sesión del formulario venció"
+msgstr "A sessão do formulário expirou"
+
+msgid "No encontramos la página solicitada."
+msgstr "Não encontramos a página solicitada."
+
+msgid "No pudimos completar la solicitud"
+msgstr "Não foi possível concluir a solicitação"
+
+msgid "No tienes permiso para abrir esta página."
+msgstr "Você não tem permissão para abrir esta página."
+
+msgid "Página no encontrada"
+msgstr "Página não encontrada"
+
+msgid "Recarga la página y vuelve a enviar el formulario."
+msgstr "Recarregue a página e envie o formulário novamente."
+
+msgid "Revisa los datos e inténtalo de nuevo."
+msgstr "Revise os dados e tente novamente."
+
+msgid "Solicitud inválida"
+msgstr "Solicitação inválida"
+
+msgid "Volver al inicio"
+msgstr "Voltar ao início"
+
+msgid "Este negocio está programado para eliminación el %(date)s."
+msgstr "Esta empresa está programada para exclusão em %(date)s."
+
+msgid "Revisar o cancelar"
+msgstr "Revisar ou cancelar"
+
+msgid "Cancela primero la renovación desde el portal de pagos para evitar cobros posteriores."
+msgstr "Primeiro cancele a renovação no portal de pagamentos para evitar cobranças posteriores."
+
+msgid "Entidad y jurisdicción"
+msgstr "Entidade e jurisdição"
+
+msgid "Estos términos se interpretan bajo la jurisdicción de %(jurisdiction)s, sin limitar los derechos obligatorios del consumidor que resulten aplicables."
+msgstr "Estes termos são interpretados sob a jurisdição de %(jurisdiction)s, sem limitar os direitos obrigatórios do consumidor que sejam aplicáveis."

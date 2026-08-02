@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Subscription, WebhookEvent
+from .models import BillingNotification, Subscription, WebhookEvent
 
 
 @admin.register(Subscription)
@@ -14,4 +14,11 @@ class SubscriptionAdmin(admin.ModelAdmin):
 class WebhookEventAdmin(admin.ModelAdmin):
     list_display = ("provider_event_id", "event_type", "processed_at", "created_at")
     search_fields = ("provider_event_id", "event_type")
-    readonly_fields = ("provider_event_id", "event_type", "payload", "created_at")
+    readonly_fields = (
+        "provider_event_id", "event_type", "payload", "occurred_at", "processing_error", "processed_at", "created_at"
+    )
+
+
+@admin.register(BillingNotification)
+class BillingNotificationAdmin(admin.ModelAdmin):
+    list_display = ("subscription", "notification_type", "reference_date", "sent_at")

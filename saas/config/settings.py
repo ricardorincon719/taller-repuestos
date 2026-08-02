@@ -1,12 +1,20 @@
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
+
+def env_bool(name, default=False):
+    return os.environ.get(name, "true" if default else "false").lower() == "true"
+
+DEBUG = env_bool("DJANGO_DEBUG", True)
+APP_ENVIRONMENT = os.environ.get(
+    "APP_ENVIRONMENT", "production" if not DEBUG else "development"
+).lower()
 DEVELOPMENT_SECRET_KEY = "development-only-change-me-before-production"
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", DEVELOPMENT_SECRET_KEY)
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
@@ -56,6 +64,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "config.middleware.RequestIdMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -66,9 +75,11 @@ MIDDLEWARE = [
     "apps.organizations.middleware.OrganizationLanguageMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "config.middleware.SecurityHeadersMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
+CSRF_FAILURE_VIEW = "config.views.csrf_failure"
 
 TEMPLATES = [
     {
@@ -80,6 +91,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "config.context_processors.app_context",
             ],
         },
     },
@@ -132,7 +144,7 @@ LANGUAGES = [
     ("pt-br", "Português do Brasil"),
 ]
 LOCALE_PATHS = [BASE_DIR / "locale"]
-TIME_ZONE = "America/Sao_Paulo"
+TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
@@ -161,6 +173,11 @@ LOGOUT_REDIRECT_URL = "login"
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_AGE = int(os.environ.get("SESSION_COOKIE_AGE", "43200"))
+SESSION_SAVE_EVERY_REQUEST = True
 SECURE_SSL_REDIRECT = (
     not DEBUG
     and os.environ.get("DJANGO_SECURE_SSL_REDIRECT", "true").lower() == "true"
@@ -174,6 +191,8 @@ SECURE_HSTS_PRELOAD = (
     and os.environ.get("DJANGO_SECURE_HSTS_PRELOAD", "false").lower() == "true"
 )
 SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+X_FRAME_OPTIONS = "DENY"
 
 default_site_url = (
     f"https://{RENDER_EXTERNAL_HOSTNAME}"
@@ -186,7 +205,14 @@ REGISTRATION_RATE_LIMIT = int(os.environ.get("REGISTRATION_RATE_LIMIT", "5"))
 REGISTRATION_RATE_LIMIT_WINDOW = int(
     os.environ.get("REGISTRATION_RATE_LIMIT_WINDOW", "3600")
 )
+AUTH_RATE_LIMIT_WINDOW = int(os.environ.get("AUTH_RATE_LIMIT_WINDOW", "3600"))
+LOGIN_RATE_LIMIT = int(os.environ.get("LOGIN_RATE_LIMIT", "10"))
+PASSWORD_RESET_RATE_LIMIT = int(os.environ.get("PASSWORD_RESET_RATE_LIMIT", "5"))
+ACTIVATION_RESEND_RATE_LIMIT = int(os.environ.get("ACTIVATION_RESEND_RATE_LIMIT", "5"))
+TRUST_X_FORWARDED_FOR = env_bool("TRUST_X_FORWARDED_FOR", bool(RENDER_EXTERNAL_HOSTNAME))
+PASSWORD_RESET_TIMEOUT = int(os.environ.get("PASSWORD_RESET_TIMEOUT", "3600"))
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "Taller Pro <no-reply@localhost>")
+SERVER_EMAIL = os.environ.get("SERVER_EMAIL", DEFAULT_FROM_EMAIL)
 EMAIL_BACKEND = os.environ.get(
     "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
 )
@@ -197,7 +223,97 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "true").lower() == "true"
 EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", "10"))
 
-if not DEBUG and SITE_URL.startswith("http://localhost"):
-    raise ImproperlyConfigured("SITE_URL must use the public production URL.")
+LEGAL_DOCUMENT_VERSION = os.environ.get("LEGAL_DOCUMENT_VERSION", "2026-08-02")
+LEGAL_ENTITY_NAME = os.environ.get("LEGAL_ENTITY_NAME", "Taller Pro")
+LEGAL_ENTITY_ADDRESS = os.environ.get("LEGAL_ENTITY_ADDRESS", "")
+LEGAL_CONTACT_EMAIL = os.environ.get(
+    "LEGAL_CONTACT_EMAIL", "contacto@pearlhome.com.br"
+)
+LEGAL_JURISDICTION = os.environ.get("LEGAL_JURISDICTION", "Brasil")
+PUBLIC_PLAN_PRICE_LABEL = os.environ.get(
+    "PUBLIC_PLAN_PRICE_LABEL", "Precio final visible antes de pagar"
+)
+ACCOUNT_DELETION_GRACE_DAYS = int(
+    os.environ.get("ACCOUNT_DELETION_GRACE_DAYS", "7")
+)
+
+PADDLE_ENABLED = env_bool("PADDLE_ENABLED", False)
+PADDLE_ENVIRONMENT = os.environ.get("PADDLE_ENVIRONMENT", "sandbox").lower()
+PADDLE_CLIENT_TOKEN = os.environ.get("PADDLE_CLIENT_TOKEN", "")
+PADDLE_API_KEY = os.environ.get("PADDLE_API_KEY", "")
+PADDLE_WEBHOOK_SECRET = os.environ.get("PADDLE_WEBHOOK_SECRET", "")
+PADDLE_STARTER_PRICE_ID = os.environ.get("PADDLE_STARTER_PRICE_ID", "")
+PADDLE_PROFESSIONAL_PRICE_ID = os.environ.get(
+    "PADDLE_PROFESSIONAL_PRICE_ID", ""
+)
+PADDLE_API_BASE_URL = (
+    "https://sandbox-api.paddle.com"
+    if PADDLE_ENVIRONMENT == "sandbox"
+    else "https://api.paddle.com"
+)
+PADDLE_API_TIMEOUT = int(os.environ.get("PADDLE_API_TIMEOUT", "10"))
+PADDLE_WEBHOOK_TOLERANCE = int(
+    os.environ.get("PADDLE_WEBHOOK_TOLERANCE", "300")
+)
+BILLING_PAST_DUE_GRACE_DAYS = int(
+    os.environ.get("BILLING_PAST_DUE_GRACE_DAYS", "3")
+)
+
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {"json": {"()": "config.logging.JsonFormatter"}},
+    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "json"}},
+    "root": {"handlers": ["console"], "level": LOG_LEVEL},
+    "loggers": {
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        }
+    },
+}
+
+SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
+if SENTRY_DSN:
+    import sentry_sdk
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        environment=APP_ENVIRONMENT,
+        release=os.environ.get("RENDER_GIT_COMMIT", ""),
+        send_default_pii=False,
+        traces_sample_rate=float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
+    )
+
+if not DEBUG and urlparse(SITE_URL).scheme != "https":
+    raise ImproperlyConfigured("SITE_URL must use HTTPS in production.")
 if not DEBUG and EMAIL_BACKEND == "django.core.mail.backends.console.EmailBackend":
     raise ImproperlyConfigured("A production email backend is required.")
+if APP_ENVIRONMENT == "production" and EMAIL_BACKEND != "django.core.mail.backends.smtp.EmailBackend":
+    raise ImproperlyConfigured("Production must use the SMTP email backend.")
+if not DEBUG and EMAIL_BACKEND == "django.core.mail.backends.smtp.EmailBackend":
+    if not all((EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)):
+        raise ImproperlyConfigured("Production SMTP host and credentials are required.")
+    if "@localhost" in DEFAULT_FROM_EMAIL:
+        raise ImproperlyConfigured("DEFAULT_FROM_EMAIL must use a verified domain.")
+if PADDLE_ENVIRONMENT not in {"sandbox", "production"}:
+    raise ImproperlyConfigured("PADDLE_ENVIRONMENT must be sandbox or production.")
+if PADDLE_ENABLED and not all(
+    (
+        PADDLE_CLIENT_TOKEN,
+        PADDLE_API_KEY,
+        PADDLE_WEBHOOK_SECRET,
+        PADDLE_STARTER_PRICE_ID or PADDLE_PROFESSIONAL_PRICE_ID,
+    )
+):
+    raise ImproperlyConfigured("Paddle credentials and at least one price are required.")
+if APP_ENVIRONMENT == "production" and PADDLE_ENABLED and PADDLE_ENVIRONMENT != "production":
+    raise ImproperlyConfigured("Production must use the Paddle production environment.")
+if APP_ENVIRONMENT == "production" and not all(
+    (LEGAL_ENTITY_NAME, LEGAL_ENTITY_ADDRESS, LEGAL_CONTACT_EMAIL, LEGAL_JURISDICTION)
+):
+    raise ImproperlyConfigured(
+        "Production legal entity, address, contact and jurisdiction are required."
+    )

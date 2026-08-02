@@ -1,6 +1,9 @@
-from django.utils import translation
+from zoneinfo import ZoneInfo
 
-from .models import Membership
+from django.core.exceptions import PermissionDenied
+from django.utils import timezone, translation
+
+from .services import get_request_membership
 
 
 class OrganizationLanguageMiddleware:
@@ -12,16 +15,23 @@ class OrganizationLanguageMiddleware:
     def __call__(self, request):
         language = self._get_organization_language(request)
         language_activated = False
+        timezone_activated = False
         if language:
             translation.activate(language)
             request.LANGUAGE_CODE = translation.get_language()
             language_activated = True
+        membership = getattr(request, "current_membership", None)
+        if membership is not None:
+            timezone.activate(ZoneInfo(membership.organization.timezone))
+            timezone_activated = True
 
         try:
             response = self.get_response(request)
         finally:
             if language_activated:
                 translation.deactivate()
+            if timezone_activated:
+                timezone.deactivate()
 
         if language:
             response.headers.setdefault("Content-Language", request.LANGUAGE_CODE)
@@ -32,17 +42,8 @@ class OrganizationLanguageMiddleware:
         if user is None or not user.is_authenticated:
             return None
 
-        membership = getattr(request, "current_membership", None)
-        if membership is None:
-            membership = (
-                Membership.objects.select_related("organization")
-                .filter(user=user, is_active=True, organization__is_active=True)
-                .order_by("created_at")
-                .first()
-            )
-            if membership is not None:
-                request.current_membership = membership
-
-        if membership is None:
+        try:
+            membership = get_request_membership(request)
+        except PermissionDenied:
             return None
         return membership.organization.language

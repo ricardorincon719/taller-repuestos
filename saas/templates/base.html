@@ -16,6 +16,7 @@
         <a href="{% url 'customer-list' %}">{% trans "Clientes" %}</a>
         <a href="{% url 'quote-list' %}">{% trans "Presupuestos" %}</a>
         <a href="{% url 'organization-profile' %}">{% trans "Perfil del negocio" %}</a>
+        {% if current_membership.can_manage_business %}<a href="{% url 'organization-team' %}">{% trans "Equipo" %}</a>{% endif %}
         <a href="{% url 'billing-status' %}">{% trans "Plan" %}</a>
         <a class="button-link" href="{% url 'quote-create' %}">{% trans "Nuevo" %}</a>
         <form method="post" action="{% url 'logout' %}">
@@ -23,13 +24,30 @@
           <button class="link-button" type="submit">{% trans "Salir" %}</button>
         </form>
       </nav>
+      {% if available_memberships|length > 1 %}
+        <form method="post" action="{% url 'organization-switch' %}" class="organization-switcher">
+          {% csrf_token %}
+          <select name="organization_id" aria-label="{% trans 'Negocio activo' %}">
+            {% for option in available_memberships %}<option value="{{ option.organization_id }}" {% if current_membership.organization_id == option.organization_id %}selected{% endif %}>{{ option.organization.name }}</option>{% endfor %}
+          </select>
+          <input type="hidden" name="next" value="{{ request.path }}">
+          <button class="link-button" type="submit">{% trans "Cambiar" %}</button>
+        </form>
+      {% endif %}
     {% endif %}
   </header>
   <main class="container">
+    {% if pending_organization_deletion %}<div class="message warning">{% blocktrans with date=pending_organization_deletion.execute_after|date:"d/m/Y H:i" %}Este negocio está programado para eliminación el {{ date }}.{% endblocktrans %} {% if current_membership.is_owner %}<a href="{% url 'organization-delete' %}">{% trans "Revisar o cancelar" %}</a>{% endif %}</div>{% endif %}
     {% for message in messages %}
       <div class="message">{{ message }}</div>
     {% endfor %}
     {% block content %}{% endblock %}
   </main>
+  <footer class="site-footer">
+    <a href="{% url 'legal-terms' %}">{% trans "Términos" %}</a>
+    <a href="{% url 'legal-privacy' %}">{% trans "Privacidad" %}</a>
+    <a href="{% url 'legal-cookies' %}">Cookies</a>
+    <a href="mailto:{{ legal_contact_email }}">{{ legal_contact_email }}</a>
+  </footer>
 </body>
 </html>

@@ -3,7 +3,7 @@
 {% block title %}{% trans "Crear cuenta" %} | Taller Pro{% endblock %}
 {% block content %}
 <section class="auth-card auth-card-wide">
-  <p class="eyebrow">{{ settings.TRIAL_DAYS|default:"14" }} {% trans "días de prueba" %}</p>
+  <p class="eyebrow">{{ trial_days }} {% trans "días de prueba" %}</p>
   <h1>{% trans "Crea la cuenta de tu negocio" %}</h1>
   <p class="muted">{% trans "No se requiere tarjeta. Verificaremos tu email antes del primer acceso." %}</p>
   <form method="post" class="stacked-form">
@@ -18,6 +18,7 @@
         </div>
       {% endfor %}
     </div>
+    <p class="muted legal-consent">Consulta los <a href="{% url 'legal-terms' %}" target="_blank" rel="noopener">Términos del servicio</a> y la <a href="{% url 'legal-privacy' %}" target="_blank" rel="noopener">Política de privacidad</a>.</p>
     <button class="primary" type="submit">{% trans "Crear cuenta" %}</button>
   </form>
   <p class="auth-footer">{% trans "¿Ya tienes cuenta?" %} <a href="{% url 'login' %}">{% trans "Ingresar" %}</a></p>

@@ -4,6 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
+RUN addgroup --system tallerpro && adduser --system --ingroup tallerpro tallerpro
 COPY requirements-saas.txt .
 RUN pip install --no-cache-dir -r requirements-saas.txt
 COPY saas/ .
@@ -12,9 +13,12 @@ RUN DJANGO_DEBUG=false \
     DJANGO_ALLOWED_HOSTS=example.invalid \
     DATABASE_URL=sqlite:////tmp/collectstatic.sqlite3 \
     SITE_URL=https://example.invalid \
-    EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend \
+    APP_ENVIRONMENT=build \
+    EMAIL_BACKEND=django.core.mail.backends.locmem.EmailBackend \
     python manage.py collectstatic --noinput
+RUN chown -R tallerpro:tallerpro /app
 
 EXPOSE 8000
+USER tallerpro
 
-CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers ${WEB_CONCURRENCY:-2} --timeout 60"]
+CMD ["sh", "-c", "gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers ${WEB_CONCURRENCY:-2} --timeout 60 --graceful-timeout 30 --access-logfile - --error-logfile - --capture-output"]

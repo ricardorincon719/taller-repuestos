@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n business %}
 {% block title %}{{ customer.name }} | Taller Pro{% endblock %}
 {% block content %}
 <div class="page-heading">
@@ -38,7 +38,7 @@
   <h2>{% trans "Últimos presupuestos" %}</h2>
   {% if quotes %}<div class="table-wrap"><table>
     <thead><tr><th>{% trans "Número" %}</th><th>{% trans "Vehículo" %}</th><th>{% trans "Estado" %}</th><th>{% trans "Total" %}</th></tr></thead>
-    <tbody>{% for quote in quotes %}<tr><td><a href="{% url 'quote-detail' quote.pk %}">{{ quote.display_number }}</a></td><td>{{ quote.vehicle|default:"-" }}</td><td>{{ quote.get_status_display }}</td><td>R$ {{ quote.total_amount|floatformat:2 }}</td></tr>{% endfor %}</tbody>
+    <tbody>{% for quote in quotes %}<tr><td><a href="{% url 'quote-detail' quote.pk %}">{{ quote.display_number }}</a></td><td>{{ quote.vehicle|default:"-" }}</td><td>{{ quote.get_status_display }}</td><td>{{ quote.total_amount|money:quote.currency }}</td></tr>{% endfor %}</tbody>
   </table></div>{% else %}<p class="empty">{% trans "No hay presupuestos para este cliente." %}</p>{% endif %}
 </section>
 {% endblock %}

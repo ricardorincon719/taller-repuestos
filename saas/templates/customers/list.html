@@ -27,6 +27,7 @@
         </tr>
       {% endfor %}</tbody>
     </table></div>
+    {% include "includes/pagination.html" %}
   {% else %}<p class="empty">{% trans "No encontramos clientes con esos criterios." %}</p>{% endif %}
 </section>
 {% endblock %}

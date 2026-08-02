@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Términos del servicio" %} | Taller Pro{% endblock %}
+{% block content %}
+<article class="panel legal-copy">
+  <p class="eyebrow">{% trans "Versión" %} {{ legal_document_version }}</p>
+  <h1>{% trans "Términos del servicio" %}</h1>
+  <p>{% blocktrans with entity=legal_entity_name %}Estos términos regulan el uso de Taller Pro, operado por {{ entity }}. Al crear una cuenta confirmas que tienes capacidad para contratar y administrar los datos del negocio registrado.{% endblocktrans %}</p>
+  <h2>{% trans "Servicio" %}</h2>
+  <p>{% trans "Taller Pro permite gestionar clientes, vehículos y presupuestos. El negocio usuario es responsable de la exactitud de sus documentos, precios, impuestos, garantías y comunicaciones con sus clientes." %}</p>
+  <h2>{% trans "Prueba, pagos y cancelación" %}</h2>
+  <p>{% trans "La duración de la prueba y el precio aplicable se muestran antes del checkout. Los pagos, impuestos, comprobantes, métodos de pago y reembolsos son gestionados por Paddle como Merchant of Record. El propietario puede cancelar o actualizar el pago desde el portal de suscripción; la cancelación programada conserva acceso hasta terminar el período pagado." %}</p>
+  <h2>{% trans "Uso permitido" %}</h2>
+  <p>{% trans "No se permite utilizar el servicio para fraude, contenido ilegal, acceso no autorizado, interferencia técnica o tratamiento de datos sin base legítima." %}</p>
+  <h2>{% trans "Disponibilidad y responsabilidad" %}</h2>
+  <p>{% trans "Aplicamos medidas razonables de seguridad, respaldo y continuidad. Ningún servicio en línea es absolutamente ininterrumpido; ante una incidencia trabajaremos para restaurarlo y comunicar su impacto." %}</p>
+  <h2>{% trans "Terminación y datos" %}</h2>
+  <p>{% trans "Puedes exportar los datos del negocio y solicitar su eliminación desde el perfil. La solicitud dispone de un período de gracia antes de la eliminación definitiva, salvo obligaciones legales de conservación." %}</p>
+  <h2>{% trans "Entidad y jurisdicción" %}</h2>
+  <p>{{ legal_entity_name }} — {{ legal_entity_address }}. {% blocktrans with jurisdiction=legal_jurisdiction %}Estos términos se interpretan bajo la jurisdicción de {{ jurisdiction }}, sin limitar los derechos obligatorios del consumidor que resulten aplicables.{% endblocktrans %}</p>
+  <h2>{% trans "Contacto" %}</h2>
+  <p>{% trans "Consultas contractuales" %}: <a href="mailto:{{ legal_contact_email }}">{{ legal_contact_email }}</a>.</p>
+</article>
+{% endblock %}

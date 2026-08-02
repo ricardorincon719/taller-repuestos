@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Eliminar negocio" %} | Taller Pro{% endblock %}
+{% block content %}<section class="panel danger-zone"><h1>{% trans "Eliminar negocio" %}</h1>
+{% if deletion_request %}<p>{% blocktrans with date=deletion_request.execute_after|date:"d/m/Y H:i" %}La eliminación definitiva está programada para {{ date }}. Exporta tus datos antes de esa fecha.{% endblocktrans %}</p><form method="post" action="{% url 'organization-delete-cancel' %}">{% csrf_token %}<button class="secondary" type="submit">{% trans "Cancelar eliminación" %}</button></form>
+{% else %}<p>{% trans "Esta acción programará la eliminación definitiva de clientes, vehículos, presupuestos y miembros después del período de gracia." %}</p><p><a href="{% url 'organization-export' %}">{% trans "Descargar una copia de los datos" %}</a></p><form method="post" class="stacked-form">{% csrf_token %}{{ form.as_div }}<button class="danger" type="submit">{% trans "Programar eliminación" %}</button></form>{% endif %}
+</section>{% endblock %}

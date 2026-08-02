@@ -10,6 +10,8 @@ from django.urls import reverse
 from apps.billing.models import Subscription
 from apps.organizations.models import Membership, Organization
 
+from .models import LegalAcceptance
+
 
 @override_settings(
     EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
@@ -28,6 +30,7 @@ class RegistrationTests(TestCase):
             "phone": "+55 12 99999-0000",
             "password1": "A-secure-password-2026",
             "password2": "A-secure-password-2026",
+            "accept_terms": "on",
             "website": "",
         }
         data.update(overrides)
@@ -45,6 +48,10 @@ class RegistrationTests(TestCase):
         self.assertEqual(subscription.status, Subscription.Status.TRIALING)
         self.assertIsNotNone(subscription.trial_ends_at)
         self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(
+            set(LegalAcceptance.objects.filter(user=user).values_list("document", flat=True)),
+            {LegalAcceptance.Document.TERMS, LegalAcceptance.Document.PRIVACY},
+        )
 
     def test_activation_enables_and_logs_in_user(self):
         self.client.post(reverse("register"), self.registration_data())

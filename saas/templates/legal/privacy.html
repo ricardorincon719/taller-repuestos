@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Política de privacidad" %} | Taller Pro{% endblock %}
+{% block content %}
+<article class="panel legal-copy">
+  <p class="eyebrow">{% trans "Versión" %} {{ legal_document_version }}</p>
+  <h1>{% trans "Política de privacidad" %}</h1>
+  <p>{% blocktrans with entity=legal_entity_name %}{{ entity }} trata los datos necesarios para prestar, proteger y mejorar Taller Pro. El negocio usuario controla los datos de sus propios clientes y debe contar con una base legítima para registrarlos.{% endblocktrans %}</p>
+  <h2>{% trans "Datos tratados" %}</h2>
+  <p>{% trans "Datos de cuenta, negocio, miembros, clientes, vehículos, presupuestos, suscripción, eventos de seguridad y registros técnicos. No almacenamos números completos de tarjetas; Paddle procesa la información de pago." %}</p>
+  <h2>{% trans "Finalidades" %}</h2>
+  <p>{% trans "Autenticación, prestación del servicio, generación de documentos, soporte, prevención de abuso, facturación, comunicaciones operativas, cumplimiento legal y recuperación ante incidentes." %}</p>
+  <h2>{% trans "Proveedores" %}</h2>
+  <p>{% trans "Podemos utilizar proveedores de alojamiento, PostgreSQL, correo transaccional, monitoreo y Paddle. Solo reciben los datos necesarios para su función y bajo sus obligaciones de seguridad." %}</p>
+  <h2>{% trans "Conservación y seguridad" %}</h2>
+  <p>{% trans "Conservamos los datos mientras la cuenta esté activa y durante los plazos operativos o legales aplicables. Empleamos HTTPS, controles de acceso por organización, registros de auditoría, copias de recuperación y revisión de dependencias." %}</p>
+  <h2>{% trans "Derechos" %}</h2>
+  <p>{% trans "Puedes solicitar acceso, corrección, portabilidad o eliminación. El propietario también puede exportar y programar la eliminación desde el producto." %} {% trans "Para ejercer derechos escribe a" %} <a href="mailto:{{ legal_contact_email }}">{{ legal_contact_email }}</a>.</p>
+  <h2>{% trans "Transferencias y cambios" %}</h2>
+  <p>{% trans "Algunos proveedores pueden operar en otros países con salvaguardas contractuales. Los cambios materiales de esta política se comunicarán dentro del servicio o por email." %}</p>
+</article>
+{% endblock %}

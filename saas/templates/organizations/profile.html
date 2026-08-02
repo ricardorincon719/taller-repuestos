@@ -18,7 +18,8 @@
       <p class="muted">{% trans "Esta información identifica tu negocio dentro del sistema y prepara los documentos que enviaremos a tus clientes." %}</p>
     </div>
   </div>
-  <form method="post" class="stacked-form">
+  {% if organization.has_logo %}<img class="business-logo-preview" src="{% url 'organization-logo' organization.pk %}" alt="Logo de {{ organization.name }}">{% endif %}
+  <form method="post" enctype="multipart/form-data" class="stacked-form">
     {% csrf_token %}
     {{ form.non_field_errors }}
     <div class="form-grid">
@@ -31,6 +32,7 @@
     </div>
     <div class="actions">
       <a class="secondary" href="{% url 'dashboard' %}">{% trans "Cancelar" %}</a>
+      {% if membership.is_owner %}<a href="{% url 'organization-export' %}">{% trans "Exportar datos" %}</a><a class="danger-link" href="{% url 'organization-delete' %}">{% trans "Eliminar negocio" %}</a>{% endif %}
       <button class="primary" type="submit">{% trans "Guardar perfil" %}</button>
     </div>
   </form>

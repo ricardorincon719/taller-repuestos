@@ -1,0 +1,21 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="{% get_current_language as LANGUAGE_CODE %}{{ LANGUAGE_CODE|default:'es' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ status_code }} | Taller Pro</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="{% url 'public-home' %}">Taller Pro</a></header>
+  <main class="container">
+    <section class="panel center-card">
+      <p class="eyebrow">Error {{ status_code }}</p>
+      <h1>{{ error_title }}</h1>
+      <p>{{ error_message }}</p>
+      <a class="primary button-link" href="{% url 'public-home' %}">{% trans "Volver al inicio" %}</a>
+    </section>
+  </main>
+</body>
+</html>

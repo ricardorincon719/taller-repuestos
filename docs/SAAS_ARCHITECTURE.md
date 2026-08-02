@@ -1,108 +1,81 @@
-# Arquitectura SaaS
+# Arquitectura SaaS de Taller Pro
 
-La nueva aplicación Django vive en `saas/` y se desarrolla en paralelo a la versión
-Streamlit. Durante la transición, `app.py` continúa siendo el punto de entrada del
-despliegue actual.
+## Alcance
 
-## Módulos
+`saas/` es la aplicación Django de producción. `app.py` y los JSON históricos solo
+participan en la migración desde Streamlit y no forman parte del runtime del SaaS.
 
-- `organizations`: talleres, miembros y roles.
-- `customers`: clientes y vehículos.
-- `quotes`: presupuestos, ítems, numeración y totales.
-- `billing`: estado de suscripción y registro idempotente de webhooks.
-- `dashboard`: panel autenticado del taller.
+## Componentes
 
-Toda entidad comercial contiene una relación con `Organization`. Las vistas obtienen
-el taller desde una membresía activa y filtran las consultas antes de acceder a los
-datos. La numeración de presupuestos usa una transacción y bloqueo de fila, diseñado
-para PostgreSQL.
+- `accounts`: usuario por email, activación, recuperación, aceptación legal y límites
+  persistentes de autenticación.
+- `organizations`: tenant, membresías y roles, invitaciones, configuración regional,
+  exportación, auditoría y eliminación programada.
+- `customers`: clientes y vehículos, siempre relacionados con una organización.
+- `quotes`: presupuestos, ítems, numeración transaccional, snapshot de emisión, estados,
+  PDF, enlaces públicos y eventos.
+- `billing`: prueba, suscripción, Paddle API, checkout, portal, webhooks y notificaciones.
+- `dashboard`: landing, métricas, páginas legales y comandos operativos.
+- `config`: seguridad HTTP, observabilidad, salud, correo, base y configuración externa.
 
-## Desarrollo local
+## Fronteras de seguridad
 
-```bash
-source venv/bin/activate
-pip install -r requirements-saas.txt
-cd saas
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
-```
+La organización activa se obtiene exclusivamente de una `Membership` activa del
+usuario. Las consultas comerciales filtran por esa organización antes de resolver un
+objeto; no se acepta un tenant enviado por el navegador como autoridad. Clientes,
+vehículos y presupuestos validan además que sus relaciones pertenezcan al mismo tenant.
 
-Abre `/cuenta/registro/` para crear un taller. El propietario recibirá un correo de
-activación y, después de verificarlo, podrá administrar clientes, vehículos y
-presupuestos sin pasar por `/admin/`.
+Los roles son:
 
-## Pruebas
+- Propietario: pagos, exportación, eliminación y control total del equipo.
+- Administrador: perfil, equipo operativo y archivo de registros; no controla pagos ni
+  propiedad.
+- Colaborador: trabajo diario con clientes y presupuestos, sin administración sensible.
 
-Ejecuta las pruebas desde la raíz Django para que el descubrimiento incluya todos los
-módulos:
+Los enlaces de presupuesto usan UUID no predecible, vencimiento, revocación y archivo.
+Al emitir un borrador se guarda un snapshot que evita que cambios posteriores del
+perfil o del cliente reescriban el documento comercial ya enviado.
 
-```bash
-cd saas
-../venv/bin/python manage.py test
-```
+## Consistencia y concurrencia
 
-## Producción
+- La numeración bloquea la fila de organización con `select_for_update`.
+- Los cambios de estado bloquean el presupuesto y aplican una máquina de transiciones.
+- Los webhooks tienen identificador único, bloqueo, firma sobre bytes crudos y control
+  de orden por fecha del proveedor.
+- La membresía impide eliminar o degradar al único propietario activo.
+- Los totales se calculan con `Decimal`; la vista previa JavaScript no es autoridad.
 
-La producción requiere PostgreSQL, una URL pública HTTPS y un backend de correo real
-con las variables descritas en `.env.saas.example`. El proceso se niega a arrancar si
-faltan la clave secreta, hosts, base de datos, URL pública o configuración de correo.
-También deben configurarse backups externos, monitoreo y el proveedor de pagos.
+PostgreSQL es obligatorio en producción. SQLite se admite únicamente para desarrollo
+rápido y pruebas locales.
 
-La guía operativa para crear PostgreSQL, SMTP y publicar la beta está en
-[`DEPLOY_RENDER.md`](DEPLOY_RENDER.md).
+## Datos y archivos
 
-El contenedor se construye con:
+El logo PNG se guarda en PostgreSQL con límite de 1 MB para no depender de un disco
+efímero. Los estáticos versionados se sirven con WhiteNoise. No se almacenan números de
+tarjeta: Paddle procesa los datos de pago. El exportador del propietario produce JSON
+con organización, miembros, clientes, vehículos, presupuestos, eventos y suscripción.
 
-```bash
-docker build -f Dockerfile.saas -t taller-pro-saas .
-```
+## Runtime
 
-## Estado de la transición
+El contenedor ejecuta Gunicorn como usuario sin privilegios. Render ejecuta las
+migraciones en `preDeployCommand` y solo despliega automáticamente después de checks
+verdes. `/health/live/` prueba el proceso y `/health/` prueba también la base.
 
-Completado en el MVP Django:
+Los logs son JSON e incluyen request ID, tiempo, ruta, estado, usuario y organización
+cuando están disponibles. Sentry es opcional y se configura sin envío de PII por
+defecto.
 
-- PDF descargable por presupuesto.
-- Enlace público no predecible para el cliente y envío mediante WhatsApp.
-- Cambio de estado del presupuesto desde la interfaz.
-- Control de acceso para pruebas vigentes y suscripciones activas.
-- Pantalla de suscripción para pruebas vencidas, pagos pendientes y cancelaciones.
-- Límite configurable de registros por IP y email, compartido entre workers del contenedor.
-- Migraciones automáticas antes de iniciar Gunicorn.
-
-Pendiente de servicios e infraestructura externos:
-
-1. Elegir el proveedor de pagos e integrar checkout y webhooks firmados reales.
-2. Configurar un servicio de entregabilidad de correo y protección antiabuso distribuida.
-3. Ejecutar las pruebas de aislamiento y concurrencia contra PostgreSQL administrado.
-4. Configurar backups, monitoreo, dominio HTTPS y desplegar la beta separada.
-5. Migrar talleres piloto después de validar la importación y los correos.
-
-## Importación desde Streamlit
-
-El comando valida ambos JSON y ejecuta toda la migración dentro de una sola
-transacción. Nunca copia los hashes bcrypt antiguos: los usuarios quedan con una
-contraseña inutilizable y deben definir una nueva mediante el flujo de recuperación.
-
-Primero ejecuta una simulación:
+## Validación
 
 ```bash
 cd saas
-../venv/bin/python manage.py import_streamlit_data --dry-run
+python manage.py check
+python manage.py makemigrations --check --dry-run
+python manage.py test
+python manage.py production_readiness
+python manage.py audit_restored_database
 ```
 
-Después importa los datos:
-
-```bash
-../venv/bin/python manage.py import_streamlit_data
-```
-
-Cuando el backend de correo de producción esté verificado, envía las invitaciones:
-
-```bash
-../venv/bin/python manage.py import_streamlit_data --send-invitations
-```
-
-El comando es idempotente: identifica cada presupuesto por su taller, origen e ID
-histórico. Puede repetirse sin duplicar usuarios, clientes o presupuestos. Los archivos
-originales deben conservarse como respaldo hasta validar los datos en PostgreSQL.
+En producción añade `--require-postgres --require-paddle --check-email` al comando de
+preparación. La CI repite las pruebas sobre PostgreSQL, audita dependencias y ejecuta un
+recorrido real con Chromium.

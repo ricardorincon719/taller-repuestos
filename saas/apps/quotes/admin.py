@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Quote, QuoteItem
+from .models import Quote, QuoteEvent, QuoteItem
 
 
 class QuoteItemInline(admin.TabularInline):
@@ -40,3 +40,12 @@ class QuoteAdmin(admin.ModelAdmin):
 class QuoteItemAdmin(admin.ModelAdmin):
     list_display = ("description", "quote", "quantity", "unit_price", "total_amount")
     search_fields = ("description", "quote__customer__name")
+
+
+@admin.register(QuoteEvent)
+class QuoteEventAdmin(admin.ModelAdmin):
+    list_display = ("quote", "event_type", "actor", "created_at")
+    list_filter = ("event_type",)
+    readonly_fields = (
+        "quote", "actor", "event_type", "from_status", "to_status", "metadata", "created_at"
+    )

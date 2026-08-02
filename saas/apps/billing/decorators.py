@@ -2,7 +2,7 @@ from functools import wraps
 
 from django.shortcuts import redirect
 
-from apps.organizations.services import get_current_membership
+from apps.organizations.services import get_request_membership
 
 from .models import Subscription
 
@@ -10,7 +10,7 @@ from .models import Subscription
 def subscription_required(view_func):
     @wraps(view_func)
     def wrapped(request, *args, **kwargs):
-        membership = get_current_membership(request.user)
+        membership = get_request_membership(request)
         try:
             subscription = membership.organization.subscription
         except Subscription.DoesNotExist:

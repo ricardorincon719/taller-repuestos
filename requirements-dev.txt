@@ -1,0 +1,5 @@
+-r requirements-saas.txt
+check-jsonschema==0.37.4
+pip-audit==2.10.0
+playwright==1.55.0
+polib==1.2.0

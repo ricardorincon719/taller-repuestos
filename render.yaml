@@ -7,6 +7,8 @@ services:
     dockerfilePath: ./Dockerfile.saas
     dockerContext: .
     healthCheckPath: /health/
+    preDeployCommand: python manage.py migrate --noinput
+    autoDeployTrigger: checksPass
     envVars:
       - key: DJANGO_SECRET_KEY
         generateValue: true
@@ -16,6 +18,12 @@ services:
         fromDatabase:
           name: taller-pro-db
           property: connectionString
+      - key: SITE_URL
+        value: https://taller-pro-saas-xqoq.onrender.com
+      - key: DJANGO_ALLOWED_HOSTS
+        value: taller-pro-saas-xqoq.onrender.com
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: https://taller-pro-saas-xqoq.onrender.com
       - key: DJANGO_SECURE_SSL_REDIRECT
         value: "true"
       - key: DJANGO_SECURE_HSTS_SECONDS
@@ -40,6 +48,81 @@ services:
         value: "10"
       - key: WEB_CONCURRENCY
         value: "2"
+      - key: TRUST_X_FORWARDED_FOR
+        value: "true"
+      - key: APP_ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: LEGAL_ENTITY_NAME
+        value: Ricardo Rincón
+      - key: LEGAL_ENTITY_ADDRESS
+        value: Rua Boaventura de Souza 50, sobrado, Caraguatatuba, SP, 11670-140, Brasil
+      - key: LEGAL_CONTACT_EMAIL
+        value: suporte.tallerpro@gmail.com
+      - key: LEGAL_JURISDICTION
+        value: Brasil, Estado de São Paulo
+      - key: PUBLIC_PLAN_PRICE_LABEL
+        value: US$ 19,99 por mes
+      - key: PADDLE_ENABLED
+        value: "true"
+      - key: PADDLE_ENVIRONMENT
+        value: production
+      - key: PADDLE_CLIENT_TOKEN
+        sync: false
+      - key: PADDLE_API_KEY
+        sync: false
+      - key: PADDLE_WEBHOOK_SECRET
+        sync: false
+      - key: PADDLE_PROFESSIONAL_PRICE_ID
+        value: pri_01kz1srt3bwj63crcbs85a1531
+      - key: SENTRY_DSN
+        sync: false
+
+  - type: cron
+    name: taller-pro-maintenance
+    runtime: docker
+    plan: starter
+    region: virginia
+    schedule: "15 3 * * *"
+    dockerfilePath: ./Dockerfile.saas
+    dockerContext: .
+    dockerCommand: sh -c "python manage.py send_billing_reminders && python manage.py cleanup_security_data && python manage.py purge_scheduled_organizations"
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taller-pro-db
+          property: connectionString
+      - key: SITE_URL
+        value: https://taller-pro-saas-xqoq.onrender.com
+      - key: DJANGO_ALLOWED_HOSTS
+        value: taller-pro-saas-xqoq.onrender.com
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.smtp.EmailBackend
+      - key: EMAIL_HOST
+        value: smtp-relay.brevo.com
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: LEGAL_ENTITY_NAME
+        value: Ricardo Rincón
+      - key: LEGAL_ENTITY_ADDRESS
+        value: Rua Boaventura de Souza 50, sobrado, Caraguatatuba, SP, 11670-140, Brasil
+      - key: LEGAL_CONTACT_EMAIL
+        value: suporte.tallerpro@gmail.com
+      - key: LEGAL_JURISDICTION
+        value: Brasil, Estado de São Paulo
+      - key: SENTRY_DSN
+        sync: false
 
 databases:
   - name: taller-pro-db

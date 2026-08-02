@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block title %}{% trans "Nuevo presupuesto" %} | Taller Pro{% endblock %}
+{% block title %}{% if editing %}{% trans "Editar presupuesto" %}{% else %}{% trans "Nuevo presupuesto" %}{% endif %} | Taller Pro{% endblock %}
 {% block content %}
-<div class="page-heading"><div><p class="eyebrow">{{ organization.name }}</p><h1>{% trans "Nuevo presupuesto" %}</h1></div></div>
+  <div class="page-heading"><div><p class="eyebrow">{{ organization.name }}</p><h1>{% if editing %}{% trans "Editar presupuesto" %}{% else %}{% trans "Nuevo presupuesto" %}{% endif %}</h1></div></div>
 <form method="post" class="panel stacked-form">
   {% csrf_token %}
   {{ form.non_field_errors }}
@@ -25,10 +25,11 @@
     {% for item_form in formset %}
     <div class="item-row" data-item-row>
       {% for hidden in item_form.hidden_fields %}{{ hidden }}{% endfor %}
+      {{ item_form.DELETE.as_hidden }}
       <div class="field">{{ item_form.description.label_tag }}{{ item_form.description }}{{ item_form.description.errors }}</div>
       <div class="field">{{ item_form.quantity.label_tag }}{{ item_form.quantity }}{{ item_form.quantity.errors }}</div>
       <div class="field">{{ item_form.unit_price.label_tag }}{{ item_form.unit_price }}{{ item_form.unit_price.errors }}</div>
-      <div class="item-subtotal"><span>{% trans "Subtotal" %}</span><strong data-item-subtotal>R$ 0.00</strong></div>
+      <div class="item-subtotal"><span>{% trans "Subtotal" %}</span><strong data-item-subtotal>{{ organization.currency }} 0.00</strong></div>
       <button class="link-button item-remove" type="button" data-remove-item>{% trans "Quitar" %}</button>
     </div>
     {% endfor %}
@@ -36,22 +37,23 @@
   <template id="quote-item-template">
     <div class="item-row" data-item-row>
       {% for hidden in formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+      {{ formset.empty_form.DELETE.as_hidden }}
       <div class="field">{{ formset.empty_form.description.label_tag }}{{ formset.empty_form.description }}</div>
       <div class="field">{{ formset.empty_form.quantity.label_tag }}{{ formset.empty_form.quantity }}</div>
       <div class="field">{{ formset.empty_form.unit_price.label_tag }}{{ formset.empty_form.unit_price }}</div>
-      <div class="item-subtotal"><span>{% trans "Subtotal" %}</span><strong data-item-subtotal>R$ 0.00</strong></div>
+      <div class="item-subtotal"><span>{% trans "Subtotal" %}</span><strong data-item-subtotal>{{ organization.currency }} 0.00</strong></div>
       <button class="link-button item-remove" type="button" data-remove-item>{% trans "Quitar" %}</button>
     </div>
   </template>
   <div class="quote-total-preview" aria-live="polite">
-    <p><span>{% trans "Ítems" %}</span><strong data-items-total>R$ 0.00</strong></p>
-    <p><span>{% trans "Mano de obra" %}</span><strong data-labor-total>R$ 0.00</strong></p>
-    <p><span>{% trans "Descuento" %}</span><strong data-discount-total>R$ 0.00</strong></p>
-    <p class="grand-total"><span>{% trans "Total estimado" %}</span><strong data-grand-total>R$ 0.00</strong></p>
+    <p><span>{% trans "Ítems" %}</span><strong data-items-total>{{ organization.currency }} 0.00</strong></p>
+    <p><span>{% trans "Mano de obra" %}</span><strong data-labor-total>{{ organization.currency }} 0.00</strong></p>
+    <p><span>{% trans "Descuento" %}</span><strong data-discount-total>{{ organization.currency }} 0.00</strong></p>
+    <p class="grand-total"><span>{% trans "Total estimado" %}</span><strong data-grand-total>{{ organization.currency }} 0.00</strong></p>
   </div>
   <div class="actions">
     <a href="{% url 'quote-list' %}">{% trans "Cancelar" %}</a>
-    <button class="primary" type="submit">{% trans "Guardar presupuesto" %}</button>
+    <button class="primary" type="submit">{% if editing %}{% trans "Guardar cambios" %}{% else %}{% trans "Guardar presupuesto" %}{% endif %}</button>
   </div>
 </form>
 <script>
@@ -72,7 +74,8 @@
     return Number.isFinite(number) ? number : 0;
   };
 
-  const formatMoney = (value) => `R$ ${Math.max(value, 0).toFixed(2)}`;
+  const currency = "{{ organization.currency|escapejs }}";
+  const formatMoney = (value) => `${currency} ${Math.max(value, 0).toFixed(2)}`;
 
   const renumberRows = () => {
     const rows = [...container.querySelectorAll("[data-item-row]")];
@@ -92,6 +95,7 @@
   const updateTotals = () => {
     let itemSum = 0;
     container.querySelectorAll("[data-item-row]").forEach((row) => {
+      if (row.hidden || row.querySelector('[name$="-DELETE"]')?.value === "on") return;
       const quantity = parseMoney(row.querySelector('[name$="-quantity"]')?.value);
       const price = parseMoney(row.querySelector('[name$="-unit_price"]')?.value);
       const subtotal = quantity * price;
@@ -118,6 +122,14 @@
     if (!event.target.matches("[data-remove-item]")) return;
     const rows = container.querySelectorAll("[data-item-row]");
     const row = event.target.closest("[data-item-row]");
+    const existingId = row.querySelector('[name$="-id"]')?.value;
+    const deleteInput = row.querySelector('[name$="-DELETE"]');
+    if (existingId && deleteInput) {
+      deleteInput.value = "on";
+      row.hidden = true;
+      updateTotals();
+      return;
+    }
     if (rows.length === 1) {
       row.querySelectorAll("input").forEach((input) => { input.value = ""; });
     } else {

@@ -1,0 +1,73 @@
+name: SaaS production checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  django:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: taller_pro_test
+          POSTGRES_USER: taller_pro
+          POSTGRES_PASSWORD: test-password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U taller_pro -d taller_pro_test"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      DJANGO_DEBUG: "false"
+      DJANGO_SECRET_KEY: ci-only-7vQ2mK9xR4pL8sN3dF6hJ1cW5zB0tY7uE2iO9aG4
+      DJANGO_ALLOWED_HOSTS: testserver,localhost
+      DJANGO_CSRF_TRUSTED_ORIGINS: https://testserver
+      DATABASE_URL: postgresql://taller_pro:test-password@127.0.0.1:5432/taller_pro_test
+      SITE_URL: https://testserver
+      APP_ENVIRONMENT: test
+      EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
+      DEFAULT_FROM_EMAIL: Taller Pro <test@example.com>
+      PADDLE_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: check-jsonschema --schemafile https://render.com/schema/render.yaml.json render.yaml
+      - run: python scripts/validate_localization.py --compile
+      - run: git diff --exit-code -- saas/locale/pt_BR/LC_MESSAGES/django.mo
+      - run: python manage.py makemigrations --check --dry-run
+        working-directory: saas
+      - run: python manage.py check --deploy --fail-level ERROR
+        working-directory: saas
+      - run: python manage.py migrate --noinput
+        working-directory: saas
+      - run: python manage.py production_readiness --require-postgres
+        working-directory: saas
+      - run: python manage.py collectstatic --noinput
+        working-directory: saas
+      - run: python manage.py test --verbosity 1
+        working-directory: saas
+      - run: pip-audit -r requirements-saas.txt
+
+  browser:
+    runs-on: ubuntu-latest
+    env:
+      EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
+      SITE_URL: http://localhost:8000
+      PADDLE_ENABLED: "false"
+      RUN_BROWSER_TESTS: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: python -m playwright install --with-deps chromium
+      - run: python manage.py test apps.dashboard.tests.BrowserSmokeTests
+        working-directory: saas

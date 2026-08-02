@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Política de cookies" %} | Taller Pro{% endblock %}
+{% block content %}
+<article class="panel legal-copy">
+  <p class="eyebrow">{% trans "Versión" %} {{ legal_document_version }}</p>
+  <h1>{% trans "Política de cookies" %}</h1>
+  <p>{% trans "Taller Pro utiliza cookies estrictamente necesarias para mantener la sesión, proteger formularios contra ataques CSRF y recordar el idioma. No se usan cookies publicitarias ni de seguimiento en la configuración actual." %}</p>
+  <p>{% trans "Bloquear las cookies esenciales impedirá iniciar sesión o guardar formularios. Si en el futuro incorporamos analítica no esencial, solicitaremos la elección correspondiente antes de activarla." %}</p>
+</article>
+{% endblock %}

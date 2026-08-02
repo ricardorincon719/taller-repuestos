@@ -32,7 +32,11 @@ class CustomerViewsTests(TestCase):
         self.organization = Organization.objects.create(
             name="Taller Uno", slug="taller-uno"
         )
-        Membership.objects.create(user=self.user, organization=self.organization)
+        Membership.objects.create(
+            user=self.user,
+            organization=self.organization,
+            role=Membership.Role.OWNER,
+        )
         Subscription.objects.create(
             organization=self.organization,
             status=Subscription.Status.ACTIVE,

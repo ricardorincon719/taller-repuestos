@@ -1,5 +1,6 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 from django.db import models
 
 
@@ -51,3 +52,35 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.get_full_name() or self.email
+
+
+class RateLimitBucket(models.Model):
+    key_hash = models.CharField(max_length=64, unique=True)
+    attempts = models.PositiveIntegerField(default=0)
+    window_started_at = models.DateTimeField()
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("-updated_at",)
+
+
+class LegalAcceptance(models.Model):
+    class Document(models.TextChoices):
+        TERMS = "terms", "Términos"
+        PRIVACY = "privacy", "Privacidad"
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="legal_acceptances"
+    )
+    document = models.CharField(max_length=20, choices=Document.choices)
+    version = models.CharField(max_length=20)
+    ip_hash = models.CharField(max_length=64, blank=True)
+    accepted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("user", "document", "version"),
+                name="unique_legal_acceptance",
+            )
+        ]

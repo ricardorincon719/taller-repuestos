@@ -15,6 +15,9 @@ class RegistrationForm(UserCreationForm):
     email = forms.EmailField(label="Email")
     organization_name = forms.CharField(label=_("Nombre del negocio"), max_length=160)
     phone = forms.CharField(label=_("Teléfono"), max_length=40, required=False)
+    accept_terms = forms.BooleanField(
+        label=_("Acepto los Términos del servicio y la Política de privacidad")
+    )
     website = forms.CharField(required=False, widget=forms.HiddenInput)
 
     class Meta:
@@ -27,6 +30,7 @@ class RegistrationForm(UserCreationForm):
             "phone",
             "password1",
             "password2",
+            "accept_terms",
         )
 
     def clean_email(self):

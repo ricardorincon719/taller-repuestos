@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Invitación" %} | Taller Pro{% endblock %}
+{% block content %}<section class="auth-card">
+  <p class="eyebrow">{{ invitation.organization.name }}</p><h1>{% trans "Invitación al equipo" %}</h1>
+  {% if invalid %}<p>{% trans "Esta invitación venció, fue usada o fue revocada." %}</p>{% else %}<p>{% blocktrans with email=invitation.email %}La invitación está destinada a {{ email }}.{% endblocktrans %}</p>{% if form %}<form method="post" class="stacked-form">{% csrf_token %}{{ form.as_div }}<button class="primary" type="submit">{% trans "Aceptar invitación" %}</button></form>{% else %}<form method="post">{% csrf_token %}<button class="primary" type="submit">{% trans "Aceptar invitación" %}</button></form>{% endif %}{% endif %}
+</section>{% endblock %}

@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.customers.models import Customer, Vehicle
@@ -31,7 +32,18 @@ class Quote(models.Model):
         related_name="quotes",
     )
     share_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    public_access_enabled = models.BooleanField(default=False)
+    share_expires_at = models.DateTimeField(null=True, blank=True)
     number = models.PositiveBigIntegerField()
+    number_prefix = models.CharField(max_length=12, blank=True)
+    currency = models.CharField(max_length=3, default="BRL")
+    source_quote = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="duplicates",
+    )
     legacy_source = models.CharField(max_length=40, blank=True)
     legacy_id = models.CharField(max_length=80, blank=True)
     customer = models.ForeignKey(
@@ -79,6 +91,9 @@ class Quote(models.Model):
         editable=False,
     )
     valid_until = models.DateField("válido hasta", null=True, blank=True)
+    issue_snapshot = models.JSONField(default=dict, blank=True)
+    issued_at = models.DateTimeField(null=True, blank=True)
+    is_archived = models.BooleanField(default=False)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -111,11 +126,44 @@ class Quote(models.Model):
 
     @property
     def display_number(self):
-        return f"{self.organization.quote_prefix}-{self.number:06d}"
+        prefix = self.number_prefix or self.organization.quote_prefix
+        return f"{prefix}-{self.number:06d}"
+
+    @property
+    def is_editable(self):
+        return self.status == self.Status.DRAFT and self.issued_at is None
+
+    @property
+    def public_is_available(self):
+        return (
+            self.public_access_enabled
+            and not self.is_archived
+            and (self.share_expires_at is None or self.share_expires_at > timezone.now())
+        )
+
+    def can_transition_to(self, new_status):
+        transitions = {
+            self.Status.DRAFT: {self.Status.SENT, self.Status.CANCELLED},
+            self.Status.SENT: {
+                self.Status.APPROVED,
+                self.Status.REJECTED,
+                self.Status.CANCELLED,
+            },
+            self.Status.APPROVED: {self.Status.INVOICED, self.Status.CANCELLED},
+            self.Status.INVOICED: set(),
+            self.Status.REJECTED: set(),
+            self.Status.CANCELLED: set(),
+        }
+        return new_status == self.status or new_status in transitions.get(self.status, set())
 
     def recalculate_totals(self, save=True):
         items_amount = sum(
-            (item.total_amount for item in self.items.all()),
+            (
+                item.total_amount
+                for item in self.items.model.objects.filter(quote_id=self.pk).only(
+                    "quantity", "unit_price"
+                )
+            ),
             Decimal("0.00"),
         )
         self.items_amount = items_amount
@@ -176,3 +224,40 @@ class QuoteItem(models.Model):
 
     def __str__(self):
         return self.description
+
+
+class QuoteEvent(models.Model):
+    EVENT_LABELS = {
+        "quote.created": _("Presupuesto creado"),
+        "quote.updated": _("Borrador actualizado"),
+        "quote.status_changed": _("Estado actualizado"),
+        "quote.duplicated": _("Presupuesto duplicado"),
+        "quote.share_renewed": _("Enlace renovado"),
+        "quote.share_revoked": _("Enlace revocado"),
+        "quote.archived": _("Presupuesto archivado"),
+        "quote.restored": _("Presupuesto restaurado"),
+    }
+    quote = models.ForeignKey(Quote, on_delete=models.CASCADE, related_name="events")
+    actor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="quote_events",
+    )
+    event_type = models.CharField(max_length=80)
+    from_status = models.CharField(max_length=20, blank=True)
+    to_status = models.CharField(max_length=20, blank=True)
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        indexes = [models.Index(fields=("quote", "created_at"))]
+
+    def __str__(self):
+        return f"{self.quote.display_number}: {self.event_type}"
+
+    @property
+    def event_label(self):
+        return self.EVENT_LABELS.get(self.event_type, self.event_type)

@@ -1,43 +1,13 @@
 {% extends "base.html" %}
-{% load i18n %}
-{% block title %}{{ quote.display_number }} | {{ quote.organization.name }}{% endblock %}
+{% load i18n business %}
+{% block title %}{{ quote.display_number }} | {{ document.organization.name|default:quote.organization.name }}{% endblock %}
 {% block content %}
-<div class="page-heading">
-  <div><p class="eyebrow">{{ quote.get_status_display }}</p><h1>{{ quote.display_number }}</h1></div>
-  <a class="primary button-link" href="{% url 'public-quote-pdf' quote.share_token %}">{% trans "Descargar PDF" %}</a>
-</div>
-<section class="detail-grid">
-  <article class="panel">
-    <h2>{{ quote.organization.name }}</h2>
-    <p class="eyebrow">{{ quote.organization.get_business_type_display }}</p>
-    <p>{{ quote.organization.phone|default:"" }}{% if quote.organization.email %}<br>{{ quote.organization.email }}{% endif %}{% if quote.organization.tax_id %}<br>{{ quote.organization.tax_id }}{% endif %}</p>
-    {% if quote.organization.address %}<p>{{ quote.organization.address|linebreaksbr }}</p>{% endif %}
-  </article>
-  <article class="panel">
-    <h2>{% trans "Cliente" %}</h2>
-    <strong>{{ quote.customer.name }}</strong>
-    {% if quote.vehicle %}<p><strong>{% trans "Vehículo" %}:</strong> {{ quote.vehicle }}</p>{% endif %}
-    <p><strong>{% trans "Fecha" %}:</strong> {{ quote.created_at|date:"d/m/Y" }}</p>
-  </article>
-</section>
-<section class="panel">
-  <h2>{% trans "Detalle" %}</h2>
-  <div class="table-wrap"><table>
-    <thead><tr><th>{% trans "Descripción" %}</th><th>{% trans "Cantidad" %}</th><th>{% trans "Precio" %}</th><th>{% trans "Total" %}</th></tr></thead>
-    <tbody>
-      {% for item in quote.items.all %}
-        <tr><td>{{ item.description }}</td><td>{{ item.quantity }}</td><td>R$ {{ item.unit_price|floatformat:2 }}</td><td>R$ {{ item.total_amount|floatformat:2 }}</td></tr>
-      {% empty %}
-        <tr><td colspan="4">{% trans "Sin ítems adicionales." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table></div>
-  <div class="public-totals">
-    <p>{% trans "Mano de obra" %} <strong>R$ {{ quote.labor_amount|floatformat:2 }}</strong></p>
-    <p>{% trans "Ítems" %} <strong>R$ {{ quote.items_amount|floatformat:2 }}</strong></p>
-    <p>{% trans "Descuento" %} <strong>R$ {{ quote.discount_amount|floatformat:2 }}</strong></p>
-    <p class="grand-total">{% trans "Total" %} <strong>R$ {{ quote.total_amount|floatformat:2 }}</strong></p>
-  </div>
-  {% if quote.notes %}<h3>{% trans "Notas" %}</h3><p>{{ quote.notes|linebreaksbr }}</p>{% endif %}
-</section>
+<div class="page-heading"><div><p class="eyebrow">{{ quote.get_status_display }}</p><h1>{{ quote.display_number }}</h1></div><a class="primary button-link" href="{% url 'public-quote-pdf' quote.share_token %}">{% trans "Descargar PDF" %}</a></div>
+<section class="detail-grid"><article class="panel">{% if quote.organization.has_logo %}<img class="business-logo-preview" src="{% url 'organization-logo' quote.organization_id %}" alt="Logo">{% endif %}<h2>{{ document.organization.name|default:quote.organization.name }}</h2>{% if document.organization.legal_name %}<p>{{ document.organization.legal_name }}</p>{% endif %}<p class="eyebrow">{{ document.organization.business_type|default:quote.organization.business_type|business_type_label }}</p><p>{{ document.organization.phone|default:quote.organization.phone }}{% if document.organization.email or quote.organization.email %}<br>{{ document.organization.email|default:quote.organization.email }}{% endif %}{% if document.organization.tax_id or quote.organization.tax_id %}<br>{{ document.organization.tax_id|default:quote.organization.tax_id }}{% endif %}</p>{% if document.organization.address or quote.organization.address or document.organization.city or quote.organization.city %}<p>{{ document.organization.address|default:quote.organization.address|linebreaksbr }}{% if document.organization.city or quote.organization.city %}<br>{{ document.organization.city|default:quote.organization.city }}{% endif %}</p>{% endif %}</article>
+<article class="panel"><h2>{% trans "Cliente" %}</h2><strong>{{ document.customer.name|default:quote.customer.name }}</strong>{% if document.vehicle or quote.vehicle %}<p><strong>{% trans "Vehículo" %}:</strong> {{ document.vehicle|default:quote.vehicle }}</p>{% endif %}<p><strong>{% trans "Fecha" %}:</strong> {{ quote.issued_at|default:quote.created_at|date:"d/m/Y" }}</p>{% if quote.valid_until %}<p><strong>{% trans "Válido hasta" %}:</strong> {{ quote.valid_until|date:"d/m/Y" }}</p>{% endif %}</article></section>
+<section class="panel"><h2>{% trans "Detalle" %}</h2><div class="table-wrap"><table><thead><tr><th>{% trans "Descripción" %}</th><th>{% trans "Cantidad" %}</th><th>{% trans "Precio" %}</th><th>{% trans "Total" %}</th></tr></thead><tbody>{% if document.items %}{% for item in document.items %}<tr><td>{{ item.description }}</td><td>{{ item.quantity }}</td><td>{{ item.unit_price|money:quote.currency }}</td><td>{{ item.total_amount|money:quote.currency }}</td></tr>{% endfor %}{% else %}{% for item in quote.items.all %}<tr><td>{{ item.description }}</td><td>{{ item.quantity }}</td><td>{{ item.unit_price|money:quote.currency }}</td><td>{{ item.total_amount|money:quote.currency }}</td></tr>{% empty %}<tr><td colspan="4">{% trans "Sin ítems adicionales." %}</td></tr>{% endfor %}{% endif %}</tbody></table></div>
+<div class="public-totals"><p>{% trans "Mano de obra" %} <strong>{{ document.amounts.labor|default:quote.labor_amount|money:quote.currency }}</strong></p><p>{% trans "Ítems" %} <strong>{{ document.amounts.items|default:quote.items_amount|money:quote.currency }}</strong></p><p>{% trans "Descuento" %} <strong>{{ document.amounts.discount|default:quote.discount_amount|money:quote.currency }}</strong></p><p class="grand-total">{% trans "Total" %} <strong>{{ document.amounts.total|default:quote.total_amount|money:quote.currency }}</strong></p></div>
+{% if document.notes or quote.notes %}<h3>{% trans "Notas" %}</h3><p>{{ document.notes|default:quote.notes|linebreaksbr }}</p>{% endif %}</section>
+{% if document.organization.terms or document.organization.warranty or document.organization.payment_terms %}<section class="panel legal-copy">{% if document.organization.terms %}<h2>{% trans "Condiciones" %}</h2><p>{{ document.organization.terms|linebreaksbr }}</p>{% endif %}{% if document.organization.warranty %}<h2>{% trans "Garantía" %}</h2><p>{{ document.organization.warranty|linebreaksbr }}</p>{% endif %}{% if document.organization.payment_terms %}<h2>{% trans "Condiciones de pago" %}</h2><p>{{ document.organization.payment_terms|linebreaksbr }}</p>{% endif %}</section>{% endif %}
+{% if quote.status == 'sent' %}<section class="panel center-card"><h2>{% trans "Responder presupuesto" %}</h2><p>{% trans "Registra tu decisión. El negocio verá la respuesta inmediatamente." %}</p><div class="actions"><form method="post" action="{% url 'public-quote-decision' quote.share_token %}">{% csrf_token %}<button class="primary" name="decision" value="approve" type="submit">{% trans "Aprobar" %}</button><button class="secondary" name="decision" value="reject" type="submit">{% trans "Rechazar" %}</button></form></div></section>{% endif %}
 {% endblock %}

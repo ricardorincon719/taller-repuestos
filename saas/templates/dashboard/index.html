@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n business %}
 {% block title %}{% trans "Resumen" %} | Taller Pro{% endblock %}
 {% block content %}
 <div class="page-heading">
@@ -11,8 +11,8 @@
 </div>
 <section class="metrics">
   <article><span>{% trans "Presupuestos" %}</span><strong>{{ metrics.total_quotes }}</strong></article>
-  <article><span>{% trans "Facturado" %}</span><strong>R$ {{ metrics.total_invoiced|floatformat:2 }}</strong></article>
-  <article><span>{% trans "Por aprobar/facturar" %}</span><strong>R$ {{ metrics.total_pending|floatformat:2 }}</strong></article>
+  <article><span>{% trans "Facturado" %}</span><strong>{{ metrics.total_invoiced|money:organization }}</strong></article>
+  <article><span>{% trans "Por aprobar/facturar" %}</span><strong>{{ metrics.total_pending|money:organization }}</strong></article>
 </section>
 <section class="panel">
   <div class="panel-heading">
@@ -29,7 +29,7 @@
             <td><a href="{% url 'quote-detail' quote.pk %}">{{ quote.display_number }}</a></td>
             <td>{{ quote.customer.name }}</td>
             <td>{{ quote.get_status_display }}</td>
-            <td>R$ {{ quote.total_amount|floatformat:2 }}</td>
+            <td>{{ quote.total_amount|money:quote.currency }}</td>
           </tr>
         {% endfor %}
         </tbody>

@@ -2,24 +2,39 @@
 {% load i18n %}
 {% block title %}{% trans "Suscripción" %} | Taller Pro{% endblock %}
 {% block content %}
-<div class="page-heading">
-  <div><p class="eyebrow">{{ organization.name }}</p><h1>{% trans "Suscripción" %}</h1></div>
-</div>
+<div class="page-heading"><div><p class="eyebrow">{{ organization.name }}</p><h1>{% trans "Suscripción" %}</h1></div></div>
 <section class="panel center-card subscription-card">
   {% if subscription %}
-    <p class="eyebrow">{{ subscription.get_plan_display }}</p>
-    <h2>{{ subscription.get_status_display }}</h2>
-    {% if subscription.allows_access %}
-      <p>{% trans "Tu negocio tiene acceso a todas las funciones." %}</p>
-      {% if subscription.trial_ends_at %}<p class="muted">{% blocktrans with trial_date=subscription.trial_ends_at|date:"d/m/Y H:i" %}La prueba termina el {{ trial_date }}.{% endblocktrans %}</p>{% endif %}
-      <a class="primary button-link" href="{% url 'dashboard' %}">{% trans "Volver al panel" %}</a>
-    {% else %}
-      <p>{% trans "El acceso está pausado porque la prueba venció o la suscripción requiere atención." %}</p>
-      <p class="muted">{% trans "Contacta al soporte para activar o regularizar el plan." %}</p>
-    {% endif %}
-  {% else %}
-    <h2>{% trans "Suscripción no configurada" %}</h2>
-    <p>{% trans "Contacta al soporte para asociar un plan a este negocio." %}</p>
-  {% endif %}
+    <p class="eyebrow">{{ subscription.get_plan_display }}</p><h2>{{ subscription.get_status_display }}</h2>
+    {% if subscription.trial_ends_at %}<p>{% blocktrans with trial_date=subscription.trial_ends_at|date:"d/m/Y H:i" %}La prueba termina el {{ trial_date }}.{% endblocktrans %}</p>{% endif %}
+    {% if subscription.current_period_ends_at %}<p>{% blocktrans with period_date=subscription.current_period_ends_at|date:"d/m/Y H:i" %}Período actual hasta {{ period_date }}.{% endblocktrans %}</p>{% endif %}
+    {% if subscription.cancel_at_period_end %}<p class="message warning">{% trans "La cancelación está programada para el final del período." %}</p>{% endif %}
+    {% if subscription.allows_access %}<p>{% trans "Tu negocio tiene acceso a las funciones contratadas." %}</p>{% else %}<p>{% trans "El acceso está pausado hasta regularizar la suscripción." %}</p>{% endif %}
+  {% else %}<h2>{% trans "Sin suscripción" %}</h2><p>{% trans "Elige un plan para continuar después de la prueba." %}</p>{% endif %}
+
+  <div class="actions subscription-actions">
+    {% if subscription.provider_customer_id and membership.is_owner %}<form method="post" action="{% url 'billing-portal' %}">{% csrf_token %}<button class="secondary" type="submit">{% trans "Administrar pago, facturas o cancelación" %}</button></form>{% endif %}
+    {% if can_checkout %}<button class="primary" id="paddle-checkout" type="button">{% trans "Contratar Taller Pro" %}</button>{% endif %}
+    {% if subscription.allows_access %}<a href="{% url 'dashboard' %}">{% trans "Volver al panel" %}</a>{% endif %}
+  </div>
+  {% if membership.is_owner and not paddle_enabled %}<p class="muted">{% trans "El proveedor de pagos todavía no está activado en este entorno." %}</p>{% endif %}
+  <p class="muted">{% trans "Paddle procesa el pago, impuestos y comprobantes como Merchant of Record. Antes de confirmar verás el precio total, moneda y ciclo de cobro." %}</p>
 </section>
+{% if can_checkout %}
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<script>
+(() => {
+  if ("{{ paddle_environment|escapejs }}" === "sandbox") Paddle.Environment.set("sandbox");
+  Paddle.Initialize({token: "{{ paddle_client_token|escapejs }}"});
+  document.querySelector("#paddle-checkout").addEventListener("click", () => {
+    Paddle.Checkout.open({
+      items: [{priceId: "{{ paddle_price_id|escapejs }}", quantity: 1}],
+      customer: {email: "{{ request.user.email|escapejs }}"{% if organization.country != 'OT' %}, address: {countryCode: "{{ organization.country|escapejs }}"}{% endif %}},
+      customData: {organization_id: "{{ organization.pk|escapejs }}", owner_user_id: "{{ request.user.pk|escapejs }}"},
+      settings: {displayMode: "overlay", theme: "light", locale: "{{ paddle_locale|escapejs }}", successUrl: "{{ request.build_absolute_uri|escapejs }}"}
+    });
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}

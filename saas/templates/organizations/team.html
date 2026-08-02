@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Equipo" %} | Taller Pro{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">{{ organization.name }}</p><h1>{% trans "Equipo" %}</h1></div></div>
+<section class="panel">
+  <h2>{% trans "Invitar colaborador" %}</h2>
+  <form method="post" class="inline-form">{% csrf_token %}{{ form.as_div }}<button class="primary" type="submit">{% trans "Enviar invitación" %}</button></form>
+</section>
+<section class="panel">
+  <h2>{% trans "Miembros" %}</h2>
+  <div class="table-wrap"><table><thead><tr><th>Email</th><th>{% trans "Nombre" %}</th><th>{% trans "Rol" %}</th><th>{% trans "Acceso" %}</th><th></th></tr></thead><tbody>
+  {% for member in memberships %}<tr>
+    <td>{{ member.user.email }}</td><td>{{ member.user.get_full_name|default:"-" }}</td><td>{{ member.get_role_display }}</td><td>{% if member.is_active %}{% trans "Activo" %}{% else %}{% trans "Desactivado" %}{% endif %}</td>
+    <td>{% if membership.is_owner %}<form method="post" action="{% url 'organization-member-update' member.pk %}" class="inline-form">{% csrf_token %}<select name="role">{% for value,label in member.Role.choices %}<option value="{{ value }}" {% if member.role == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select><label><input type="checkbox" name="is_active" {% if member.is_active %}checked{% endif %}> {% trans "Activo" %}</label><button class="secondary" type="submit">{% trans "Guardar" %}</button></form>{% endif %}</td>
+  </tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% if invitations %}<section class="panel"><h2>{% trans "Invitaciones pendientes" %}</h2><ul>{% for invitation in invitations %}<li>{{ invitation.email }} — {{ invitation.get_role_display }} — {% trans "vence" %} {{ invitation.expires_at|date:"d/m/Y H:i" }} {% if membership.is_owner or invitation.role != 'admin' %}<form method="post" action="{% url 'organization-invitation-revoke' invitation.pk %}" class="inline-form">{% csrf_token %}<button class="link-button" type="submit">{% trans "Revocar invitación" %}</button></form>{% endif %}</li>{% endfor %}</ul></section>{% endif %}
+{% endblock %}

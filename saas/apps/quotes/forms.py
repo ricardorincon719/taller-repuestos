@@ -13,7 +13,6 @@ class QuoteForm(forms.ModelForm):
         fields = (
             "customer",
             "vehicle",
-            "status",
             "labor_amount",
             "discount_amount",
             "valid_until",
@@ -26,7 +25,6 @@ class QuoteForm(forms.ModelForm):
         labels = {
             "customer": _("Cliente"),
             "vehicle": _("Vehículo"),
-            "status": _("Estado"),
             "labor_amount": _("Mano de obra"),
             "discount_amount": _("Descuento"),
             "valid_until": _("Válido hasta"),
@@ -62,7 +60,7 @@ QuoteItemFormSet = inlineformset_factory(
     QuoteItem,
     fields=("description", "quantity", "unit_price"),
     extra=1,
-    can_delete=False,
+    can_delete=True,
     widgets={
         "description": forms.TextInput(attrs={"placeholder": _("Ej. Filtro de aceite")}),
         "quantity": forms.NumberInput(attrs={"step": "0.01", "min": "0.01"}),

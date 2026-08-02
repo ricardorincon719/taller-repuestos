@@ -16,6 +16,7 @@
     <nav>
       <a href="#producto">{% trans "Producto" %}</a>
       <a href="#capturas">{% trans "Capturas" %}</a>
+      <a href="#precio">{% trans "Precio" %}</a>
       <a href="#contacto">{% trans "Activación" %}</a>
       <span class="public-language-switch" aria-label="{% trans 'Idioma' %}">
         <a class="{% if LANGUAGE_CODE == 'es' %}active{% endif %}" href="{% url 'public-home' %}?lang=es">ES</a>
@@ -35,6 +36,18 @@
           <a class="primary button-link" href="{% url 'register' %}">{% trans "Probar el SaaS" %}</a>
           <a class="secondary" href="{% url 'login' %}">{% trans "Entrar al panel" %}</a>
         </div>
+      </div>
+    </section>
+
+    <section id="precio" class="public-section public-band">
+      <div class="public-section-heading">
+        <p class="eyebrow">{% trans "Plan profesional" %}</p>
+        <h2>{{ public_plan_price_label }}</h2>
+        <p>{% blocktrans with trial_days=trial_days %}Incluye {{ trial_days }} días de prueba, todos los presupuestos, clientes, vehículos, PDF, aprobación pública, equipo y soporte operativo. Paddle muestra moneda, impuestos, renovación y total antes de confirmar.{% endblocktrans %}</p>
+      </div>
+      <div class="public-actions">
+        <a class="primary button-link" href="{% url 'register' %}">{% trans "Comenzar prueba" %}</a>
+        <a class="secondary" href="{% url 'legal-terms' %}">{% trans "Ver condiciones" %}</a>
       </div>
     </section>
 
@@ -101,5 +114,11 @@
       </div>
     </section>
   </main>
+  <footer class="site-footer public-footer">
+    <a href="{% url 'legal-terms' %}">{% trans "Términos" %}</a>
+    <a href="{% url 'legal-privacy' %}">{% trans "Privacidad" %}</a>
+    <a href="{% url 'legal-cookies' %}">Cookies</a>
+    <a href="mailto:{{ legal_contact_email }}">{{ legal_contact_email }}</a>
+  </footer>
 </body>
 </html>

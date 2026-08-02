@@ -1,30 +1,10 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n business %}
 {% block title %}{% trans "Presupuestos" %} | Taller Pro{% endblock %}
 {% block content %}
-<div class="page-heading">
-  <div><p class="eyebrow">{{ organization.name }}</p><h1>{% trans "Presupuestos" %}</h1></div>
-  <a class="primary button-link" href="{% url 'quote-create' %}">{% trans "Nuevo presupuesto" %}</a>
-</div>
+<div class="page-heading"><div><p class="eyebrow">{{ organization.name }}</p><h1>{% if show_archived %}{% trans "Presupuestos archivados" %}{% else %}{% trans "Presupuestos" %}{% endif %}</h1></div><a class="primary button-link" href="{% url 'quote-create' %}">{% trans "Nuevo presupuesto" %}</a></div>
 <section class="panel">
-{% if quotes %}
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>{% trans "Número" %}</th><th>{% trans "Cliente" %}</th><th>{% trans "Vehículo" %}</th><th>{% trans "Estado" %}</th><th>{% trans "Total" %}</th><th>{% trans "Fecha" %}</th></tr></thead>
-      <tbody>
-      {% for quote in quotes %}
-        <tr>
-          <td><a href="{% url 'quote-detail' quote.pk %}">{{ quote.display_number }}</a></td>
-          <td>{{ quote.customer.name }}</td>
-          <td>{{ quote.vehicle|default:"-" }}</td>
-          <td>{{ quote.get_status_display }}</td>
-          <td>R$ {{ quote.total_amount|floatformat:2 }}</td>
-          <td>{{ quote.created_at|date:"d/m/Y" }}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-{% else %}<p class="empty">{% trans "No hay presupuestos registrados." %}</p>{% endif %}
-</section>
-{% endblock %}
+  <form method="get" class="search-bar"><input type="search" name="q" value="{{ query }}" placeholder="{% trans 'Buscar cliente o número' %}"><select name="estado"><option value="">{% trans "Todos los estados" %}</option>{% for value,label in status_choices %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>{% if show_archived %}<input type="hidden" name="archivados" value="1">{% endif %}<button class="secondary" type="submit">{% trans "Filtrar" %}</button></form>
+  <div class="subnav">{% if show_archived %}<a href="{% url 'quote-list' %}">{% trans "Ver activos" %}</a>{% else %}<a href="?archivados=1">{% trans "Ver archivados" %}</a>{% endif %}</div>
+{% if quotes %}<div class="table-wrap"><table><thead><tr><th>{% trans "Número" %}</th><th>{% trans "Cliente" %}</th><th>{% trans "Vehículo" %}</th><th>{% trans "Estado" %}</th><th>{% trans "Total" %}</th><th>{% trans "Fecha" %}</th></tr></thead><tbody>{% for quote in quotes %}<tr><td><a href="{% url 'quote-detail' quote.pk %}">{{ quote.display_number }}</a></td><td>{{ quote.customer.name }}</td><td>{{ quote.vehicle|default:"-" }}</td><td>{{ quote.get_status_display }}</td><td>{{ quote.total_amount|money:quote.currency }}</td><td>{{ quote.created_at|date:"d/m/Y" }}</td></tr>{% endfor %}</tbody></table></div>{% include "includes/pagination.html" %}{% else %}<p class="empty">{% trans "No hay presupuestos registrados." %}</p>{% endif %}
+</section>{% endblock %}

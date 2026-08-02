@@ -1,9 +1,7 @@
-import hashlib
 import uuid
 from datetime import timedelta
 
 from django.conf import settings
-from django.core.cache import cache
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db import transaction
@@ -18,11 +16,22 @@ from django.utils.translation import gettext as _
 from apps.billing.models import Subscription
 from apps.organizations.models import Membership, Organization
 
-from .models import User
+from .models import LegalAcceptance, User
+from .security import consume_rate_limit, hash_identifier
 
 
 @transaction.atomic
-def create_trial_account(*, email, password, first_name, last_name, organization_name, phone=""):
+def create_trial_account(
+    *,
+    email,
+    password,
+    first_name,
+    last_name,
+    organization_name,
+    phone="",
+    accepted_legal=False,
+    ip_address="",
+):
     user = User.objects.create_user(
         email=email,
         password=password,
@@ -48,6 +57,22 @@ def create_trial_account(*, email, password, first_name, last_name, organization
         status=Subscription.Status.TRIALING,
         trial_ends_at=timezone.now() + timedelta(days=settings.TRIAL_DAYS),
     )
+    if accepted_legal:
+        ip_hash = hash_identifier(ip_address) if ip_address else ""
+        LegalAcceptance.objects.bulk_create(
+            [
+                LegalAcceptance(
+                    user=user,
+                    document=document,
+                    version=settings.LEGAL_DOCUMENT_VERSION,
+                    ip_hash=ip_hash,
+                )
+                for document in (
+                    LegalAcceptance.Document.TERMS,
+                    LegalAcceptance.Document.PRIVACY,
+                )
+            ]
+        )
     return user
 
 
@@ -76,19 +101,12 @@ def send_password_setup_email(user):
 
 
 def registration_is_limited(*identifiers):
-    limit = settings.REGISTRATION_RATE_LIMIT
-    timeout = settings.REGISTRATION_RATE_LIMIT_WINDOW
-    limited = False
-    for identifier in identifiers:
-        digest = hashlib.sha256(identifier.encode("utf-8")).hexdigest()
-        key = f"registration-attempts:{digest}"
-        if cache.add(key, 1, timeout=timeout):
-            attempts = 1
-        else:
-            try:
-                attempts = cache.incr(key)
-            except ValueError:
-                cache.set(key, 1, timeout=timeout)
-                attempts = 1
-        limited = limited or attempts > limit
-    return limited
+    return any(
+        not consume_rate_limit(
+            "registration",
+            identifier,
+            limit=settings.REGISTRATION_RATE_LIMIT,
+            window_seconds=settings.REGISTRATION_RATE_LIMIT_WINDOW,
+        )
+        for identifier in identifiers
+    )

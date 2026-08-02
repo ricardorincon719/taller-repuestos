@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.utils import translation
 
 from apps.billing.decorators import subscription_required
-from apps.organizations.services import get_current_membership
+from apps.organizations.services import get_request_membership
 from apps.quotes.models import Quote
 
 PUBLIC_LANGUAGES = {"es", "pt-br"}
@@ -26,14 +26,27 @@ def public_home(request):
             requested_language,
             max_age=60 * 60 * 24 * 365,
             samesite="Lax",
+            secure=not settings.DEBUG,
         )
     return response
+
+
+def legal_terms(request):
+    return render(request, "legal/terms.html")
+
+
+def legal_privacy(request):
+    return render(request, "legal/privacy.html")
+
+
+def legal_cookies(request):
+    return render(request, "legal/cookies.html")
 
 
 @login_required
 @subscription_required
 def dashboard(request):
-    membership = get_current_membership(request.user)
+    membership = get_request_membership(request)
     organization = membership.organization
     quotes = Quote.objects.for_organization(organization)
     money_field = DecimalField(max_digits=12, decimal_places=2)

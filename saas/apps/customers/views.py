@@ -1,19 +1,21 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db.models import Count, Q
+from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from apps.billing.decorators import subscription_required
-from apps.organizations.services import get_current_membership
+from apps.organizations.services import get_request_membership
 
 from .forms import CustomerForm, VehicleForm
 from .models import Customer, Vehicle
 
 
 def current_organization(request):
-    return get_current_membership(request.user).organization
+    return get_request_membership(request).organization
 
 
 @login_required
@@ -34,12 +36,15 @@ def customer_list(request):
             | Q(email__icontains=query)
             | Q(tax_id__icontains=query)
         )
+    customers = customers.order_by("name", "pk")
+    page_obj = Paginator(customers, 25).get_page(request.GET.get("pagina"))
     return render(
         request,
         "customers/list.html",
         {
             "organization": organization,
-            "customers": customers,
+            "customers": page_obj,
+            "page_obj": page_obj,
             "query": query,
             "show_archived": show_archived,
         },
@@ -102,7 +107,10 @@ def customer_update(request, pk):
 @subscription_required
 @require_POST
 def customer_archive(request, pk):
-    organization = current_organization(request)
+    membership = get_request_membership(request)
+    if not membership.can_manage_business:
+        return HttpResponseBadRequest(_("No tienes permisos para archivar clientes."))
+    organization = membership.organization
     customer = get_object_or_404(Customer.objects.for_organization(organization), pk=pk)
     customer.is_active = not customer.is_active
     customer.save(update_fields=("is_active", "updated_at"))
@@ -159,7 +167,10 @@ def vehicle_update(request, pk):
 @subscription_required
 @require_POST
 def vehicle_archive(request, pk):
-    organization = current_organization(request)
+    membership = get_request_membership(request)
+    if not membership.can_manage_business:
+        return HttpResponseBadRequest(_("No tienes permisos para archivar vehículos."))
+    organization = membership.organization
     vehicle = get_object_or_404(
         Vehicle.objects.for_organization(organization).select_related("customer"),
         pk=pk,

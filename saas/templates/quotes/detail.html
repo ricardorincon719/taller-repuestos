@@ -1,61 +1,11 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n business %}
 {% block title %}{{ quote.display_number }} | Taller Pro{% endblock %}
 {% block content %}
-<div class="page-heading">
-  <div><p class="eyebrow">{{ quote.get_status_display }}</p><h1>{{ quote.display_number }}</h1></div>
-  <div class="actions compact-actions">
-    <a href="{% url 'quote-pdf' quote.pk %}">{% trans "Descargar PDF" %}</a>
-    <a class="whatsapp button-link" href="{{ whatsapp_url }}" target="_blank" rel="noopener">{% trans "Enviar por WhatsApp" %}</a>
-    <a href="{% url 'quote-list' %}">{% trans "Volver" %}</a>
-  </div>
-</div>
-<section class="panel share-panel">
-  <div>
-    <h2>{% trans "Enlace para el cliente" %}</h2>
-    <p class="muted">{% trans "Permite consultar y descargar el presupuesto sin iniciar sesión." %}</p>
-  </div>
-  <input type="text" value="{{ public_url }}" readonly aria-label="{% trans 'Enlace público del presupuesto' %}">
-</section>
-<section class="detail-grid">
-  <article class="panel">
-    <h2>{% trans "Cliente" %}</h2>
-    <strong>{{ quote.customer.name }}</strong>
-    {% trans "Sin teléfono" as no_phone %}
-    {% trans "Sin email" as no_email %}
-    <p>{{ quote.customer.phone|default:no_phone }}<br>{{ quote.customer.email|default:no_email }}</p>
-    {% if quote.vehicle %}<p><strong>{% trans "Vehículo" %}:</strong> {{ quote.vehicle }}</p>{% endif %}
-  </article>
-  <article class="panel">
-    <h2>{% trans "Resumen" %}</h2>
-    <p>{% trans "Mano de obra" %} <strong>R$ {{ quote.labor_amount|floatformat:2 }}</strong></p>
-    <p>{% trans "Ítems" %} <strong>R$ {{ quote.items_amount|floatformat:2 }}</strong></p>
-    <p>{% trans "Descuento" %} <strong>R$ {{ quote.discount_amount|floatformat:2 }}</strong></p>
-    <p class="grand-total">{% trans "Total" %} <strong>R$ {{ quote.total_amount|floatformat:2 }}</strong></p>
-  </article>
-</section>
-<section class="panel">
-  <form method="post" action="{% url 'quote-status-update' quote.pk %}" class="status-form">
-    {% csrf_token %}
-    <div class="field">
-      <label for="quote-status">{% trans "Estado" %}</label>
-      <select id="quote-status" name="status">
-        {% for value, label in status_choices %}
-          <option value="{{ value }}" {% if quote.status == value %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <button class="secondary" type="submit">{% trans "Actualizar estado" %}</button>
-  </form>
-</section>
-<section class="panel">
-  <h2>{% trans "Detalle" %}</h2>
-  {% if quote.items.all %}
-    <div class="table-wrap"><table>
-      <thead><tr><th>{% trans "Descripción" %}</th><th>{% trans "Cantidad" %}</th><th>{% trans "Precio" %}</th><th>{% trans "Total" %}</th></tr></thead>
-      <tbody>{% for item in quote.items.all %}<tr><td>{{ item.description }}</td><td>{{ item.quantity }}</td><td>R$ {{ item.unit_price|floatformat:2 }}</td><td>R$ {{ item.total_amount|floatformat:2 }}</td></tr>{% endfor %}</tbody>
-    </table></div>
-  {% else %}<p class="empty">{% trans "Sin ítems adicionales." %}</p>{% endif %}
-  {% if quote.notes %}<h3>{% trans "Notas" %}</h3><p>{{ quote.notes|linebreaksbr }}</p>{% endif %}
-</section>
+<div class="page-heading"><div><p class="eyebrow">{{ quote.get_status_display }}{% if quote.is_archived %} · {% trans "Archivado" %}{% endif %}</p><h1>{{ quote.display_number }}</h1></div><div class="actions compact-actions">{% if quote.is_editable %}<a href="{% url 'quote-update' quote.pk %}">{% trans "Editar" %}</a>{% endif %}<a href="{% url 'quote-pdf' quote.pk %}">{% trans "Descargar PDF" %}</a>{% if quote.public_is_available %}<a class="whatsapp button-link" href="{{ whatsapp_url }}" target="_blank" rel="noopener">{% trans "Enviar por WhatsApp" %}</a>{% endif %}<form method="post" action="{% url 'quote-duplicate' quote.pk %}">{% csrf_token %}<button class="link-button" type="submit">{% trans "Duplicar" %}</button></form><a href="{% url 'quote-list' %}">{% trans "Volver" %}</a></div></div>
+<section class="panel share-panel"><div><h2>{% trans "Enlace para el cliente" %}</h2>{% if quote.public_is_available %}<p class="muted">{% blocktrans with date=quote.share_expires_at|date:"d/m/Y H:i" %}Disponible hasta {{ date }}.{% endblocktrans %}</p>{% elif quote.is_editable %}<p class="muted">{% trans "El enlace se habilita al marcar el presupuesto como enviado." %}</p>{% else %}<p class="muted">{% trans "El enlace está revocado, vencido, cancelado o archivado." %}</p>{% endif %}</div>{% if quote.public_is_available %}<input type="text" value="{{ public_url }}" readonly aria-label="{% trans 'Enlace público del presupuesto' %}">{% endif %}{% if not quote.is_editable and quote.status != 'cancelled' %}<form method="post" action="{% url 'quote-share-update' quote.pk %}">{% csrf_token %}{% if quote.public_is_available %}<button class="secondary" name="action" value="revoke" type="submit">{% trans "Revocar" %}</button>{% else %}<button class="secondary" name="action" value="renew" type="submit">{% trans "Generar enlace nuevo" %}</button>{% endif %}</form>{% endif %}</section>
+<section class="detail-grid"><article class="panel"><h2>{% trans "Cliente" %}</h2><strong>{{ quote.customer.name }}</strong><p>{{ quote.customer.phone|default:"-" }}<br>{{ quote.customer.email|default:"-" }}</p>{% if quote.vehicle %}<p><strong>{% trans "Vehículo" %}:</strong> {{ quote.vehicle }}</p>{% endif %}</article><article class="panel"><h2>{% trans "Resumen" %}</h2><p>{% trans "Mano de obra" %} <strong>{{ quote.labor_amount|money:quote.currency }}</strong></p><p>{% trans "Ítems" %} <strong>{{ quote.items_amount|money:quote.currency }}</strong></p><p>{% trans "Descuento" %} <strong>{{ quote.discount_amount|money:quote.currency }}</strong></p><p class="grand-total">{% trans "Total" %} <strong>{{ quote.total_amount|money:quote.currency }}</strong></p></article></section>
+{% if not quote.is_archived %}<section class="panel"><form method="post" action="{% url 'quote-status-update' quote.pk %}" class="status-form">{% csrf_token %}<div class="field"><label for="quote-status">{% trans "Estado" %}</label><select id="quote-status" name="status">{% for value,label in status_choices %}<option value="{{ value }}" {% if quote.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div><button class="secondary" type="submit">{% trans "Actualizar estado" %}</button></form></section>{% endif %}
+<section class="panel"><h2>{% trans "Detalle" %}</h2><div class="table-wrap"><table><thead><tr><th>{% trans "Descripción" %}</th><th>{% trans "Cantidad" %}</th><th>{% trans "Precio" %}</th><th>{% trans "Total" %}</th></tr></thead><tbody>{% for item in quote.items.all %}<tr><td>{{ item.description }}</td><td>{{ item.quantity }}</td><td>{{ item.unit_price|money:quote.currency }}</td><td>{{ item.total_amount|money:quote.currency }}</td></tr>{% empty %}<tr><td colspan="4">{% trans "Sin ítems adicionales." %}</td></tr>{% endfor %}</tbody></table></div>{% if quote.notes %}<h3>{% trans "Notas" %}</h3><p>{{ quote.notes|linebreaksbr }}</p>{% endif %}</section>
+<section class="panel"><div class="panel-heading"><h2>{% trans "Historial" %}</h2>{% if current_membership.can_manage_business %}<form method="post" action="{% url 'quote-archive' quote.pk %}">{% csrf_token %}<button class="link-button" type="submit">{% if quote.is_archived %}{% trans "Restaurar" %}{% else %}{% trans "Archivar" %}{% endif %}</button></form>{% endif %}</div><ul class="event-list">{% for event in events %}<li><strong>{{ event.event_label }}</strong>{% if event.from_status or event.to_status %} ({{ event.from_status|default:"-" }} → {{ event.to_status|default:"-" }}){% endif %} — {{ event.created_at|date:"d/m/Y H:i" }}{% if event.actor %} — {{ event.actor }}{% endif %}</li>{% empty %}<li>{% trans "Sin eventos." %}</li>{% endfor %}</ul></section>
 {% endblock %}
