@@ -52,6 +52,8 @@ jobs:
         working-directory: saas
       - run: python manage.py test --verbosity 1
         working-directory: saas
+        env:
+          DJANGO_SECURE_SSL_REDIRECT: "false"
       - run: pip-audit -r requirements-saas.txt
 
   browser:
