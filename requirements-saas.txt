@@ -2,6 +2,6 @@ Django==5.2.16
 dj-database-url==3.1.2
 gunicorn==23.0.0
 psycopg[binary]==3.3.4
-reportlab==4.5.1
+reportlab==5.0.0
 sentry-sdk[django]==2.66.1
 whitenoise==6.12.0
