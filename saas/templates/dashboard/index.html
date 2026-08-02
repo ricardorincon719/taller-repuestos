@@ -14,6 +14,25 @@
   <article><span>{% trans "Facturado" %}</span><strong>{{ metrics.total_invoiced|money:organization }}</strong></article>
   <article><span>{% trans "Por aprobar/facturar" %}</span><strong>{{ metrics.total_pending|money:organization }}</strong></article>
 </section>
+<section class="dashboard-grid">
+  <article class="panel plan-summary-card">
+    <div class="panel-heading"><div><p class="eyebrow">{% trans "Plan y pagos" %}</p><h2>{{ subscription.get_status_display }}</h2></div><a href="{% url 'billing-status' %}">{% trans "Ver detalles" %}</a></div>
+    <p class="plan-price">{{ public_plan_price_label }}</p>
+    {% if subscription.trial_ends_at %}<p class="muted">{% blocktrans with trial_date=subscription.trial_ends_at|date:"d/m/Y" %}Prueba disponible hasta el {{ trial_date }}.{% endblocktrans %}</p>{% endif %}
+    {% if subscription.current_period_ends_at %}<p class="muted">{% blocktrans with period_date=subscription.current_period_ends_at|date:"d/m/Y" %}Período actual hasta el {{ period_date }}.{% endblocktrans %}</p>{% endif %}
+    {% if subscription.cancel_at_period_end %}<p class="message warning">{% trans "La renovación está cancelada al final del período." %}</p>{% endif %}
+    <a class="secondary button-link" href="{% url 'billing-status' %}">{% trans "Ver plan y formas de pago" %}</a>
+  </article>
+  <article class="panel">
+    <p class="eyebrow">{% trans "Herramientas del negocio" %}</p>
+    <h2>{% trans "Todo a mano" %}</h2>
+    <div class="feature-links">
+      <a href="{% url 'customer-list' %}"><strong>{% trans "Clientes y vehículos" %}</strong><span>{% trans "Contactos e historial" %}</span></a>
+      <a href="{% url 'quote-list' %}"><strong>{% trans "Presupuestos y PDF" %}</strong><span>{% trans "Estados, enlaces y WhatsApp" %}</span></a>
+      {% if membership.can_manage_business %}<a href="{% url 'organization-profile' %}"><strong>{% trans "Documentos y cobro" %}</strong><span>{% trans "Logo, condiciones y formas de pago" %}</span></a><a href="{% url 'organization-team' %}"><strong>{% trans "Equipo" %}</strong><span>{% trans "Invitaciones y permisos" %}</span></a>{% endif %}
+    </div>
+  </article>
+</section>
 <section class="panel">
   <div class="panel-heading">
     <h2>{% trans "Actividad reciente" %}</h2>

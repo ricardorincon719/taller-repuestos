@@ -74,7 +74,7 @@ class OrganizationProfileForm(forms.ModelForm):
             "quote_prefix": _("Prefijo de documentos"),
             "default_quote_terms": _("Condiciones predeterminadas"),
             "default_warranty_text": _("Garantía predeterminada"),
-            "default_payment_terms": _("Condiciones de pago"),
+            "default_payment_terms": _("Formas y condiciones de pago"),
             "default_footer": _("Pie del documento"),
             "public_quote_valid_days": _("Vigencia del enlace público (días)"),
         }

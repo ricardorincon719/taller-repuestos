@@ -14,22 +14,52 @@
 <section class="panel">
   <div class="panel-heading">
     <div>
-      <h2>{% trans "Datos comerciales" %}</h2>
-      <p class="muted">{% trans "Esta información identifica tu negocio dentro del sistema y prepara los documentos que enviaremos a tus clientes." %}</p>
+      <h2>{% trans "Configuración del negocio" %}</h2>
+      <p class="muted">{% trans "Configura la identidad, la región y el contenido que verán tus clientes en cada documento." %}</p>
     </div>
   </div>
   {% if organization.has_logo %}<img class="business-logo-preview" src="{% url 'organization-logo' organization.pk %}" alt="Logo de {{ organization.name }}">{% endif %}
   <form method="post" enctype="multipart/form-data" class="stacked-form">
     {% csrf_token %}
     {{ form.non_field_errors }}
-    <div class="form-grid">
-      {% for field in form.visible_fields %}
-        <div class="field {% if field.name == 'name' or field.name == 'address' or field.name == 'language' %}wide{% endif %}">
-          {{ field.label_tag }}{{ field }}{{ field.errors }}
-          {% if field.help_text %}<small class="muted">{{ field.help_text }}</small>{% endif %}
-        </div>
-      {% endfor %}
-    </div>
+    <fieldset class="profile-section">
+      <legend>{% trans "Identidad y contacto" %}</legend>
+      <p class="muted">{% trans "Estos datos identifican al negocio en el panel, los enlaces públicos y los PDF." %}</p>
+      <div class="form-grid">
+        {% include "includes/form_field.html" with field=form.name wide=True %}
+        {% include "includes/form_field.html" with field=form.legal_name %}
+        {% include "includes/form_field.html" with field=form.business_type %}
+        {% include "includes/form_field.html" with field=form.email %}
+        {% include "includes/form_field.html" with field=form.phone %}
+        {% include "includes/form_field.html" with field=form.address wide=True %}
+        {% include "includes/form_field.html" with field=form.city %}
+        {% include "includes/form_field.html" with field=form.tax_id %}
+        {% include "includes/form_field.html" with field=form.logo %}
+        <div class="field checkbox-field"><label>{{ form.remove_logo }} {{ form.remove_logo.label }}</label>{{ form.remove_logo.errors }}</div>
+      </div>
+    </fieldset>
+    <fieldset class="profile-section">
+      <legend>{% trans "Región y formato" %}</legend>
+      <p class="muted">{% trans "Controla el idioma, la moneda y las fechas utilizadas por el negocio." %}</p>
+      <div class="form-grid">
+        {% include "includes/form_field.html" with field=form.language %}
+        {% include "includes/form_field.html" with field=form.country %}
+        {% include "includes/form_field.html" with field=form.currency %}
+        {% include "includes/form_field.html" with field=form.timezone %}
+      </div>
+    </fieldset>
+    <fieldset class="profile-section" id="documentos-cobro">
+      <legend>{% trans "Documentos y cobro" %}</legend>
+      <p class="muted">{% trans "Estos textos se incorporan al emitir el presupuesto y quedan conservados en su historial." %}</p>
+      <div class="form-grid">
+        {% include "includes/form_field.html" with field=form.quote_prefix %}
+        {% include "includes/form_field.html" with field=form.public_quote_valid_days %}
+        {% include "includes/form_field.html" with field=form.default_quote_terms wide=True %}
+        {% include "includes/form_field.html" with field=form.default_warranty_text wide=True %}
+        {% include "includes/form_field.html" with field=form.default_payment_terms wide=True %}
+        {% include "includes/form_field.html" with field=form.default_footer wide=True %}
+      </div>
+    </fieldset>
     <div class="actions">
       <a class="secondary" href="{% url 'dashboard' %}">{% trans "Cancelar" %}</a>
       {% if membership.is_owner %}<a href="{% url 'organization-export' %}">{% trans "Exportar datos" %}</a><a class="danger-link" href="{% url 'organization-delete' %}">{% trans "Eliminar negocio" %}</a>{% endif %}

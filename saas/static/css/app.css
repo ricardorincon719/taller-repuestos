@@ -72,6 +72,27 @@ button.danger {
   gap: .6rem;
   padding-left: 1.25rem;
 }
+.subscription-grid, .dashboard-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+.subscription-grid > div + div { border-left: 1px solid var(--line); padding-left: 1.5rem; }
+.plan-price { font-size: 1.35rem; font-weight: 800; color: var(--ink); }
+.payment-method-list { display: flex; flex-wrap: wrap; gap: .55rem; padding: 0; list-style: none; }
+.payment-method-list li { border: 1px solid #b9c2d0; border-radius: 999px; padding: .45rem .7rem; background: #f8fafc; font-size: .9rem; font-weight: 700; }
+.message.warning { background: #fffaeb; color: #93370d; }
+.message.info { background: #eff8ff; color: #175cd3; }
+.dashboard-grid { margin-bottom: 1.5rem; }
+.dashboard-grid .panel { margin-bottom: 0; }
+.feature-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
+.feature-links a { display: grid; gap: .2rem; border: 1px solid var(--line); border-radius: 10px; padding: .8rem; }
+.feature-links a:hover { border-color: var(--brand); text-decoration: none; }
+.feature-links span { color: var(--muted); font-size: .85rem; }
+.profile-section { border: 0; border-top: 1px solid var(--line); margin: 1rem 0 0; padding: 1.5rem 0 .5rem; }
+.profile-section legend { padding-right: .7rem; font-size: 1.15rem; font-weight: 800; }
+.profile-section > .muted { margin-top: -.4rem; }
+.checkbox-field { align-content: center; }
+.checkbox-field label { display: flex; align-items: center; gap: .55rem; }
+.checkbox-field input { width: auto; }
+.document-terms h3 { margin-bottom: .35rem; }
+.document-terms h3:not(:first-of-type) { margin-top: 1.2rem; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); }
 a { color: var(--brand); text-decoration: none; }
@@ -127,7 +148,8 @@ th { color: var(--muted); font-size: .78rem; text-transform: uppercase; }
   .topbar { align-items: flex-start; gap: .8rem; padding-top: 1rem; padding-bottom: 1rem; }
   .topbar nav { flex-wrap: wrap; justify-content: flex-end; gap: .65rem; }
   .container { margin-top: 1.5rem; }
-  .metrics, .detail-grid, .form-grid { grid-template-columns: 1fr; }
+  .metrics, .detail-grid, .form-grid, .subscription-grid, .dashboard-grid, .feature-links { grid-template-columns: 1fr; }
+  .subscription-grid > div + div { border-left: 0; border-top: 1px solid var(--line); padding: 1.5rem 0 0; }
   .field.wide { grid-column: auto; }
   .quote-items-heading { align-items: stretch; flex-direction: column; }
   .item-row { grid-template-columns: 1fr; }

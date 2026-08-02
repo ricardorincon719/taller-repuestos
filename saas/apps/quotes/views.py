@@ -323,6 +323,7 @@ def _quote_context(request, quote):
     can_manage = bool(membership and membership.can_manage_business)
     return {
         "quote": quote,
+        "organization": quote.organization,
         "public_url": public_url,
         "whatsapp_url": f"{whatsapp_base}?text={urlquote(message)}",
         "status_choices": [

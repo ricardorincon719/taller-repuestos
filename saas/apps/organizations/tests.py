@@ -71,6 +71,7 @@ class OrganizationProfileTests(TestCase):
         self.assertEqual(self.organization.language, Organization.Language.PORTUGUESE_BR)
         self.assertContains(response, "Perfil do negócio")
         self.assertContains(response, "Idioma do sistema")
+        self.assertContains(response, "Documentos e cobrança")
 
     def test_regular_member_cannot_edit_business_profile(self):
         self.organization.memberships.filter(user=self.user).update(
@@ -80,6 +81,18 @@ class OrganizationProfileTests(TestCase):
         response = self.client.get(reverse("organization-profile"))
 
         self.assertEqual(response.status_code, 403)
+
+    def test_profile_groups_document_and_payment_configuration(self):
+        self.organization.default_payment_terms = "50% al aprobar y 50% al entregar."
+        self.organization.save(update_fields=("default_payment_terms",))
+
+        response = self.client.get(reverse("organization-profile"))
+
+        self.assertContains(response, "Identidad y contacto")
+        self.assertContains(response, "Región y formato")
+        self.assertContains(response, "Documentos y cobro")
+        self.assertContains(response, "Formas y condiciones de pago")
+        self.assertContains(response, "50% al aprobar y 50% al entregar.")
 
 
 @override_settings(

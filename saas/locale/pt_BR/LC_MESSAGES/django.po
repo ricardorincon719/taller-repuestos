@@ -1370,3 +1370,117 @@ msgstr "Entidade e jurisdição"
 
 msgid "Estos términos se interpretan bajo la jurisdicción de %(jurisdiction)s, sin limitar los derechos obligatorios del consumidor que resulten aplicables."
 msgstr "Estes termos são interpretados sob a jurisdição de %(jurisdiction)s, sem limitar os direitos obrigatórios do consumidor que sejam aplicáveis."
+
+msgid "Clientes y vehículos"
+msgstr "Clientes e veículos"
+
+msgid "Cobro seguro"
+msgstr "Cobrança segura"
+
+msgid "Condiciones del documento emitido"
+msgstr "Condições do documento emitido"
+
+msgid "Condiciones que se aplicarán al emitir"
+msgstr "Condições que serão aplicadas ao emitir"
+
+msgid "Configura la identidad, la región y el contenido que verán tus clientes en cada documento."
+msgstr "Configure a identidade, a região e o conteúdo que seus clientes verão em cada documento."
+
+msgid "Configuración del negocio"
+msgstr "Configuração do negócio"
+
+msgid "Configurar"
+msgstr "Configurar"
+
+msgid "Contactos e historial"
+msgstr "Contatos e histórico"
+
+msgid "Controla el idioma, la moneda y las fechas utilizadas por el negocio."
+msgstr "Controla o idioma, a moeda e as datas utilizadas pelo negócio."
+
+msgid "Documentos y cobro"
+msgstr "Documentos e cobrança"
+
+msgid "Estados, enlaces y WhatsApp"
+msgstr "Status, links e WhatsApp"
+
+msgid "Este documento se emitió sin condiciones adicionales."
+msgstr "Este documento foi emitido sem condições adicionais."
+
+msgid "Estos datos identifican al negocio en el panel, los enlaces públicos y los PDF."
+msgstr "Estes dados identificam o negócio no painel, nos links públicos e nos PDFs."
+
+msgid "Estos son los medios habilitados por Paddle para el precio y el país configurados."
+msgstr "Estes são os meios habilitados pela Paddle para o preço e o país configurados."
+
+msgid "Estos textos se incorporan al emitir el presupuesto y quedan conservados en su historial."
+msgstr "Estes textos são incorporados ao emitir o orçamento e ficam preservados no histórico."
+
+msgid "Formas de pago disponibles"
+msgstr "Formas de pagamento disponíveis"
+
+msgid "Formas y condiciones de pago"
+msgstr "Formas e condições de pagamento"
+
+msgid "Herramientas del negocio"
+msgstr "Ferramentas do negócio"
+
+msgid "Identidad y contacto"
+msgstr "Identidade e contato"
+
+msgid "Invitaciones y permisos"
+msgstr "Convites e permissões"
+
+msgid "La renovación está cancelada al final del período."
+msgstr "A renovação está cancelada ao final do período."
+
+msgid "Logo, condiciones y formas de pago"
+msgstr "Logo, condições e formas de pagamento"
+
+msgid "Métodos locales según país y moneda"
+msgstr "Métodos locais conforme o país e a moeda"
+
+msgid "Paddle confirma automáticamente los medios habilitados para tu ubicación antes de cobrar."
+msgstr "A Paddle confirma automaticamente os meios habilitados para sua localização antes da cobrança."
+
+msgid "Paddle mostrará los medios exactos, la moneda, los impuestos y el total al abrir el pago."
+msgstr "A Paddle mostrará os meios exatos, a moeda, os impostos e o total ao abrir o pagamento."
+
+msgid "PayPal y billeteras digitales elegibles"
+msgstr "PayPal e carteiras digitais elegíveis"
+
+msgid "Período actual hasta el %(period_date)s."
+msgstr "Período atual até %(period_date)s."
+
+msgid "Plan y pagos"
+msgstr "Plano e pagamentos"
+
+msgid "Presupuestos y PDF"
+msgstr "Orçamentos e PDF"
+
+msgid "Prueba disponible hasta el %(trial_date)s."
+msgstr "Teste disponível até %(trial_date)s."
+
+msgid "Puedes consultar el plan y las formas de pago. Solo el propietario del negocio puede contratar, cambiar el medio de pago, descargar facturas o cancelar."
+msgstr "Você pode consultar o plano e as formas de pagamento. Somente o proprietário do negócio pode contratar, alterar o meio de pagamento, baixar faturas ou cancelar."
+
+msgid "Región y formato"
+msgstr "Região e formato"
+
+msgid "Tarjetas de crédito o débito"
+msgstr "Cartões de crédito ou débito"
+
+msgid "Todavía no hay condiciones predeterminadas para los nuevos documentos."
+msgstr "Ainda não há condições padrão para os novos documentos."
+
+msgid "Todo a mano"
+msgstr "Tudo à mão"
+
+msgid "Transferencia bancaria"
+msgstr "Transferência bancária"
+
+msgid "Ver detalles"
+msgstr "Ver detalhes"
+
+msgid "Ver plan y formas de pago"
+msgstr "Ver plano e formas de pagamento"

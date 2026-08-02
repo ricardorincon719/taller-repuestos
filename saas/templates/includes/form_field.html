@@ -1,0 +1,4 @@
+<div class="field{% if wide %} wide{% endif %}">
+  {{ field.label_tag }}{{ field }}{{ field.errors }}
+  {% if field.help_text %}<small class="muted">{{ field.help_text }}</small>{% endif %}
+</div>

@@ -14,10 +14,10 @@
     <p><strong>{% trans "Documento" %}:</strong> {{ customer.tax_id|default:"-" }}</p>
     {% if customer.address %}<p><strong>{% trans "Dirección" %}:</strong><br>{{ customer.address|linebreaksbr }}</p>{% endif %}
     {% if customer.notes %}<p><strong>{% trans "Notas" %}:</strong><br>{{ customer.notes|linebreaksbr }}</p>{% endif %}
-    <form method="post" action="{% url 'customer-archive' customer.pk %}">
+    {% if current_membership.can_manage_business %}<form method="post" action="{% url 'customer-archive' customer.pk %}">
       {% csrf_token %}
       <button class="secondary" type="submit">{% if customer.is_active %}{% trans "Archivar cliente" %}{% else %}{% trans "Reactivar cliente" %}{% endif %}</button>
-    </form>
+    </form>{% endif %}
   </article>
   <article class="panel">
     <div class="panel-heading"><h2>{% trans "Vehículos" %}</h2></div>
@@ -27,7 +27,7 @@
           <div><strong>{{ vehicle }}</strong><small>{{ vehicle.year|default:"" }}{% if not vehicle.is_active %} · {% trans "Archivado" %}{% endif %}</small></div>
           <div class="row-actions">
             <a href="{% url 'vehicle-update' vehicle.pk %}">{% trans "Editar" %}</a>
-            <form method="post" action="{% url 'vehicle-archive' vehicle.pk %}">{% csrf_token %}<button class="link-button inline-action" type="submit">{% if vehicle.is_active %}{% trans "Archivar" %}{% else %}{% trans "Reactivar" %}{% endif %}</button></form>
+            {% if current_membership.can_manage_business %}<form method="post" action="{% url 'vehicle-archive' vehicle.pk %}">{% csrf_token %}<button class="link-button inline-action" type="submit">{% if vehicle.is_active %}{% trans "Archivar" %}{% else %}{% trans "Reactivar" %}{% endif %}</button></form>{% endif %}
           </div>
         </div>
       {% endfor %}</div>

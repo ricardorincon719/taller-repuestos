@@ -72,6 +72,7 @@ def dashboard(request):
         {
             "organization": organization,
             "membership": membership,
+            "subscription": request.current_subscription,
             "metrics": metrics,
             "recent_quotes": quotes.select_related("customer", "vehicle")[:8],
         },

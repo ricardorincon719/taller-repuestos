@@ -276,6 +276,30 @@ class QuoteServiceTests(TestCase):
         self.assertNotContains(response, "Nombre Nuevo")
         self.assertNotContains(response, "Cliente Nuevo")
 
+    def test_internal_detail_exposes_payment_terms_and_preserves_issued_copy(self):
+        original_terms = "50% al aprobar y 50% contra entrega."
+        self.organization.default_payment_terms = original_terms
+        self.organization.save(update_fields=("default_payment_terms",))
+        quote = create_quote(
+            organization=self.organization,
+            customer=self.customer,
+            created_by=self.user,
+        )
+        self.client.force_login(self.user)
+
+        draft_response = self.client.get(reverse("quote-detail", args=(quote.pk,)))
+        self.assertContains(draft_response, "Condiciones que se aplicarán al emitir")
+        self.assertContains(draft_response, original_terms)
+
+        change_quote_status(quote=quote, new_status=Quote.Status.SENT, actor=self.user)
+        self.organization.default_payment_terms = "Pago completo inmediato."
+        self.organization.save(update_fields=("default_payment_terms",))
+        issued_response = self.client.get(reverse("quote-detail", args=(quote.pk,)))
+
+        self.assertContains(issued_response, "Condiciones del documento emitido")
+        self.assertContains(issued_response, original_terms)
+        self.assertNotContains(issued_response, "Pago completo inmediato.")
+
     def test_public_customer_can_approve_sent_quote_once(self):
         quote = create_quote(
             organization=self.organization,

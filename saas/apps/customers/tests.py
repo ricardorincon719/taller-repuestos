@@ -153,3 +153,24 @@ class CustomerViewsTests(TestCase):
 
         self.assertEqual(response.status_code, 404)
         self.assertFalse(Vehicle.objects.exists())
+
+    def test_regular_member_does_not_see_management_only_actions(self):
+        customer = Customer.objects.create(
+            organization=self.organization, name="Cliente Colaborador"
+        )
+        vehicle = Vehicle.objects.create(
+            organization=self.organization,
+            customer=customer,
+            license_plate="MEM1234",
+        )
+        self.organization.memberships.filter(user=self.user).update(
+            role=Membership.Role.MEMBER
+        )
+
+        response = self.client.get(reverse("customer-detail", args=(customer.pk,)))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, reverse("customer-archive", args=(customer.pk,)))
+        self.assertNotContains(response, reverse("vehicle-archive", args=(vehicle.pk,)))
+        self.assertNotContains(response, reverse("organization-profile"))
+        self.assertNotContains(response, reverse("organization-team"))

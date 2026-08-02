@@ -43,14 +43,19 @@ class DashboardTests(TestCase):
         self.assertContains(response, "Página no encontrada", status_code=404)
         self.assertContains(response, "Volver al inicio", status_code=404)
 
-    def test_dashboard_uses_users_organization(self):
+    @override_settings(PUBLIC_PLAN_PRICE_LABEL="US$ 19,99 por mes")
+    def test_dashboard_uses_users_organization_and_exposes_main_tools(self):
         user = get_user_model().objects.create_user(
             email="owner@example.com", password="strong-password"
         )
         organization = Organization.objects.create(
             name="Taller Principal", slug="taller-principal"
         )
-        Membership.objects.create(user=user, organization=organization)
+        Membership.objects.create(
+            user=user,
+            organization=organization,
+            role=Membership.Role.OWNER,
+        )
         Subscription.objects.create(
             organization=organization,
             status=Subscription.Status.ACTIVE,
@@ -61,6 +66,11 @@ class DashboardTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, organization.name)
+        self.assertContains(response, "Plan y pagos")
+        self.assertContains(response, "US$ 19,99 por mes")
+        self.assertContains(response, "Ver plan y formas de pago")
+        self.assertContains(response, "Documentos y cobro")
+        self.assertContains(response, reverse("billing-status"))
 
 
 class HealthCheckTests(TestCase):
@@ -124,5 +134,13 @@ class BrowserSmokeTests(StaticLiveServerTestCase):
                 self.assertEqual(page.locator("h1").inner_text(), "Clientes")
                 page.goto(f"{self.live_server_url}{reverse('quote-create')}")
                 self.assertTrue(page.locator("#quote-items").is_visible())
+                page.goto(f"{self.live_server_url}{reverse('billing-status')}")
+                self.assertEqual(page.locator("h1").inner_text(), "Plan y pagos")
+                self.assertIn(
+                    "Formas de pago disponibles", page.locator("body").inner_text()
+                )
+                page.goto(f"{self.live_server_url}{reverse('organization-profile')}")
+                self.assertIn("Documentos y cobro", page.locator("body").inner_text())
+                self.assertTrue(page.locator("#id_default_payment_terms").is_visible())
             finally:
                 browser.close()

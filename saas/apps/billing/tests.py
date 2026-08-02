@@ -188,6 +188,7 @@ class BillingPortalTests(TestCase):
         PADDLE_ENVIRONMENT="sandbox",
         PADDLE_CLIENT_TOKEN="test_client_token",
         PADDLE_PROFESSIONAL_PRICE_ID="pri_test",
+        PUBLIC_PLAN_PRICE_LABEL="US$ 19,99 por mes",
     )
     def test_owner_can_subscribe_during_trial(self):
         subscription = self.owner.organization_memberships.get().organization.subscription
@@ -200,4 +201,33 @@ class BillingPortalTests(TestCase):
         response = self.client.get(reverse("billing-status"))
 
         self.assertContains(response, "Contratar Taller Pro")
+        self.assertContains(response, "Formas de pago disponibles")
+        self.assertContains(response, "US$ 19,99 por mes")
+        self.assertContains(response, "Paddle.PricePreview")
         self.assertContains(response, "pri_test")
+
+    @override_settings(
+        PADDLE_ENABLED=True,
+        PADDLE_ENVIRONMENT="sandbox",
+        PADDLE_CLIENT_TOKEN="test_client_token",
+        PADDLE_PROFESSIONAL_PRICE_ID="pri_test",
+    )
+    def test_member_can_review_payment_options_but_not_manage_billing(self):
+        organization = self.owner.organization_memberships.get().organization
+        member = get_user_model().objects.create_user(
+            email="member-billing@example.com", password="strong-password"
+        )
+        Membership.objects.create(
+            user=member,
+            organization=organization,
+            role=Membership.Role.MEMBER,
+        )
+        self.client.force_login(member)
+
+        response = self.client.get(reverse("billing-status"))
+
+        self.assertContains(response, "Formas de pago disponibles")
+        self.assertContains(response, "Solo el propietario del negocio puede contratar")
+        self.assertContains(response, "Paddle.PricePreview")
+        self.assertNotContains(response, 'id="paddle-checkout"')
+        self.assertNotContains(response, f'action="{reverse("billing-portal")}"')

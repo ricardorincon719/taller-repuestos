@@ -44,6 +44,11 @@ def billing_status(request):
             "paddle_client_token": settings.PADDLE_CLIENT_TOKEN,
             "paddle_price_id": price_id,
             "paddle_locale": "pt" if membership.organization.language == "pt-br" else "es",
+            "paddle_preview_enabled": bool(
+                settings.PADDLE_ENABLED
+                and settings.PADDLE_CLIENT_TOKEN
+                and price_id
+            ),
             "can_checkout": bool(
                 settings.PADDLE_ENABLED
                 and price_id
