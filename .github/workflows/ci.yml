@@ -31,7 +31,7 @@ jobs:
       DEFAULT_FROM_EMAIL: Taller Pro <test@example.com>
       PADDLE_ENABLED: "false"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -62,7 +62,7 @@ jobs:
       PADDLE_ENABLED: "false"
       RUN_BROWSER_TESTS: "true"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
