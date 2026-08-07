@@ -8,7 +8,7 @@ services:
     dockerContext: .
     healthCheckPath: /health/
     preDeployCommand: python manage.py migrate --noinput
-    autoDeployTrigger: checksPass
+    autoDeployTrigger: commit
     envVars:
       - key: DJANGO_SECRET_KEY
         generateValue: true
