@@ -59,7 +59,7 @@ services:
       - key: LEGAL_ENTITY_ADDRESS
         value: Rua Boaventura de Souza 50, sobrado, Caraguatatuba, SP, 11670-140, Brasil
       - key: LEGAL_CONTACT_EMAIL
-        value: suporte.tallerpro@gmail.com
+        value: soporte.tallerpro@gmail.com
       - key: LEGAL_JURISDICTION
         value: Brasil, Estado de São Paulo
       - key: PUBLIC_PLAN_PRICE_LABEL
@@ -118,7 +118,7 @@ services:
       - key: LEGAL_ENTITY_ADDRESS
         value: Rua Boaventura de Souza 50, sobrado, Caraguatatuba, SP, 11670-140, Brasil
       - key: LEGAL_CONTACT_EMAIL
-        value: suporte.tallerpro@gmail.com
+        value: soporte.tallerpro@gmail.com
       - key: LEGAL_JURISDICTION
         value: Brasil, Estado de São Paulo
       - key: SENTRY_DSN
