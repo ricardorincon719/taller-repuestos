@@ -227,7 +227,7 @@ LEGAL_DOCUMENT_VERSION = os.environ.get("LEGAL_DOCUMENT_VERSION", "2026-08-02")
 LEGAL_ENTITY_NAME = os.environ.get("LEGAL_ENTITY_NAME", "Taller Pro")
 LEGAL_ENTITY_ADDRESS = os.environ.get("LEGAL_ENTITY_ADDRESS", "")
 LEGAL_CONTACT_EMAIL = os.environ.get(
-    "LEGAL_CONTACT_EMAIL", "contacto@pearlhome.com.br"
+    "LEGAL_CONTACT_EMAIL", "soporte.tallerpro@gmail.com"
 )
 LEGAL_JURISDICTION = os.environ.get("LEGAL_JURISDICTION", "Brasil")
 PUBLIC_PLAN_PRICE_LABEL = os.environ.get(
