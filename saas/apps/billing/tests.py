@@ -116,6 +116,21 @@ class PaddleWebhookTests(TestCase):
             verify_paddle_signature(body, f"ts={timestamp};h1={digest}")
         )
 
+    def test_canonical_and_legacy_routes_reach_webhook_handler(self):
+        canonical_url = reverse("paddle-webhook")
+        legacy_url = reverse("paddle-webhook-legacy")
+
+        self.assertEqual(canonical_url, "/suscripcion/webhook/paddle/")
+        self.assertEqual(legacy_url, "/suscripcion/webhooks/paddle/")
+        for url in (canonical_url, legacy_url):
+            response = self.client.post(
+                url,
+                data=b"{}",
+                content_type="application/json",
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertJSONEqual(response.content, {"error": "invalid signature"})
+
     def test_processing_is_idempotent_and_maps_subscription(self):
         body = json.dumps(self.payload()).encode()
 
