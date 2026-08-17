@@ -87,7 +87,7 @@ services:
     schedule: "15 3 * * *"
     dockerfilePath: ./Dockerfile.saas
     dockerContext: .
-    dockerCommand: sh -c "python manage.py send_billing_reminders && python manage.py cleanup_security_data && python manage.py purge_scheduled_organizations"
+    dockerCommand: sh run_maintenance.sh
     envVars:
       - key: DJANGO_SECRET_KEY
         generateValue: true
